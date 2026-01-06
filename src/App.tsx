@@ -1,13 +1,12 @@
-import SplashPage from "./pages/SplashPage";
+import Onboarding from "./pages/Onboarding/Onboarding";
 
 function App() {
   return (
-    <div className="min-h-dvh w-full bg-black/10 flex justify-center">
-      <div className="w-full max-w-[390px] bg-white">
-        <SplashPage />
+    <div className="min-h-screen flex justify-center">
+      <div className="w-[375px] min-h-screen flex justify-center">
+        <Onboarding></Onboarding>
       </div>
     </div>
-  );
-}
-
+  )
+};
 export default App;
