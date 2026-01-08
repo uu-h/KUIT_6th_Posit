@@ -16,18 +16,28 @@
   --color-neutrals-06: #b0b0b0;
   --color-neutrals-07: #717171;
   --color-neutrals-08: #5e5e5e;
+  --color-neutrals-09: #505050;
+
+  /* ───────── Coral ───────── */
+  --color-corals-000: #fff1f0;
+  --color-corals-100: #ffcac5;
+  --color-corals-200: #ffa299;
+  --color-corals-400: #e2655a;
+  --color-corals-500: #c55248;
+  --color-corals-600: #a84138;
 
   /* ───────── Primary ───────── */
   --color-primary-01: #ff7a6e;
 
   /* ───────── Gradient ───────── */
-  --gradient-primary: linear-gradient(
-    to bottom,
-    #ff7a6e 0%,
-    #ffd166 100%
+  --gradient-primary: linear-gradient(to bottom, #ff7a6e 0%, #ffd166 100%);
+  --gradient-radial: radial-gradient(
+    73.63% 38.33% at 50% 54.31%,
+    rgba(255, 122, 110, 0.75) 0%,
+    rgba(255, 255, 255, 0.75) 100%
   );
 
-    /* ───────── Font Family ───────── */
+  /* ───────── Font Family ───────── */
   --font-sans: Pretendard, system-ui, sans-serif;
 
   /* ───────── Typography ───────── */
@@ -96,7 +106,6 @@
   --typo-body-12-regular-size: 12px;
   --typo-body-12-regular-line: 14.4px; /* 120% */
   --typo-body-12-regular-weight: 400;
-
 }
 
 @layer utilities {
@@ -177,7 +186,6 @@
     line-height: var(--typo-body-12-regular-line);
     font-weight: var(--typo-body-12-regular-weight);
   }
-
 }
 
 @layer base {
@@ -202,4 +210,23 @@
       transform: translateY(0);
     }
   }
+}
+
+/* 스플래쉬 화면 (순차적 등장)*/
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.anim-fade-up {
+  opacity: 0;
+  animation-name: fade;
+  animation-duration: 300ms;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
 }
