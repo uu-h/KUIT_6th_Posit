@@ -4,8 +4,15 @@ import NaverIcon from "../../public/Naver.svg";
 import CallIcon from "../../public/Call.svg";
 import ToggleOffIcon from "../../public/toggle_off.svg";
 import LeftArrowIcon from "../../public/left_arrow.svg";
+import ToggleOnIcon from "../../public/toggle_on.svg";
+
+import { useState } from "react";
+
 
 export default function LoginPage() {
+
+  const [autoLogin, setAutoLogin] = useState(false);
+
   return (
     <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px]">
 
@@ -48,21 +55,26 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-[20px] flex items-center justify-between">
-        <div className="flex items-center gap-[8px]">
+        <button
+          type="button"
+          onClick={() => setAutoLogin(prev => !prev)}
+          className="flex items-center gap-[8px]"
+        >
           <img
-            src={ToggleOffIcon}
-            alt="자동 로그인 비활성화"
+            src={autoLogin ? ToggleOnIcon : ToggleOffIcon}
+            alt={autoLogin ? "자동 로그인 활성화" : "자동 로그인 비활성화"}
             className="h-[27px] w-[50px]"
           />
           <span className="typo-13-regular text-shades-02">
             자동 로그인
           </span>
-        </div>
+        </button>
 
         <button className="typo-13-regular text-shades-02">
           ID/PASS 찾기
         </button>
       </div>
+
 
       {/* 로그인 버튼 */}
       <button
