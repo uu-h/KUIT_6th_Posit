@@ -1,7 +1,3 @@
-import KakaoIcon from "../../public/Kakao.svg";
-import GoogleIcon from "../../public/Google.svg";
-import NaverIcon from "../../public/Naver.svg";
-import CallIcon from "../../public/Call.svg";
 import ToggleOffIcon from "../../public/toggle_off.svg";
 import LeftArrowIcon from "../../public/left_arrow.svg";
 import ToggleOnIcon from "../../public/toggle_on.svg";
