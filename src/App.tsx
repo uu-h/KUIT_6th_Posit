@@ -1,6 +1,6 @@
 // import Onboarding from "./pages/Onboarding/Onboarding";
 import SplashPage from "./pages/SplashPage";
-import GuestLoginPage from "./pages/GuestLoginPage";
+import GuestLoginPage from "./pages/Login/GuestLoginPage";
 
 
 function App() {
