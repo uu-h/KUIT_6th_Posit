@@ -9,7 +9,7 @@ import ToggleOnIcon from "../../public/toggle_on.svg";
 import { useState } from "react";
 
 
-export default function LoginPage() {
+export default function GuestLoginPage() {
 
   const [autoLogin, setAutoLogin] = useState(false);
 

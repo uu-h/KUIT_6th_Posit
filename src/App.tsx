@@ -1,6 +1,6 @@
 // import Onboarding from "./pages/Onboarding/Onboarding";
 import SplashPage from "./pages/SplashPage";
-import LoginPage from "./pages/LoginPage";
+import GuestLoginPage from "./pages/GuestLoginPage";
 
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
       <div className="w-[375px] min-h-screen flex justify-center">
         {/* <Onboarding></Onboarding> */}
         {/*<SplashPage></SplashPage>*/}
-        <LoginPage></LoginPage>
+        <GuestLoginPage></GuestLoginPage>
       </div>
     </div>
   );
