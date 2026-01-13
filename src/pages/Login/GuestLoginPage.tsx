@@ -74,7 +74,7 @@ export default function GuestLoginPage() {
 
       {/* 로그인 버튼 */}
       <button
-        className="
+        className=" 
           mt-[32px]
           w-full
           h-[51px]

@@ -2,6 +2,7 @@
 import SplashPage from "./pages/SplashPage";
 import GuestLoginPage from "./pages/Login/GuestLoginPage";
 import OwnerLoginPage from "./pages/Login/OwnerLoginPage";
+import GuestSignUpPage from "./pages/SignUp/GuestSignUpPage";
 
 
 function App() {
@@ -11,7 +12,8 @@ function App() {
         {/* <Onboarding></Onboarding> */}
         {/*<SplashPage></SplashPage>*/}
         {/*<GuestLoginPage></GuestLoginPage>*/}
-        <OwnerLoginPage></OwnerLoginPage>
+        {/*<OwnerLoginPage></OwnerLoginPage>*/}
+        <GuestSignUpPage></GuestSignUpPage>
       </div>
     </div>
   );
