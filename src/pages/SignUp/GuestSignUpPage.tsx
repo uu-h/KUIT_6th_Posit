@@ -5,10 +5,11 @@ import { useState } from "react";
 
 export default function GuestSignUpPage() {
     
-const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
+//내국인, 외국인
+const [nationality, setNationality] = useState<"domestic" | "foreign">("domestic");
 
 //아이디
-const [nationality, setNationality] = useState<"domestic" | "foreign">("domestic");
+const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
 const [username, setUsername] = useState("");
 const [isValid, setIsValid] = useState(true);
 
@@ -31,6 +32,7 @@ const [isPhoneValid, setIsPhoneValid] = useState(true);
 const authCodeRegex = /^\d{6}$/; //일단 6자리로 해놓음
 const [authCode, setAuthCode] = useState("");
 const [isAuthCodeValid, setIsAuthCodeValid] = useState(true);
+
 
 
 return (
