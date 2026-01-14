@@ -88,11 +88,11 @@ export default function GuestLoginPage() {
         로그인
       </button>
 
-      <div className="mt-[24px] flex justify-center gap-[26px]">
-        <span className="typo-14-regular text-neutrals-06">
+      <div className="mt-[24px] flex items-center justify-center gap-[26px]">
+        <span className="typo-16-medium text-neutrals-06">
           아직 회원이 아니신가요?
         </span>
-        <button className="typo-14-medium text-neutrals-09">
+        <button className="typo-16-bold text-neutrals-08">
           간편 회원가입
         </button>
       </div>

@@ -11,8 +11,8 @@ function App() {
       <div className="w-[375px] min-h-screen flex justify-center">
         {/* <Onboarding></Onboarding> */}
         {/*<SplashPage></SplashPage>*/}
-        {/*<GuestLoginPage></GuestLoginPage>*/}
-         <OwnerLoginPage></OwnerLoginPage>
+        <GuestLoginPage></GuestLoginPage>
+         {/*<OwnerLoginPage></OwnerLoginPage>*/}
         {/*<GuestSignUpPage></GuestSignUpPage>*/}
       </div>
     </div>
