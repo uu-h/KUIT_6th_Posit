@@ -3,6 +3,7 @@ import SplashPage from "./pages/SplashPage";
 import GuestLoginPage from "./pages/Login/GuestLoginPage";
 import OwnerLoginPage from "./pages/Login/OwnerLoginPage";
 import GuestSignUpPage from "./pages/SignUp/GuestSignUpPage";
+import OwnerSignUpPage from "./pages/SignUp/OwnerSIgnUpPage";
 
 
 function App() {
@@ -13,7 +14,8 @@ function App() {
         {/*<SplashPage></SplashPage>*/}
         {/*<GuestLoginPage></GuestLoginPage>*/}
         {/*<OwnerLoginPage></OwnerLoginPage>*/}
-        <GuestSignUpPage></GuestSignUpPage>
+        {/*<GuestSignUpPage></GuestSignUpPage>*/}
+        <OwnerSignUpPage></OwnerSignUpPage>
       </div>
     </div>
   );
