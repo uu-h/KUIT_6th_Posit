@@ -12,8 +12,8 @@ function App() {
         {/* <Onboarding></Onboarding> */}
         {/*<SplashPage></SplashPage>*/}
         {/*<GuestLoginPage></GuestLoginPage>*/}
-        {/*<OwnerLoginPage></OwnerLoginPage>*/}
-        <GuestSignUpPage></GuestSignUpPage>
+         <OwnerLoginPage></OwnerLoginPage>
+        {/*<GuestSignUpPage></GuestSignUpPage>*/}
       </div>
     </div>
   );
