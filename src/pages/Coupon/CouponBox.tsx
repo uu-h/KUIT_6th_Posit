@@ -1,66 +1,100 @@
-import CouponCard from "./components/CouponCard";
 import { useState } from "react";
+import CouponCard from "../../components/Guest/Coupon/CouponCard";
+import UsedToggleButton from "../../components/Guest/Coupon/UsedToggleButton";
 import BottomBar from "../../components/BottomBar";
 
-const couponsData = [
-  { brand: "테라커피", menu: "아이스 아메리카노 1잔 무료", expiration: "2025.12.19까지", brandImg: "src/assets/Guest/Coupon/TerraCoffee.svg" },
-  { brand: "카페 레이지아워", menu: "아이스 아메리카노 1잔 무료", expiration: "2026.02.24까지", brandImg: "src/assets/Guest/Coupon/LazyHour.svg" },
-  { brand: "카페 언필드", menu: "아이스 아메리카노 1잔 무료", expiration: "2026.05.26까지", brandImg: "src/assets/Guest/Coupon/CafeUnfield.svg" },
-  { brand: "도우터", menu: "아이스 아메리카노 1잔 무료", expiration: "2025.11.30까지", brandImg: "src/assets/Guest/Coupon/CafeDaughter.svg" },
+/* =======================
+   타입
+======================= */
+interface Coupon {
+  id: number;
+  brand: string;
+  menu: string;
+  expiration: string;
+  brandImg: string;
+  isUsed: boolean;
+}
+
+/* =======================
+   임시 데이터 (나중에 API로 대체)
+======================= */
+const COUPONS: Coupon[] = [
+  {
+    id: 1,
+    brand: "테라커피",
+    menu: "아이스 아메리카노 1잔 무료",
+    expiration: "2025.12.19까지",
+    brandImg: "src/assets/Guest/Coupon/TerraCoffee.svg",
+    isUsed: true,
+  },
+  {
+    id: 2,
+    brand: "카페 레이지아워",
+    menu: "아이스 아메리카노 1잔 무료",
+    expiration: "2026.02.24까지",
+    brandImg: "src/assets/Guest/Coupon/LazyHour.svg",
+    isUsed: true,
+  },
+  {
+    id: 3,
+    brand: "카페 언필드",
+    menu: "아이스 아메리카노 1잔 무료",
+    expiration: "2026.05.26까지",
+    brandImg: "src/assets/Guest/Coupon/CafeUnfield.svg",
+    isUsed: false,
+  },
+  {
+    id: 4,
+    brand: "카페 도우터",
+    menu: "아이스 아메리카노 1잔 무료",
+    expiration: "2025.11.30까지",
+    brandImg: "src/assets/Guest/Coupon/CafeDaughter.svg",
+    isUsed: false,
+  },
 ];
 
+/* =======================
+   페이지
+======================= */
 export default function CouponBox() {
-  const [selectedTab, setSelectedTab] = useState<"available" | "used">("available");
+  const [selectedTab, setSelectedTab] =
+    useState<"available" | "used">("available");
+
+  const [coupons, setCoupons] = useState<Coupon[]>(COUPONS);
+
+  const availableCount = coupons.filter(c => !c.isUsed).length;
+  const usedCount = coupons.filter(c => c.isUsed).length;
+
+  const filteredCoupons = coupons.filter(c =>
+    selectedTab === "available" ? !c.isUsed : c.isUsed
+  );
 
   return (
-    <div className="h-full w-full flex flex-col mt-[22px]">
-      <header className="flex flex-col gap-[26px] px-[16px]">
-        <div className="flex items-start justify-start gap-[12px]">
-          <img src="src/assets/Guest/Coupon/LeftArrow.svg" alt="왼쪽 화살표" />
-          <h1 className="typo-sub-title">쿠폰함</h1>
-        </div>
+    <div className="h-screen w-full flex flex-col overflow-hidden bg-white">
+      {/* 헤더 */}
+      <header className="flex gap-[12px] px-[16px] mt-[22px]">
+        <img src="src/assets/Guest/Coupon/LeftArrow.svg" alt="" />
+        <h1 className="typo-sub-title">쿠폰함</h1>
       </header>
 
-      <div className="flex pt-[58px]">
-        <button
-          onClick={() => setSelectedTab("available")}
-          className={` 
-            w-[187px] h-[36px]
-            flex flex-col items-center
-            ${selectedTab === "available" ? "border-b-2 border-black" : "border-b-1 border-[#717171] text-neutrals-06"}
-          `}
-        >
-          <span className="typo-16-semibold">사용가능 4</span>
+      {/* 탭 */}
+      <UsedToggleButton
+        selectedTab={selectedTab}
+        onChange={setSelectedTab}
+        availableCount={availableCount}
+        usedCount={usedCount}
+      />
 
-        </button>
-        <button
-          onClick={() => setSelectedTab("used")}
-          className={`
-            w-[187px] h-[36px]
-            flex flex-col items-center
-            ${selectedTab === "used" ? "border-b-2 border-black" : "border-b-1 border-[#717171] text-neutrals-06"}
-          `}
-        >
-          <span className="typo-16-semibold">사용완료 4</span>
-        </button>
-    </div>
-
-    <div className="overflow-y-auto pt-[57px] pb-[177px] scrollbar-hide">
-        <div className="flex flex-col gap-[37px] items-center">
-          {couponsData.map((coupon, idx) => (
-            <CouponCard
-              key={idx}
-              brand={coupon.brand}
-              menu={coupon.menu}
-              expiration={coupon.expiration}
-              brandImg={coupon.brandImg}
-              selectedTab={selectedTab}
-            />
+      {/* 쿠폰 리스트 */}
+      <div className="flex-1 overflow-y-auto pt-[57px] pb-[177px] no-scrollbar">
+        <div className="flex flex-col gap-[37px] items-center px-[4px]">
+          {filteredCoupons.map(coupon => (
+            <CouponCard key={coupon.id} {...coupon} />
           ))}
         </div>
       </div>
 
-      <BottomBar active="coupon" onChange={(key) => console.log(key)} />
+      <BottomBar active="coupon" onChange={() => {}} />
     </div>
   );
 }

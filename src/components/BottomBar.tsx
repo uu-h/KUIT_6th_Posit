@@ -16,7 +16,7 @@ export default function BottomBar({ active, onChange }: BottomBarProps) {
   ];
 
   return (
-    <nav className="absolute bottom-0 bg-corals-000 w-[375px] flex justify-center gap-[35px] items-center h-[92px] z-50">
+    <nav className="fixed bottom-0 bg-corals-000 w-[375px] flex justify-center gap-[35px] items-center h-[92px] z-50">
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         const isHovered = hovered === tab.key;
