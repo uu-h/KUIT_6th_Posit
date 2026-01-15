@@ -351,3 +351,13 @@
   animation-timing-function: ease-in;
   animation-fill-mode: forwards;
 }
+
+/* 스크롤바 숨김 */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge(legacy) */
+  scrollbar-width: none; /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
