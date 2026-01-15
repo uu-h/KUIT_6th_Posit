@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
+import BottomBar from "../../components/BottomBar";
 
 export default function CouponPage() {
   const [step, setStep] = useState<"coupon" | "verify">("coupon");
@@ -9,31 +10,15 @@ export default function CouponPage() {
 
   const CORRECT_CODE = "1234"; // 임시 비밀번호
 
-  // 코드 입력 시 자동 검증
-  useEffect(() => {
-    if (code.length === 4) {
-      if (code === CORRECT_CODE) {
-        setUsed(true);
-        setStep("coupon");
-        setCode("");
-        setIsError(false);
-      } else {
-        setIsError(true);
-      }
-    } else if (isError) {
-      setIsError(false); // 입력 도중 다시 빨강 제거
-    }
-  }, [code]);
-
   return (
     <div className="min-h-screen w-full flex flex-col mt-[22px] px-[16px]">
       {/* 쿠폰 화면 */}
       {step === "coupon" && (
-        <div className="flex flex-col gap-[26px]">
-          <div className="flex items-start justify-start gap-[12px]">
-            <img src="src/assets/Guest/Cupon/LeftArrow.svg" alt="왼쪽 화살표" />
+        <header className="flex flex-col gap-[26px]">
+          <header className="flex items-start justify-start gap-[12px]">
+            <img src="src/assets/Guest/Coupon/LeftArrow.svg" alt="왼쪽 화살표" />
             <h1 className="typo-sub-title">쿠폰</h1>
-          </div>
+          </header>
 
           <div className="h-[62px] pt-[4px]">
             <h1 className="text-[24px] font-semibold leading-[130%]">
@@ -46,7 +31,7 @@ export default function CouponPage() {
           </div>
 
           <div className="w-[343px] h-[370px] flex flex-col rounded-[16px] overflow-hidden shadow-[0_0_5px_0_rgba(0,0,0,0.25)]">
-            <div className="h-[225px]"><img src="https://placehold.co/343x225" alt="" /></div>
+            <div className="h-[225px]"><img src="src/assets/Guest/Coupon/Coffee.png" alt="쿠폰 이미지" /></div>
             <div className="flex-1 flex flex-col items-center justify-center gap-[14px]">
               <h3 className="text-[16px] font-semibold text-neutrals-09">아메리카노 1잔 무료 쿠폰</h3>
               <button
@@ -63,6 +48,7 @@ export default function CouponPage() {
                 {used ? "사용완료" : "사용하기"}
               </button>
             </div>
+            <BottomBar active="coupon" onChange={(key) => console.log(key)} />
           </div>
 
           <section
@@ -79,26 +65,20 @@ export default function CouponPage() {
             <div><span>유효기간</span><span>2025년 11월 24일</span></div>
             <div><span>쿠폰 사용처</span><span>카페 레이지아워</span></div>
           </section>
-        </div>
+        </header>
       )}
 
       {/* 인증 화면 */}
       {step === "verify" && (
-        <div className="flex flex-col gap-[32px] relative">
+        <div className="flex flex-col gap-[26px] relative">
         
-            <div className="flex items-start justify-start">
+            <header className="flex items-start justify-start">
                 <img
-                    src="src/assets/Guest/Cupon/LeftArrow.svg"
+                    src="src/assets/Guest/Coupon/LeftArrow.svg"
                     alt="뒤로가기"
-                    onClick={() => {
-                        setStep("coupon");   // 쿠폰 화면으로 돌아가기
-                        setCode("");         // 입력만 초기화
-                        setIsError(false);   // 빨강 에러 제거
-    // setUsed(false) 제거! 이미 사용된 쿠폰은 그대로 유지
-                    }}
                     className="cursor-pointer"
                 />
-            </div>
+            </header>
 
             <div className="h-[62px] pt-[4px] flex flex-col gap-[16px]">
                 <h1 className="text-[24px] font-semibold leading-[130%]">사용할 때<br />점원에게 보여주세요.</h1>
@@ -113,12 +93,25 @@ export default function CouponPage() {
             maxLength={4}
             value={code}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^0-9]/g, "");
-              setCode(value);
+            const value = e.target.value.replace(/[^0-9]/g, "");
+            setCode(value);
+
+            if (value.length === 4) {
+              if (value === CORRECT_CODE) {
+                setUsed(true);
+                setStep("coupon");
+                setCode("");
+                setIsError(false);
+              } else {
+                setIsError(true);
+              }
+              } else {
+                setIsError(false);
+              }
             }}
-            autoFocus
-            className="absolute opacity-0 w-full h-full cursor-default"
-            style={{ caretColor: 'transparent' }}
+              autoFocus
+              className="absolute opacity-0 w-full h-full cursor-default"
+              style={{ caretColor: 'transparent' }}
           />
 
           <div 
@@ -143,7 +136,7 @@ export default function CouponPage() {
               );
             })}
           </div>
-        </div>
+        </div> 
       )}
     </div>
   );
