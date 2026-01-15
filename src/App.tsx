@@ -1,10 +1,11 @@
 // import Onboarding from "./pages/Onboarding/Onboarding";
-import SplashPage from "./pages/SplashPage";
-import GuestLoginPage from "./pages/Login/GuestLoginPage";
-import OwnerLoginPage from "./pages/Login/OwnerLoginPage";
-import GuestSignUpPage from "./pages/SignUp/GuestSignUpPage";
-import OwnerSignUpPage from "./pages/SignUp/OwnerSIgnUpPage";
-
+// import SplashPage from "./pages/SplashPage";
+// import GuestLoginPage from "./pages/Login/GuestLoginPage";
+// import OwnerLoginPage from "./pages/Login/OwnerLoginPage";
+// import GuestSignUpPage from "./pages/SignUp/GuestSignUpPage";
+// import OwnerSignUpPage from "./pages/SignUp/OwnerSIgnUpPage";
+// import CuponBox from "./pages/Cupon/CuponBox";
+// import CouponPage from "./pages/Cupon/CuponPage";
 
 function App() {
   return (
@@ -15,7 +16,9 @@ function App() {
         {/*<GuestLoginPage></GuestLoginPage>*/}
         {/*<OwnerLoginPage></OwnerLoginPage>*/}
         {/*<GuestSignUpPage></GuestSignUpPage>*/}
-        <OwnerSignUpPage></OwnerSignUpPage>
+        {/* <OwnerSignUpPage></OwnerSignUpPage> */}
+        {/* <CouponPage></CouponPage> */}
+        {/*<LoginPage></LoginPage>*/}
       </div>
     </div>
   );
