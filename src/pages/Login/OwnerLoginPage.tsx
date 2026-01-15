@@ -1,15 +1,11 @@
-import KakaoIcon from "../../public/Kakao.svg";
-import GoogleIcon from "../../public/Google.svg";
-import NaverIcon from "../../public/Naver.svg";
-import CallIcon from "../../public/Call.svg";
-import ToggleOffIcon from "../../public/toggle_off.svg";
-import LeftArrowIcon from "../../public/left_arrow.svg";
-import ToggleOnIcon from "../../public/toggle_on.svg";
+import ToggleOffIcon from "../../../public/toggle_off.svg";
+import LeftArrowIcon from "../../../public/left_arrow.svg";
+import ToggleOnIcon from "../../../public/toggle_on.svg";
 
 import { useState } from "react";
 
 
-export default function LoginPage() {
+export default function OwnerLoginPage() {
 
   const [autoLogin, setAutoLogin] = useState(false);
 
@@ -22,12 +18,12 @@ export default function LoginPage() {
           <img
             src={LeftArrowIcon}
             alt="뒤로가기"
-            className="h-[12.73px] w-[20px]"
+            className="h-[24px] w-[24px]"
           />
         </button>
 
         <h1 className="mt-[40px] mb-[16px] typo-sub-title text-shades-02">
-          로그인
+          사장님 로그인
         </h1>
       </div>
 
@@ -35,7 +31,7 @@ export default function LoginPage() {
       <div className="flex flex-col gap-[24px]">
         <div className="flex flex-col">
           <label className="mb-[8px] typo-16-regular text-neutrals-09">
-            이메일
+            아이디
           </label>
           <input
             type="email"
@@ -92,41 +88,16 @@ export default function LoginPage() {
         로그인
       </button>
 
-      <div className="mt-[24px] flex justify-center gap-[26px]">
-        <span className="typo-14-regular text-neutrals-06">
+      <div className="mt-[24px] flex items-center justify-center gap-[26px]">
+        <span className="typo-16-medium text-neutrals-06">
           아직 회원이 아니신가요?
         </span>
-        <button className="typo-14-medium text-neutrals-09">
-          회원가입
+        <button className="typo-16-bold text-neutrals-08">
+          간편 회원가입
         </button>
       </div>
 
-      <div className="mt-[72px] flex items-center gap-[26px]">
-        <div className="h-[1px] flex-1 bg-shades-02" />
-        <span className="typo-16-regular text-shades-02">
-          또는
-        </span>
-        <div className="h-[1px] flex-1 bg-shades-02" />
-      </div>
-
-      {/* 소셜 로그인 버튼 */}
-      <div className="mt-[21px] flex justify-center gap-[40px]">
-        <button className="h-[48px] w-[48px] rounded-full bg-[#FEE500] flex items-center justify-center">
-          <img src={KakaoIcon} alt="Kakao login" />
-        </button>
-
-        <button className="h-[48px] w-[48px] rounded-full bg-white shadow flex items-center justify-center">
-          <img src={GoogleIcon} alt="Google login" />
-        </button>
-
-        <button className="h-[48px] w-[48px] rounded-full bg-[#03C75A] flex items-center justify-center">
-          <img src={NaverIcon} alt="Naver login" />
-        </button>
-
-        <button className="h-[48px] w-[48px] rounded-full bg-neutrals-02 flex items-center justify-center">
-          <img src={CallIcon} alt="Phone login" />
-        </button>
-      </div>
+    
     </div>
   );
 }
