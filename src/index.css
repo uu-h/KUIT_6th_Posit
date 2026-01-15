@@ -68,7 +68,7 @@
   --typo-body-20-medium-line: 24px; /* 120% */
   --typo-body-20-medium-weight: 500;
 
-    /* Body 19 Medium */
+  /* Body 19 Medium */
   --typo-body-19-medium-size: 19px;
   --typo-body-19-medium-line: 22.8px; /* 120% */
   --typo-body-19-medium-weight: 500;
@@ -89,13 +89,12 @@
   --typo-body-17-medium-weight: 500;
   /*추가 라인*/
 
-
   /* Body 16 Bold */
   --typo-body-16-bold-size: 16px;
   --typo-body-16-bold-line: 24px; /* 150% */
   --typo-body-16-bold-weight: 700;
 
-    /* Body 16 Semibold */
+  /* Body 16 Semibold */
   --typo-body-16-semibold-size: 16px;
   --typo-body-16-semibold-line: 24px; /* 150% */
   --typo-body-16-semibold-weight: 600;
@@ -105,7 +104,7 @@
   --typo-body-16-medium-line: 19.2px; /* 120% */
   --typo-body-16-medium-weight: 500;
 
-   /* Body 16 Regular 얘 추가!!!!!!*/
+  /* Body 16 Regular 얘 추가!!!!!!*/
   --typo-body-16-regular-size: 16px;
   --typo-body-16-regular-line: 19.2px; /* 120% */
   --typo-body-16-regular-weight: 400;
@@ -130,7 +129,7 @@
   --typo-body-15-regular-line: 18px; /* 120% */
   --typo-body-15-regular-weight: 400;
 
-    /* Body 14 Semibold 얘 추가!!!!! */
+  /* Body 14 Semibold 얘 추가!!!!! */
   --typo-body-14-semibold-size: 14px;
   --typo-body-14-semibold-line: 21px; /* 150% */
   --typo-body-14-semibold-weight: 600;
@@ -198,6 +197,41 @@
     font-size: var(--typo-headline-size);
     line-height: var(--typo-headline-line);
     font-weight: var(--typo-headline-weight);
+  }
+  .typo-24-semibold {
+    font-size: var(--typo-body-24-semibold-size);
+    line-height: var(--typo-body-24-semibold-line);
+    font-weight: var(--typo-body-24-semibold-weight);
+  }
+
+  .typo-20-medium {
+    font-size: var(--typo-body-20-medium-size);
+    line-height: var(--typo-body-20-medium-line);
+    font-weight: var(--typo-body-20-medium-weight);
+  }
+
+  .typo-19-medium {
+    font-size: var(--typo-body-19-medium-size);
+    line-height: var(--typo-body-19-medium-line);
+    font-weight: var(--typo-body-19-medium-weight);
+  }
+
+  .typo-19-regular {
+    font-size: var(--typo-body-19-regular-size);
+    line-height: var(--typo-body-19-regular-line);
+    font-weight: var(--typo-body-19-regular-weight);
+  }
+
+  .typo-18-medium {
+    font-size: var(--typo-body-18-medium-size);
+    line-height: var(--typo-body-18-medium-line);
+    font-weight: var(--typo-body-18-medium-weight);
+  }
+
+  .typo-17-medium {
+    font-size: var(--typo-body-17-medium-size);
+    line-height: var(--typo-body-17-medium-line);
+    font-weight: var(--typo-body-17-medium-weight);
   }
 
   .typo-16-bold {
@@ -267,10 +301,10 @@
   }
 
   .typo-13-semibold {
-      font-size: var(--typo-body-13-semibold-size);
-      line-height: var(--typo-body-13-semibold-line);
-      font-weight: var(--typo-body-13-semibold-weight);
-    }
+    font-size: var(--typo-body-13-semibold-size);
+    line-height: var(--typo-body-13-semibold-line);
+    font-weight: var(--typo-body-13-semibold-weight);
+  }
 
   .typo-13-medium {
     font-size: var(--typo-body-13-medium-size);
@@ -285,10 +319,10 @@
   }
 
   .typo-12-semibold {
-      font-size: var(--typo-body-12-semibold-size);
-      line-height: var(--typo-body-12-semibold-line);
-      font-weight: var(--typo-body-12-semibold-weight);
-    }
+    font-size: var(--typo-body-12-semibold-size);
+    line-height: var(--typo-body-12-semibold-line);
+    font-weight: var(--typo-body-12-semibold-weight);
+  }
 
   .typo-12-medium {
     font-size: var(--typo-body-12-medium-size);
@@ -303,10 +337,10 @@
   }
 
   .typo-12-light {
-      font-size: var(--typo-body-12-light-size);
-      line-height: var(--typo-body-12-light-line);
-      font-weight: var(--typo-body-12-light-weight);
-    }
+    font-size: var(--typo-body-12-light-size);
+    line-height: var(--typo-body-12-light-line);
+    font-weight: var(--typo-body-12-light-weight);
+  }
 }
 
 @layer base {

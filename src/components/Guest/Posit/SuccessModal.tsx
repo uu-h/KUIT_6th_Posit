@@ -14,7 +14,7 @@ export default function SuccessModal({ open, onConfirm }: SuccessModalProps) {
 
       {/* modal */}
       <div className="absolute inset-0 flex items-center justify-center px-6">
-        <div className="w-[312px] h-[275px] rounded-[32px] bg-corals-000 px-[74px] py-[50px] text-center">
+        <div className="w-[312px] h-[275px] rounded-[32px] bg-corals-000 px-[70px] py-[50px] text-center">
           {/* 체크 아이콘 */}
           <img
             src={SubmitCheck}
@@ -22,10 +22,8 @@ export default function SuccessModal({ open, onConfirm }: SuccessModalProps) {
             className="h-9 w-9 my-[4.5px] mx-auto"
           />
 
-          <h3 className="text-[24px] font-semibold text-[#1D1B20] my-2">
-            작성 완료
-          </h3>
-          <p className="text-[12px] leading-[150%] tracking-[-0.228px] text-[#49454F]">
+          <h3 className="typo-24-semibold text-[#1D1B20] my-2">작성 완료</h3>
+          <p className="typo-14-regular text-[#49454F]">
             나의 POSiT이 업로드되었어요!
             <br />
             채택되면 알려드릴게요.
@@ -34,7 +32,7 @@ export default function SuccessModal({ open, onConfirm }: SuccessModalProps) {
           <button
             type="button"
             onClick={onConfirm}
-            className="mt-[19px] text-[14px] font-semibold text-black"
+            className="mt-[19px] typo-16-regular text-black"
           >
             확인
           </button>

@@ -17,7 +17,7 @@ export default function ConcernCard({
         className,
       ].join(" ")}
     >
-      <div className="text-sm font-semibold ">{label}</div>
+      <div className="typo-16-semibold ">{label}</div>
       <div className="mt-[5px] typo-14-regular">{content}</div>
     </div>
   );

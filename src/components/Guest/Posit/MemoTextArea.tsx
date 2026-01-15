@@ -24,9 +24,9 @@ export default function MemoTextArea({
           onChange={(e) => onChange(e.target.value)}
           maxLength={maxLength}
           placeholder={placeholder}
-          className="min-h-[210px] w-full resize-none text-sm leading-6 text-neutrals-09 placeholder:text-gray-400 focus:outline-none"
+          className="min-h-[210px] w-full resize-none typo-14-regular text-black placeholder:text-neutrals-09 focus:outline-none"
         />
-        <div className="mt-2 text-right text-xs text-black">
+        <div className="mt-2 text-right typo-12-light ">
           {value.length}/{maxLength}자
         </div>
       </div>

@@ -18,7 +18,7 @@ export default function TitleInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full text-[16px] text-black placeholder:text-black focus:outline-none"
+          className="w-full typo-16-semibold placeholder:text-black focus:outline-none"
         />
       </div>
     </section>
