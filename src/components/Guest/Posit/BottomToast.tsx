@@ -21,7 +21,7 @@ export default function BottomToast({ open, message }: BottomToastProps) {
       >
         <img src={Toast} alt="토스트메시지" className="h-[24px] w-[23px]" />
 
-        <span className="ml-4 my-[21px] text-[15px] font-semibold text-shades-01">
+        <span className="ml-4 my-[21px] typo-15-semibold text-shades-01">
           {message}
         </span>
       </div>

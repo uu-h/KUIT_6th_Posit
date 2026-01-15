@@ -26,7 +26,7 @@ export default function SubmitBar({
         aria-disabled={!isEnabled}
         className={[
           "w-[88px] h-[39px] rounded-[10px]",
-          "text-[16px] font-inter",
+          "typo-16-semiblod",
           isEnabled ? "bg-primary-01 text-white" : "bg-neutrals-03 text-white",
         ].join(" ")}
       >

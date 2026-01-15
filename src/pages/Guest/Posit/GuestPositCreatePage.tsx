@@ -1,14 +1,14 @@
 import { useMemo, useEffect, useState } from "react";
-import MemoTypeSection from "../../components/Guest/Posit/MemoTypeSection";
-import MemoTextArea from "../../components/Guest/Posit/MemoTextArea";
-import PhotoAddCard from "../../components/Guest/Posit/PhotoAddCard";
-import SubmitBar from "../../components/Guest/Posit/SubmitBar";
-import NoticeBanner from "../../components/Guest/Posit/NoticeBanner";
-import TitleInput from "../../components/Guest/Posit/TitleInput";
-import SuccessModal from "../../components/Guest/Posit/SuccessModal";
-import BottomToast from "../../components/Guest/Posit/BottomToast";
-import BackTopNavBar from "../../components/Guest/Posit/BackTopNavBar";
-import PageIntro from "../../components/Guest/Posit/PageIntro";
+import MemoTypeSection from "../../../components/Guest/Posit/MemoTypeSection";
+import MemoTextArea from "../../../components/Guest/Posit/MemoTextArea";
+import PhotoAddCard from "../../../components/Guest/Posit/PhotoAddCard";
+import SubmitBar from "../../../components/Guest/Posit/SubmitBar";
+import NoticeBanner from "../../../components/Guest/Posit/NoticeBanner";
+import TitleInput from "../../../components/Guest/Posit/TitleInput";
+import SuccessModal from "../../../components/Guest/Posit/SuccessModal";
+import BottomToast from "../../../components/Guest/Posit/BottomToast";
+import BackTopNavBar from "../../../components/Guest/Posit/BackTopNavBar";
+import PageIntro from "../../../components/Guest/Posit/PageIntro";
 
 const MEMO_TYPES = [
   "운영팁",
