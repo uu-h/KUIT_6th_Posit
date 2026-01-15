@@ -57,25 +57,83 @@
   --typo-headline-line: 19.2px;
   --typo-headline-weight: 700;
 
+  /*추가 라인*/
+  /* Body 24 Semibold */
+  --typo-body-24-semibold-size: 24px;
+  --typo-body-24-semibold-line: 36px; /* 150% */
+  --typo-body-24-semibold-weight: 600;
+
+  /* Body 20 Medium */
+  --typo-body-20-medium-size: 20px;
+  --typo-body-20-medium-line: 24px; /* 120% */
+  --typo-body-20-medium-weight: 500;
+
+    /* Body 19 Medium */
+  --typo-body-19-medium-size: 19px;
+  --typo-body-19-medium-line: 22.8px; /* 120% */
+  --typo-body-19-medium-weight: 500;
+
+  /* Body 19 Regular*/
+  --typo-body-19-regular-size: 19px;
+  --typo-body-19-regular-line: 22.8px; /* 120% */
+  --typo-body-19-regular-weight: 400;
+
+  /* Body 18 Medium */
+  --typo-body-18-medium-size: 18px;
+  --typo-body-18-medium-line: 21.6px; /* 120% */
+  --typo-body-18-medium-weight: 500;
+
+  /* Body 17 Medium */
+  --typo-body-17-medium-size: 17px;
+  --typo-body-17-medium-line: 20.4px; /* 120% */
+  --typo-body-17-medium-weight: 500;
+  /*추가 라인*/
+
+
   /* Body 16 Bold */
   --typo-body-16-bold-size: 16px;
   --typo-body-16-bold-line: 24px; /* 150% */
   --typo-body-16-bold-weight: 700;
+
+    /* Body 16 Semibold */
+  --typo-body-16-semibold-size: 16px;
+  --typo-body-16-semibold-line: 24px; /* 150% */
+  --typo-body-16-semibold-weight: 600;
 
   /* Body 16 Medium */
   --typo-body-16-medium-size: 16px;
   --typo-body-16-medium-line: 19.2px; /* 120% */
   --typo-body-16-medium-weight: 500;
 
+   /* Body 16 Regular 얘 추가!!!!!!*/
+  --typo-body-16-regular-size: 16px;
+  --typo-body-16-regular-line: 19.2px; /* 120% */
+  --typo-body-16-regular-weight: 400;
+
+  /* Body 16 Light 얘 추가!!!!*/
+  --typo-body-16-light-size: 16px;
+  --typo-body-16-light-line: 19.2px; /* 120% */
+  --typo-body-16-light-weight: 300;
+
+  /* Body 15 Semibold */
+  --typo-body-15-semibold-size: 15px;
+  --typo-body-15-semibold-line: 22.5px; /* 150% */
+  --typo-body-15-semibold-weight: 600;
+
   /* Body 15 Medium */
   --typo-body-15-medium-size: 15px;
   --typo-body-15-medium-line: 22.5px; /* 150% */
-  --typo-body-15-medium-weight: 400;
+  --typo-body-15-medium-weight: 500;
 
   /* Body 15 Regular */
   --typo-body-15-regular-size: 15px;
   --typo-body-15-regular-line: 18px; /* 120% */
   --typo-body-15-regular-weight: 400;
+
+    /* Body 14 Semibold 얘 추가!!!!! */
+  --typo-body-14-semibold-size: 14px;
+  --typo-body-14-semibold-line: 21px; /* 150% */
+  --typo-body-14-semibold-weight: 600;
 
   /* Body 14 Medium */
   --typo-body-14-medium-size: 14px;
@@ -87,6 +145,11 @@
   --typo-body-14-regular-line: 16.8px; /* 120% */
   --typo-body-14-regular-weight: 400;
 
+  /* Body 13 Semibold 얘 추가!!!!! */
+  --typo-body-13-semibold-size: 13px;
+  --typo-body-13-semibold-line: 19.5px; /* 150% */
+  --typo-body-13-semibold-weight: 600;
+
   /* Body 13 Medium */
   --typo-body-13-medium-size: 13px;
   --typo-body-13-medium-line: 19.5px; /* 150% */
@@ -97,6 +160,11 @@
   --typo-body-13-regular-line: 15.6px; /* 120% */
   --typo-body-13-regular-weight: 400;
 
+  /* Body 12 Semibold 얘 추가!!!!! */
+  --typo-body-12-semibold-size: 12px;
+  --typo-body-12-semibold-line: 18px; /* 150% */
+  --typo-body-12-semibold-weight: 600;
+
   /* Body 12 Medium */
   --typo-body-12-medium-size: 12px;
   --typo-body-12-medium-line: 18px; /* 150% */
@@ -106,6 +174,11 @@
   --typo-body-12-regular-size: 12px;
   --typo-body-12-regular-line: 14.4px; /* 120% */
   --typo-body-12-regular-weight: 400;
+
+  /* Body 12 Light 얘추가!!!!! */
+  --typo-body-12-light-size: 12px;
+  --typo-body-12-light-line: 14.4px; /* 120% */
+  --typo-body-12-light-weight: 300;
 }
 
 @layer utilities {
@@ -133,10 +206,34 @@
     font-weight: var(--typo-body-16-bold-weight);
   }
 
+  .typo-16-semibold {
+    font-size: var(--typo-body-16-semibold-size);
+    line-height: var(--typo-body-16-semibold-line);
+    font-weight: var(--typo-body-16-semibold-weight);
+  }
+
   .typo-16-medium {
     font-size: var(--typo-body-16-medium-size);
     line-height: var(--typo-body-16-medium-line);
     font-weight: var(--typo-body-16-medium-weight);
+  }
+
+  .typo-16-regular {
+    font-size: var(--typo-body-16-regular-size);
+    line-height: var(--typo-body-16-regular-line);
+    font-weight: var(--typo-body-16-regular-weight);
+  }
+
+  .typo-16-light {
+    font-size: var(--typo-body-16-light-size);
+    line-height: var(--typo-body-16-light-line);
+    font-weight: var(--typo-body-16-light-weight);
+  }
+
+  .typo-15-semibold {
+    font-size: var(--typo-body-15-semibold-size);
+    line-height: var(--typo-body-15-semibold-line);
+    font-weight: var(--typo-body-15-semibold-weight);
   }
 
   .typo-15-medium {
@@ -151,6 +248,12 @@
     font-weight: var(--typo-body-15-regular-weight);
   }
 
+  .typo-14-semibold {
+    font-size: var(--typo-body-14-semibold-size);
+    line-height: var(--typo-body-14-semibold-line);
+    font-weight: var(--typo-body-14-semibold-weight);
+  }
+
   .typo-14-medium {
     font-size: var(--typo-body-14-medium-size);
     line-height: var(--typo-body-14-medium-line);
@@ -162,6 +265,12 @@
     line-height: var(--typo-body-14-regular-line);
     font-weight: var(--typo-body-14-regular-weight);
   }
+
+  .typo-13-semibold {
+      font-size: var(--typo-body-13-semibold-size);
+      line-height: var(--typo-body-13-semibold-line);
+      font-weight: var(--typo-body-13-semibold-weight);
+    }
 
   .typo-13-medium {
     font-size: var(--typo-body-13-medium-size);
@@ -175,6 +284,12 @@
     font-weight: var(--typo-body-13-regular-weight);
   }
 
+  .typo-12-semibold {
+      font-size: var(--typo-body-12-semibold-size);
+      line-height: var(--typo-body-12-semibold-line);
+      font-weight: var(--typo-body-12-semibold-weight);
+    }
+
   .typo-12-medium {
     font-size: var(--typo-body-12-medium-size);
     line-height: var(--typo-body-12-medium-line);
@@ -186,6 +301,12 @@
     line-height: var(--typo-body-12-regular-line);
     font-weight: var(--typo-body-12-regular-weight);
   }
+
+  .typo-12-light {
+      font-size: var(--typo-body-12-light-size);
+      line-height: var(--typo-body-12-light-line);
+      font-weight: var(--typo-body-12-light-weight);
+    }
 }
 
 @layer base {
