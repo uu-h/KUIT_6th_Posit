@@ -1,11 +1,9 @@
 import { useState } from "react";
-import CouponCard from "../../components/Guest/Coupon/CouponCard";
-import UsedToggleButton from "../../components/Guest/Coupon/UsedToggleButton";
-import BottomBar from "../../components/BottomBar";
+import CouponCard from "../../../components/Guest/Coupon/CouponCard";
+import UsedToggleButton from "../../../components/Guest/Coupon/UsedToggleButton";
+import BottomBar from "../../../components/BottomBar/BottomBar";
 
-/* =======================
-   타입
-======================= */
+/* 타입 */
 interface Coupon {
   id: number;
   brand: string;
@@ -15,9 +13,7 @@ interface Coupon {
   isUsed: boolean;
 }
 
-/* =======================
-   임시 데이터 (나중에 API로 대체)
-======================= */
+/* 임시 데이터 (나중에 API로 대체) */
 const COUPONS: Coupon[] = [
   {
     id: 1,
@@ -53,9 +49,6 @@ const COUPONS: Coupon[] = [
   },
 ];
 
-/* =======================
-   페이지
-======================= */
 export default function CouponBox() {
   const [selectedTab, setSelectedTab] =
     useState<"available" | "used">("available");

@@ -1,4 +1,4 @@
-import CouponVerify from "../../components/Guest/Coupon/CouponVerify";
+import CouponVerify from "../../../components/Guest/Coupon/CouponVerify";
 
 export default function CouponVerifyPage() {
   const handleSuccess = () => {

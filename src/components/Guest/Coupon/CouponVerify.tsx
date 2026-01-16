@@ -59,8 +59,8 @@ export default function CouponVerify({ onSuccess }: Props) {
           <div key={i} className="flex flex-col items-center">
             <div className="w-[48px] h-[48px] flex items-center justify-center">
               <span
-                className={`text-[32px] font-semibold ${
-                  isError ? "text-red-500" : "text-black"
+                className={`text-[32px] font-normal mb-[2px] ${
+                  isError ? "text-primary-01" : "text-black"
                 }`}
               >
                 {code[i] || ""}
@@ -69,7 +69,7 @@ export default function CouponVerify({ onSuccess }: Props) {
             <div
               className={`w-[48px] h-[3px] ${
                 isError
-                  ? "bg-red-500"
+                  ? "bg-primary-01"
                   : code[i]
                   ? "bg-black"
                   : "bg-[#BABABA]"
