@@ -1,4 +1,5 @@
-import SignLeftArrowIcon from "../../../public/Sign_left_arrow.svg";
+import SignLeftArrowIcon from "../../assets/Login/Sign_left_arrow.svg";
+
 
 
 import { useState } from "react";

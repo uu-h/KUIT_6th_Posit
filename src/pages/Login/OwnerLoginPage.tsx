@@ -1,6 +1,6 @@
-import ToggleOffIcon from "../../../public/toggle_off.svg";
-import LeftArrowIcon from "../../../public/left_arrow.svg";
-import ToggleOnIcon from "../../../public/toggle_on.svg";
+import ToggleOffIcon from "../../assets/Login/toggle_off.svg";
+import LeftArrowIcon from "../../assets/Login/left_arrow.svg";
+import ToggleOnIcon from "../../assets/Login/toggle_on.svg";
 
 import { useState } from "react";
 
