@@ -1,4 +1,8 @@
 import SignLeftArrowIcon from "../../assets/Login/Sign_left_arrow.svg";
+import RadioCheckedIcon from "../../assets/Login/radio_checked.svg";
+import RadioUncheckedIcon from "../../assets/Login/radio_unchecked.svg";
+
+import Button from "../../components/Button";
 
 
 import { useState } from "react";
@@ -73,8 +77,8 @@ return (
             <img
             src={
                 nationality === "domestic"
-                ? "/radio_checked.svg"
-                : "/radio_unchecked.svg"
+                ? RadioCheckedIcon
+                : RadioUncheckedIcon
             }
             className="w-[20px] h-[20px]"
             alt="내국인 선택"
@@ -94,8 +98,8 @@ return (
             <img
             src={
                 nationality === "foreign"
-                ? "/radio_checked.svg"
-                : "/radio_unchecked.svg"
+                ? RadioCheckedIcon
+                : RadioUncheckedIcon
             }
             className="w-[20px] h-[20px]"
             alt="외국인 선택"
@@ -347,21 +351,10 @@ return (
         </div>
 
         {/* 가입하기 */}
-        <button
-            className="     
-            mt-auto
-            mb-[24px]
-            w-full
-            h-[51px]
-            rounded-[8px]
-            bg-primary-01
-            flex items-center justify-center
-            text-shades-01
-            typo-16-bold
-            "
-        >
+        <Button className="mt-auto mb-[24px]">
             가입하기
-        </button>
+        </Button>
+
 
 
     {/*인증번호 요청/확인 버튼 숫자 모두 입력해야 활성화 되도록 구현해놓음*/}

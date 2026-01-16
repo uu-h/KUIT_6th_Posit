@@ -1,5 +1,5 @@
 import SignLeftArrowIcon from "../../assets/Login/Sign_left_arrow.svg";
-
+import Button from "../../components/Button";
 
 
 import { useState } from "react";
@@ -358,22 +358,9 @@ return (
         </div>
 
         {/* 가입하기 */}
-        <button
-            className="     
-            mt-auto
-            mb-[24px]
-            w-full
-            h-[51px]
-            rounded-[8px]
-            bg-primary-01
-            flex items-center justify-center
-            text-shades-01
-            typo-16-bold
-            "
-        >
+        <Button className="mt-auto mb-[24px]">
             가입하기
-        </button>
-
+        </Button>
 
     {/*인증번호 요청/확인 버튼 숫자 모두 입력해야 활성화 되도록 구현해놓음*/}
 
