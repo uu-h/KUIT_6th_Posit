@@ -7,8 +7,7 @@ import NoticeBanner from "../../../components/Guest/Posit/NoticeBanner";
 import TitleInput from "../../../components/Guest/Posit/TitleInput";
 import SuccessModal from "../../../components/Guest/Posit/SuccessModal";
 import BottomToast from "../../../components/Guest/Posit/BottomToast";
-import BackTopNavBar from "../../../components/Guest/Posit/BackTopNavBar";
-import PageIntro from "../../../components/Guest/Posit/PageIntro";
+import ModalHeader from "../../../components/Guest/Posit/ModalHeader";
 
 const MEMO_TYPES = [
   "운영팁",
@@ -79,11 +78,17 @@ export default function GuestPositCreatePage() {
   return (
     <div className="min-h-dvh bg-white overflow-x-hidden">
       <div className="px-4 pt-[49px] pb-40">
-        {/* 상단 뒤로가기 바 */}
-        <BackTopNavBar onBack={handleClose} />
-
-        {/* 타이틀 */}
-        <PageIntro title={"사장님께 어떤 이야기를\n전하고 싶으신가요?"} />
+        {/* Header */}
+        <ModalHeader
+          title={
+            <>
+              사장님께 어떤 이야기를
+              <br />
+              전하고 싶으신가요?
+            </>
+          }
+          onClose={handleClose}
+        />
 
         {/* 메모 유형 */}
         <MemoTypeSection
