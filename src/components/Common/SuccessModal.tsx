@@ -1,16 +1,28 @@
-import SubmitCheck from "../../../assets/Guest/Posit/Check.svg";
+import SubmitCheck from "../../assets/Guest/Posit/Check.svg";
+
 type SuccessModalProps = {
   open: boolean;
   onConfirm: () => void;
+  description?: string;
 };
 
-export default function SuccessModal({ open, onConfirm }: SuccessModalProps) {
+export default function SuccessModal({
+  open,
+  onConfirm,
+  description = `나의 POSiT이 업로드되었어요!
+채택되면 알려드릴게요.`, //게스트 고정
+}: SuccessModalProps) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50">
       {/* dim */}
-      <div className="absolute inset-0 bg-black/50" />
+      <button
+        type="button"
+        aria-label="닫기"
+        onClick={onConfirm}
+        className="absolute inset-0 bg-black/50"
+      />
 
       {/* modal */}
       <div className="absolute inset-0 flex items-center justify-center px-6">
@@ -23,10 +35,10 @@ export default function SuccessModal({ open, onConfirm }: SuccessModalProps) {
           />
 
           <h3 className="typo-24-semibold text-[#1D1B20] my-2">작성 완료</h3>
-          <p className="typo-14-regular text-[#49454F]">
-            나의 POSiT이 업로드되었어요!
-            <br />
-            채택되면 알려드릴게요.
+
+          {/* ✅ 문구 영역 */}
+          <p className="typo-14-regular text-[#49454F] whitespace-pre-line">
+            {description}
           </p>
 
           <button
