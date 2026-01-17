@@ -1,7 +1,7 @@
-import ToggleOffIcon from "../../../public/toggle_off.svg";
-import LeftArrowIcon from "../../../public/left_arrow.svg";
-import ToggleOnIcon from "../../../public/toggle_on.svg";
-
+import ToggleOffIcon from "../../assets/Login/toggle_off.svg";
+import LeftArrowIcon from "../../assets/Login/left_arrow.svg";
+import ToggleOnIcon from "../../assets/Login/toggle_on.svg";
+import Button from "../../components/Button";
 import { useState } from "react";
 
 
@@ -73,20 +73,9 @@ export default function GuestLoginPage() {
 
 
       {/* 로그인 버튼 */}
-      <button
-        className=" 
-          mt-[32px]
-          w-full
-          h-[51px]
-          rounded-[8px]
-          bg-primary-01
-          flex items-center justify-center
-          text-shades-01
-          typo-16-bold
-        "
-      >
+      <Button className="mt-[32px]">
         로그인
-      </button>
+      </Button>
 
       <div className="mt-[24px] flex items-center justify-center gap-[26px]">
         <span className="typo-16-medium text-neutrals-06">
