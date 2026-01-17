@@ -1,4 +1,3 @@
-import BackIcon from "../../assets/Common/Back.svg";
 import CloseIcon from "../../assets/Common/Close.svg";
 import LeftIcon from "../../assets/Common/LeftArrow.svg";
 
@@ -11,7 +10,7 @@ type AppBarProps = {
   onBack?: () => void;
   onClose?: () => void;
 
-  leftType?: "none" | "back" | "left";
+  leftType?: "none" | "left";
   rightType?: "none" | "close";
 
   className?: string;
@@ -29,8 +28,7 @@ export default function AppBar({
   const showLeft = leftType !== "none";
   const showRight = rightType === "close";
 
-  const leftIconSrc =
-    leftType === "back" ? BackIcon : leftType === "left" ? LeftIcon : null;
+  const leftIconSrc = leftType === "left" ? LeftIcon : null;
 
   return (
     <header
