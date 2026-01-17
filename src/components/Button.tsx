@@ -18,10 +18,10 @@ export default function Button({
       disabled={disabled}
       className={`
         w-full
-        h-[51px]
+        h-[45px]
         rounded-[8px]
         flex items-center justify-center
-        typo-16-bold
+        typo-16-medium
         transition-colors
         ${
           disabled

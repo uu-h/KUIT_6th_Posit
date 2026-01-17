@@ -12,7 +12,7 @@ export default function UsedToggleButton({
   usedCount,
 }: CouponTabProps) {
   return (
-    <div className="flex mt-[58px]">
+    <div className="flex mt-[41px]">
       <button
         onClick={() => onChange("available")}
         className={`flex-1 pb-[14px] ${

@@ -43,7 +43,7 @@ export default function CouponVerify({ onSuccess }: Props) {
   }, [code]);
 
   return (
-    <div className="flex flex-col flex-1 justify-between mt-[80px]">
+    <div className="flex flex-col flex-1 justify-between mt-[86px]">
       {/* 상태 동기화용 input (키보드 X) */}
       <input
         ref={inputRef}
@@ -80,10 +80,12 @@ export default function CouponVerify({ onSuccess }: Props) {
       </div>
 
       {/* 숫자 패드 */}
+
       <NumberPad
         onPress={handlePress}
         onDelete={handleDelete}
         onClear={handleClear}
+        
       />
     </div>
   );

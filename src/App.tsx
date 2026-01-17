@@ -1,7 +1,4 @@
 import Onboarding from "./pages/Onboarding/Onboarding";
-import GuestSignUp from "./pages/SignUp/GuestSignUpPage"
-import OwnerLogin from "./pages/Login/OwnerLoginPage"
-import GuestLogin from "./pages/Login/GuestLoginPage"
 
 
 function App() {
