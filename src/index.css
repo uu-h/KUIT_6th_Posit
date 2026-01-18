@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
 @theme {
   /* ───────── Shades ───────── */
   --color-shades-01: #ffffff;
