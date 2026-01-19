@@ -1,13 +1,10 @@
-// import Onboarding from "./pages/Onboarding/Onboarding";
-
-import OwnerHomePage from "./pages/Owner/Home/OwnerHomePage";
+import Onboarding from "./pages/Onboarding/Onboarding";
 
 function App() {
   return (
     <div className="min-h-screen flex justify-center">
       <div className="w-[375px] min-h-screen flex justify-center">
-        {/* <Onboarding></Onboarding> */}
-        <OwnerHomePage></OwnerHomePage>
+        <Onboarding></Onboarding>
       </div>
     </div>
   );

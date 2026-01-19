@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Lottie from "lottie-react";
-import splashAnim from "../assets/lottie/splash.json";
+import splashAnim from "../../assets/lottie/splash.json";
 
 export default function SplashPage() {
   const lottieRef = useRef<any>(null);
