@@ -2,6 +2,7 @@ import { useState } from "react";
 import CouponCard from "../../../components/Guest/Coupon/CouponCard";
 import UsedToggleButton from "../../../components/Guest/Coupon/UsedToggleButton";
 import BottomBar from "../../../components/BottomBar/BottomBar";
+import AppBar from "../../../components/Common/AppBar";
 
 /* 타입 */
 interface Coupon {
@@ -65,10 +66,7 @@ export default function CouponBox() {
   return (
     <div className="h-screen w-full flex flex-col overflow-hidden bg-white">
       {/* 헤더 */}
-      <header className="flex gap-[12px] px-[16px] mt-[22px]">
-        <img src="src/assets/Guest/Coupon/LeftArrow.svg" alt="" />
-        <h1 className="typo-sub-title">쿠폰함</h1>
-      </header>
+      <AppBar title="쿠폰함" layout="left" leftType="left"></AppBar>
 
       {/* 탭 */}
       <UsedToggleButton

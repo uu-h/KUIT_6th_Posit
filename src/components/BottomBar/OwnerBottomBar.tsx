@@ -5,18 +5,17 @@ interface BottomBarProps {
   onChange: (key: string) => void;
 }
 
-export default function BottomBar({ active, onChange }: BottomBarProps) {
+export default function OwnerBottomBar({ active, onChange }: BottomBarProps) {
   const [hovered, setHovered] = useState<string | null>(null);
 
   const tabs = [
     { key: "posit", label: "POSiT", icon: "src/assets/BottomBar/POSiT.svg", activeIcon: "src/assets/BottomBar/POSiTActive.svg" },
     { key: "home", label: "홈", icon: "src/assets/BottomBar/Home.svg", activeIcon: "src/assets/BottomBar/HomeActive.svg" },
-    { key: "coupon", label: "쿠폰함", icon: "src/assets/BottomBar/Coupon.svg", activeIcon: "src/assets/BottomBar/CouponActive.svg" },
-    { key: "my", label: "MY", icon: "src/assets/BottomBar/My.svg", activeIcon: "src/assets/BottomBar/MyActive.svg" },
+    { key: "inbox", label: "수신함", icon: "src/assets/BottomBar/Inbox.svg", activeIcon: "src/assets/BottomBar/InboxActive.svg" },
   ];
 
   return (
-    <nav className="fixed bottom-0 bg-corals-000 w-[375px] flex justify-center gap-[35px] items-center h-[90px] z-50">
+    <nav className="fixed bottom-0 bg-corals-000 w-[375px] flex justify-center gap-[47px] items-center h-[90px] z-50">
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         const isHovered = hovered === tab.key;
