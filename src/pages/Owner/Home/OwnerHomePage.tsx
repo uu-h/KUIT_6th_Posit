@@ -2,12 +2,13 @@ import { ownerHomeMock } from "./home.mock";
 import AppBar from "../../../components/Common/AppBar";
 import StatSummary from "../../../components/Owner/Home/StatSummary";
 import QuickActions from "../../../components/Owner/Home/QuickActions";
+import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
 
 export default function OwnerHomePage() {
   const { stats } = ownerHomeMock;
 
   return (
-    <div className="min-h-dvh bg-white pb-[92px]">
+    <div className="min-h-dvh bg-white">
       <AppBar title="HOME" layout="center" />
 
       <main className="px-[16px] pt-[26px]">
@@ -22,6 +23,7 @@ export default function OwnerHomePage() {
       </main>
 
       {/* 하단 네비게이션 바 */}
+      <OwnerBottomBar active="home" onChange={() => {}} />
     </div>
   );
 }

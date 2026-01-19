@@ -1,3 +1,4 @@
+import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
 import AppBar from "../../../components/Common/AppBar";
 import MenuItem from "../../../components/Owner/My/MenuItem";
 import ProfileHeader from "../../../components/Owner/My/ProfileHeader";
@@ -55,6 +56,7 @@ export default function MyPage() {
       </main>
 
       {/* 하단 네비게이션바 */}
+      <OwnerBottomBar active="posit" onChange={() => {}} />
     </div>
   );
 }
