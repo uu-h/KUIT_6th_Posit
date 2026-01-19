@@ -15,6 +15,8 @@ export default function OwnerPositMyConcernPage() {
 
   const isEnabled = content.trim().length > 0 && coupon !== "";
 
+  const MAX_LEN = 150;
+
   const handleClickConfirm = () => {
     if (!isEnabled) return;
     setOpenSuccess(true);
@@ -38,7 +40,11 @@ export default function OwnerPositMyConcernPage() {
       {/* Body */}
       <main className="px-[16px] flex-1">
         {/* Textarea Card */}
-        <ConcernTextareaCard value={content} onChange={setContent} />
+        <ConcernTextareaCard
+          value={content}
+          onChange={setContent}
+          maxLength={MAX_LEN}
+        />
 
         {/* Divider */}
         <Divider className="mt-[22px]" />
@@ -51,7 +57,7 @@ export default function OwnerPositMyConcernPage() {
         <Button
           disabled={!isEnabled}
           onClick={handleClickConfirm}
-          className="!h-[43px]"
+          height="h-[43px]"
         >
           확인
         </Button>
