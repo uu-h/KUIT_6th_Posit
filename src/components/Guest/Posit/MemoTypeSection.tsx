@@ -12,7 +12,7 @@ export default function MemoTypeSection<T extends string>({
   onChange,
 }: MemoTypeSectionProps<T>) {
   return (
-    <section className="mt-1">
+    <section className="mt-[25px]">
       <p className="text-[14px] font-normal leading-[20px] tracking-[0.1px] text-neutrals-07">
         {label}
       </p>
