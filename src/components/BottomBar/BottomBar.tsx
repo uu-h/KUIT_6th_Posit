@@ -16,7 +16,7 @@ export default function BottomBar({ active, onChange }: BottomBarProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 bg-corals-000 w-[375px] flex justify-center gap-[35px] items-center h-[83px] z-50">
+    <nav className="fixed bottom-0 bg-corals-000 w-[375px] flex justify-center gap-[35px] items-center h-[90px] z-50">
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         const isHovered = hovered === tab.key;
@@ -29,7 +29,7 @@ export default function BottomBar({ active, onChange }: BottomBarProps) {
             onMouseEnter={() => setHovered(tab.key)}
             onMouseLeave={() => setHovered(null)}
             className={`
-              flex flex-col items-center justify-center gap-[4.5px]
+              flex flex-col items-center justify-center gap-[4.5px] mb-[8px]
               w-[56px] h-[56px]
               rounded-[8px]
               transition-colors duration-200

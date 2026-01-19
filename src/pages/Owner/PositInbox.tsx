@@ -44,6 +44,30 @@ const MOCK_DATA : InboxItem[] = [
     contents: "스탬프 적립을 앱으로도 할 수 있으면 좋겠어요 종이 쿠폰은 자꾸...",
     date: "10월 9일",
   },
+  {
+    id: 6,
+    type: "answer",
+    contents: "배달 음료 얼음이 너무 많이 들어가서 양이 적어요 배달용은...",
+    date: "방금 전",
+  },
+  {
+    id: 7,
+    type: "answer",
+    contents: "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
+    date: "1일전",
+  },
+  {
+    id: 8,
+    type: "answer",
+    contents: "배달 음료 얼음이 너무 많이 들어가서 양이 적어요 배달용은...",
+    date: "방금 전",
+  },
+  {
+    id: 9,
+    type: "answer",
+    contents: "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
+    date: "1일전",
+  },
 ];
 
 type TabKey = "answer" | "memo" | "done";
@@ -63,7 +87,7 @@ export default function PositInbox() {
   );
 
   return (
-    <div className="w-full">
+    <div className="flex flex-col w-full h-screen overflow-hidden">
       <AppBar title="수신함" layout="center" />
 
       <InboxToggle
@@ -71,22 +95,23 @@ export default function PositInbox() {
         counts={counts}
         onChange={setActive}
       />
-
-      <div className="flex flex-col gap-[8px] px-[16px] mt-[15px]">
-        {filteredData.length === 0 ? (
-          <div className="text-center text-[#79747E] py-10">
-            아직 받은 아이디어가 없어요
-          </div>
-        ) : (
-          filteredData.map((item) => (
-            <IdeaCard
-                key={item.id}
-                type={item.type}
-                contents={item.contents}
-                date={item.date}
-            />
-          ))
-        )}
+      <div className="flex-1 overflow-y-auto no-scrollbar mb-[100px]">
+        <div className="flex flex-col gap-[8px] px-[16px] mt-[15px]">
+          {filteredData.length === 0 ? (
+            <div className="text-center text-[#79747E] py-10">
+              아직 받은 아이디어가 없어요
+            </div>
+          ) : (
+            filteredData.map((item) => (
+              <IdeaCard
+                  key={item.id}
+                  type={item.type}
+                  contents={item.contents}
+                  date={item.date}
+              />
+            ))
+          )}
+        </div>
       </div>
 
     <OwnerBottomBar active="inbox" onChange={() => {}}></OwnerBottomBar>
