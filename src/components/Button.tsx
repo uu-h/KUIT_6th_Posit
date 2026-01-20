@@ -27,7 +27,7 @@ export default function Button({
     transition-colors
   `;
 
-  const widthStyle = fullWidth ? "w-full" : "w-fit";
+  const widthStyle = fullWidth ? "w-full" : "";
 
   const variantStyle = disabled
     ? "bg-neutrals-03 text-white cursor-not-allowed"
