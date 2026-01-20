@@ -3,9 +3,11 @@ import AppBar from "../../../components/Common/AppBar";
 import StatSummary from "../../../components/Owner/Home/StatSummary";
 import QuickActions from "../../../components/Owner/Home/QuickActions";
 import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
+import SectionHeader from "../../../components/Owner/Home/SectionHeader";
+import ConcernList from "../../../components/Owner/Home/ConcernList";
 
 export default function OwnerHomePage() {
-  const { stats } = ownerHomeMock;
+  const { stats, concerns } = ownerHomeMock;
 
   return (
     <div className="min-h-dvh bg-white">
@@ -19,6 +21,15 @@ export default function OwnerHomePage() {
             left={{ label: "고민 올리기", onClick: () => {} }}
             right={{ label: "쿠폰 관리", onClick: () => {} }}
           />
+        </div>
+
+        <div className="mt-[43px]">
+          <SectionHeader
+            title="내가 올린 고민"
+            actionText="전체 고민 보기"
+            onActionClick={() => {}}
+          />
+          <ConcernList items={concerns} />
         </div>
       </main>
 
