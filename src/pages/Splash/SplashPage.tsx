@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Lottie from "lottie-react";
+import type { LottieRefCurrentProps } from "lottie-react";
 import splashAnim from "../../assets/lottie/splash.json";
+import Button from "../../components/Button";
 
 export default function SplashPage() {
-  const lottieRef = useRef<any>(null);
+  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function SplashPage() {
       </button> */}
 
       {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center px-6">
+      <div className="relative z-10 flex h-full flex-col items-center">
         {/* Title (1s) */}
         <div className="mt-[92px] text-center anim-fade-up [animation-delay:1s]">
           <h1 className="text-black typo-title">
@@ -49,7 +51,7 @@ export default function SplashPage() {
         </div>
 
         {/* Subtitle (2s) */}
-        <p className="mt-[26px] text-center text-neutrals-08 typo-16-medium anim-fade-up [animation-delay:2s]">
+        <p className="mt-[16px] text-center text-neutrals-08 typo-16-medium anim-fade-up [animation-delay:2s]">
           좋은 아이디어를 남기고 쿠폰을 받아보세요 !
         </p>
 
@@ -72,22 +74,17 @@ export default function SplashPage() {
         {/* 다음 버튼 (lottie 종료 후 fade-in) */}
         {showButton && (
           <div className="mt-auto flex w-full justify-center pb-8 anim-fade-up">
-            <button
-              type="button"
-              className={`
-        flex items-center justify-center
-        h-[52px] w-[343px]
-        rounded-[7.538px] bg-primary-01
-        active:scale-[0.99]
-      `}
+            <Button
+              variant="primary"
+              fullWidth={false}
+              className="w-[343px]"
+              height="h-[52px]"
               onClick={() => {
                 // TODO: navigate
               }}
             >
-              <span className="whitespace-nowrap text-white typo-sub-title">
-                다음
-              </span>
-            </button>
+              다음
+            </Button>
           </div>
         )}
       </div>
