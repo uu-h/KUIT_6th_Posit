@@ -44,30 +44,9 @@ export default function ConcernReadonlyCard({
             채택률 : {adoptionRate}%
         </p>
         </div>
-    
 
-      {/* 운영팀 뱃지 */}
-      {isAdmin && (
-        <span
-        className="
-            mt-[8px]
-            mb-[12px]
-            inline-flex items-center justify-center
-            h-[28px]
-            w-[68.25px]
-            px-[8px]
-            rounded-[100px]
-            bg-primary-01
-            text-corals-000
-            typo-12-semibold
-        "
-        >
-        운영팀
-        </span>
 
-      )}
-
-        <div className="flex flex-col gap-[16px]">
+        <div className="mt-[12px] flex flex-col gap-[16px]">
         <p className="typo-16-semibold text-black">
             {title}
         </p>
