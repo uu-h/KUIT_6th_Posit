@@ -1,8 +1,8 @@
 import { useState } from "react";
-import AppBar from "../../components/Common/AppBar";
-import InboxToggle from "../../components/Owner/Inbox/InboxToggle";
-import IdeaCard from "../../components/Owner/Inbox/IdeaCard";
-import OwnerBottomBar from "../../components/BottomBar/OwnerBottomBar";
+import AppBar from "../../../components/Common/AppBar";
+import InboxToggle from "../../../components/Owner/Inbox/InboxToggle";
+import IdeaCard from "../../../components/Owner/Inbox/IdeaCard";
+import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
 
 /* 목업 데이터 나중에 api로 대체 */
 interface InboxItem {

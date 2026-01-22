@@ -1,4 +1,10 @@
 import { useState } from "react";
+import HomeIcon from "../../assets/BottomBar/Home.svg";
+import HomeActiveIcon from "../../assets/BottomBar/HomeActive.svg";
+import InboxIcon from "../../assets/BottomBar/Inbox.svg"
+import InboxActiveIcon from "../../assets/BottomBar/InboxActive.svg"
+import MyIcon from "../../assets/BottomBar/My.svg";
+import MyActiveIcon from "../../assets/BottomBar/MyActive.svg";
 
 interface BottomBarProps {
   active: string;
@@ -9,13 +15,13 @@ export default function OwnerBottomBar({ active, onChange }: BottomBarProps) {
   const [hovered, setHovered] = useState<string | null>(null);
 
   const tabs = [
-    { key: "posit", label: "POSiT", icon: "src/assets/BottomBar/POSiT.svg", activeIcon: "src/assets/BottomBar/POSiTActive.svg" },
-    { key: "home", label: "홈", icon: "src/assets/BottomBar/Home.svg", activeIcon: "src/assets/BottomBar/HomeActive.svg" },
-    { key: "inbox", label: "수신함", icon: "src/assets/BottomBar/Inbox.svg", activeIcon: "src/assets/BottomBar/InboxActive.svg" },
+    { key: "my", label: "MY", icon: MyIcon, activeIcon: MyActiveIcon },
+    { key: "home", label: "홈", icon: HomeIcon, activeIcon: HomeActiveIcon },
+    { key: "inbox", label: "수신함", icon: InboxIcon, activeIcon: InboxActiveIcon },
   ];
 
   return (
-    <nav className="fixed bottom-0 bg-corals-000 w-[375px] flex justify-center gap-[47px] items-center h-[90px] z-50">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 bg-corals-000 w-[375px] flex justify-center gap-[47px] items-center h-[90px] z-50">
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         const isHovered = hovered === tab.key;

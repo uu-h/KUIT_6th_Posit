@@ -1,5 +1,5 @@
-import AdoptDescription from "../../components/Owner/IdeaAdopt/AdoptDescription";
-import Button from "../../components/Button";
+import AdoptDescription from "../../../components/Owner/IdeaAdopt/AdoptDescription";
+import Button from "../../../components/Button";
 
 const TextcommonStyle = "typo-13-regular text-neutrals-09";
 
