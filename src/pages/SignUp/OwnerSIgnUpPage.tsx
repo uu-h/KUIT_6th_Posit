@@ -24,6 +24,16 @@ export default function OwnerSignUpPage() {
   const authCodeRegex = /^\d{6}$/;
   const [authCode, setAuthCode] = useState("");
 
+  // 인증 성공 여부
+  const [isAuthVerified, setIsAuthVerified] = useState(false);
+
+  // 인증번호 모달
+  const [isAuthErrorModalOpen, setIsAuthErrorModalOpen] = useState(false);
+  const [isAuthSuccessModalOpen, setIsAuthSuccessModalOpen] = useState(false);
+
+  // 임시 인증번호 (API 연동 후 수정)
+  const CORRECT_AUTH_CODE = "123456";
+
   // 사업자번호 
   const businessNumberRegex = /^\d{10}$/;
   const [businessNumber, setBusinessNumber] = useState("");
@@ -52,6 +62,16 @@ export default function OwnerSignUpPage() {
     }
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 5)}-${numbers.slice(5)}`;
   };
+
+    const isFormValid =
+    usernameRegex.test(username) &&
+    passwordRegex.test(password) &&
+    nameRegex.test(name) &&
+    phone.replace(/[^0-9]/g, "").length === 11 &&
+    isAuthVerified &&
+    businessNumberRegex.test(businessNumber.replace(/[^0-9]/g, "")) &&
+    couponPasswordRegex.test(couponPassword);
+
 
   const inputClass = (value: string, hasRightArea = false) => `
     w-full
@@ -201,6 +221,13 @@ export default function OwnerSignUpPage() {
         <button
           type="button"
           disabled={!authCodeRegex.test(authCode)}
+            onClick={() => {
+              if (authCode !== CORRECT_AUTH_CODE) {
+                setIsAuthErrorModalOpen(true);
+              } else {
+                setIsAuthSuccessModalOpen(true);
+              }
+            }}
           className={`
             absolute right-[12px] top-1/2 -translate-y-1/2
             w-[105px] h-[32px] px-[12px] rounded-[6px]
@@ -292,7 +319,58 @@ export default function OwnerSignUpPage() {
         </button>
       </div>
 
-      <Button className="mt-auto mb-[24px]">가입하기</Button>
+    <Button
+      className="mt-auto mb-[24px]"
+      disabled={!isFormValid}
+    >
+      가입하기
+    </Button>
+
+    {/* ================= 인증번호 실패 모달 ================= */}
+    {isAuthErrorModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
+          <div className="px-[24px] py-[32px] text-center">
+            <p className="typo-13-regular text-black">
+              수신된 인증번호를 다시 확인 해주세요.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsAuthErrorModalOpen(false)}
+            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* ================= 인증번호 성공 모달 ================= */}
+    {isAuthSuccessModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
+          <div className="px-[24px] py-[32px] text-center">
+            <p className="typo-13-regular text-black">
+              인증이 완료되었습니다.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setIsAuthVerified(true);     
+              setIsAuthSuccessModalOpen(false);
+            }}
+            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    )}
+
+
+
     </div>
   );
 }
