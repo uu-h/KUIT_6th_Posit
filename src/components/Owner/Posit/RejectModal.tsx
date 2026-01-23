@@ -1,6 +1,9 @@
 import { useState } from "react";
 import Button from "../../../components/Button";
 import closeIcon from "../../../assets/Owner/Posit/close.svg";
+
+import circleChecked from "../../../assets/Owner/Posit/checkbox_circle_checked.svg";
+import circleUnchecked from "../../../assets/Owner/Posit/checkbox_circle_unchecked.svg";
 import squareChecked from "../../../assets/Owner/Posit/checkbox_square_checked.svg";
 import squareUnchecked from "../../../assets/Owner/Posit/checkbox_square_unchecked.svg";
 
@@ -37,33 +40,46 @@ export default function RejectModal({ onClose }: Props) {
             src={closeIcon}
             onClick={onClose}
             className="w-[15px] cursor-pointer"
+            alt="닫기"
           />
         </div>
 
-        {/* Reason list (단일 선택) */}
+        {/* Reason list */}
         <div className="mt-[26px] pl-[5px] flex flex-col gap-[16px]">
           {reasons.map((item, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-[10px] cursor-pointer"
+              className={`
+                flex items-center gap-[10px] cursor-pointer
+                ${idx === ETC_INDEX ? "mt-[18px]" : ""}
+              `}
               onClick={() => {
                 setSelected(idx);
-                if (idx !== ETC_INDEX) setMessage(""); // 기타 아닐 때 메시지 초기화
+                if (idx !== ETC_INDEX) setMessage("");
               }}
             >
               <img
-                src={selected === idx ? squareChecked : squareUnchecked}
+                src={
+                  idx === ETC_INDEX
+                    ? selected === idx
+                      ? squareChecked
+                      : squareUnchecked
+                    : selected === idx
+                    ? circleChecked
+                    : circleUnchecked
+                }
                 className="w-[20px]"
+                alt="선택 아이콘"
               />
               <p className="typo-15-regular text-neutrals-07">{item}</p>
             </div>
           ))}
         </div>
 
-        {/* Message (기타 선택 시에만 필수) */}
+        {/* Message (기타 선택 시에만 활성화) */}
         <div className="relative mx-auto mt-[17px] w-[293px]">
           <textarea
-            className="w-full h-[126px] border rounded-[8px] p-[12px] pb-[28px]"
+            className="w-full h-[126px] border rounded-[8px] p-[12px] pb-[28px] resize-none"
             maxLength={150}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -76,13 +92,12 @@ export default function RejectModal({ onClose }: Props) {
 
         {/* Confirm Button */}
         <Button
-        variant="primary"
-        disabled={isConfirmDisabled}
-        className="mt-[16px]"
+          variant="primary"
+          disabled={isConfirmDisabled}
+          className="mt-[16px]"
         >
-        확인
+          확인
         </Button>
-
       </div>
     </div>
   );
