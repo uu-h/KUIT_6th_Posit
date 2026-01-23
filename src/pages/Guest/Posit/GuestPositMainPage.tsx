@@ -5,6 +5,7 @@ import AppBar from "../../../components/Common/AppBar";
 import BottomBar from "../../../components/BottomBar/BottomBar";
 
 export default function GuestPositMainPage() {
+
   const cards = [
     {
       key: "pending",

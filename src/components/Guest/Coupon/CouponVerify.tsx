@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import NumberPad from "../../Guest/Coupon/NumberPad";
+import RightArrow from "../../../assets/Guest/Coupon/RightArrow.svg"
 
 const CORRECT_CODE = "1234";
 
@@ -31,62 +32,85 @@ export default function CouponVerify({ onSuccess }: Props) {
     setCode("");
   };
 
-  /** 4자리 입력 완료 시 검증 */
-  useEffect(() => {
-    if (code.length === 4) {
-      if (code === CORRECT_CODE) {
-        onSuccess();
-      } else {
-        setIsError(true);
-      }
+  /** 완료 버튼 눌렀을 때 검증 */
+  const handleComplete = () => {
+    if (code.length !== 4) {
+      setIsError(true);
+      return;
     }
-  }, [code]);
+    if (code === CORRECT_CODE) {
+      onSuccess();
+    } else {
+      setIsError(true);
+    }
+  };
 
   return (
-    <div className="flex flex-col flex-1 justify-between mt-[86px]">
-      {/* 상태 동기화용 input (키보드 X) */}
-      <input
-        ref={inputRef}
-        type="tel"
-        value={code}
-        readOnly
-        className="absolute opacity-0 pointer-events-none"
-      />
+    <div className="flex flex-col flex-1 mt-[86px]">
+  {/* 상태 동기화용 input */}
+  <input
+    ref={inputRef}
+    type="tel"
+    value={code}
+    readOnly
+    className="absolute opacity-0 pointer-events-none"
+  />
 
-      {/* 비밀번호 표시 */}
-      <div className="flex justify-center gap-[24px]">
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div className="w-[48px] h-[48px] flex items-center justify-center">
-              <span
-                className={`text-[32px] font-normal mb-[2px] ${
-                  isError ? "text-primary-01" : "text-black"
-                }`}
-              >
-                {code[i] || ""}
-              </span>
-            </div>
-            <div
-              className={`w-[48px] h-[3px] ${
-                isError
-                  ? "bg-primary-01"
-                  : code[i]
-                  ? "bg-black"
-                  : "bg-[#BABABA]"
+  {/* 비밀번호 표시 */}
+  <div className="flex flex-col items-center gap-[17px]">
+    <div className="flex justify-center gap-[24px]">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="flex flex-col items-center">
+          <div className="w-[48px] h-[48px] flex items-center justify-center">
+            <span
+              className={`text-[32px] font-normal mb-[2px] ${
+                isError ? "text-[#FF0000]" : "text-black"
               }`}
-            />
+            >
+              {code[i] || ""}
+            </span>
           </div>
-        ))}
-      </div>
-
-      {/* 숫자 패드 */}
-
-      <NumberPad
-        onPress={handlePress}
-        onDelete={handleDelete}
-        onClear={handleClear}
-        
-      />
+          <div
+            className={`w-[48px] h-[3px] ${
+              isError
+                ? "bg-[#FF0000]"
+                : code[i]
+                ? "bg-black"
+                : "bg-[#BABABA]"
+            }`}
+          />
+        </div>
+      ))}
     </div>
+
+    {/* 에러 메시지 */}
+    <div className="h-[14px] flex items-center">
+      {isError && (
+        <p className="text-[#FF0000] typo-12-regular">
+          인증 번호 불일치. 올바른 인증 번호를 입력하십시오.
+        </p>
+      )}
+    </div>
+  </div>
+
+  {/* 완료 버튼  */}
+  <div className="flex justify-end items-center mb-[22px] mt-[98px] w-full">
+  <button
+    onClick={handleComplete}
+    className="flex items-center justify-center cursor-pointer gap-[10px] w-[84px] h-[39px] rounded-full border border-primary-01"
+  >
+    <span className="typo-16-regular text-primary-01">완료</span>
+    <img src={RightArrow} alt="오른쪽 화살표" />
+  </button>
+</div>
+
+  {/* 숫자 패드 */}
+  <NumberPad
+    onPress={handlePress}
+    onDelete={handleDelete}
+    onClear={handleClear}
+  />
+</div>
+
   );
 }

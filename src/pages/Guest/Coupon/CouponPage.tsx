@@ -1,4 +1,5 @@
-import { useState } from "react"; 
+import { useState, useEffect } from "react"; 
+import { useNavigate, useLocation } from "react-router-dom";
 import BottomBar from "../../../components/BottomBar/BottomBar";
 import Coupons from "../../../components/Guest/Coupon/Coupons";
 import CouponDescription from "../../../components/Guest/Coupon/CouponDescription";
@@ -6,27 +7,31 @@ import AppBar from "../../../components/Common/AppBar";
 
 export default function CouponPage() {
   const [isUsed, setIsUsed] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleUseCoupon = () => {
-    // 버튼을 누르면 상태를 true로 변경 해놨는데 나중에 라우팅 해야함
-    setIsUsed(true);
-    console.log("쿠폰 사용 완료");
+    navigate("/coupon/verify");
   };
 
+  // VerifyPage에서 돌아올 때 state.used 확인
+  useEffect(() => {
+    if (location.state?.used) {
+      setIsUsed(true);
+      // 선택적으로 state 초기화
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, location.pathname, navigate]);
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen px-[16px]">
       <AppBar title="쿠폰" layout="left" leftType="left" />
 
-      <div className="flex flex-col px-[16px] w-full gap-[26px]">
-    
-        <h1 className="text-[24px] font-semibold leading-[130%] mt-[13px] h-[62px]">
-          {isUsed ? (
-            "사용이 완료되었어요."
-          ) : (
-            <>사용할 때<br />점원에게 보여주세요.</>
-          )}
+      <div className="flex flex-col items-center">
+      <div className="flex flex-col w-full gap-[26px]">
+        <h1 className="typo-sub-title leading-[130%] my-[13px] h-[48px]">
+          {isUsed ? "사용이 완료되었어요." : <>사용할 때<br />점원에게 보여주세요.</>}
         </h1>
-
 
         <Coupons used={isUsed} onUse={handleUseCoupon} />
 
@@ -38,10 +43,9 @@ export default function CouponPage() {
           <CouponDescription />
         )}
       </div>
-      
-      <div className="mt-auto">
-        <BottomBar active="coupon" onChange={() => {}} />
       </div>
+  
+      <BottomBar active="coupon" onChange={() => {}} />
     </div>
   );
 }
