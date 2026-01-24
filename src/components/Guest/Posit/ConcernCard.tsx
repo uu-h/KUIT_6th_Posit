@@ -12,8 +12,8 @@ export default function ConcernCard({
   return (
     <div
       className={[
-        " w-[343px] h-[86px] rounded-[8px] border border-primary-01 bg-corals-000",
-        "px-4 pt-[21px] pb-[18px] mt-[27px]",
+        "h-[100px] rounded-[8px] border border-primary-01 bg-corals-000",
+        "p-[18px] mt-[27px]",
         className,
       ].join(" ")}
     >

@@ -12,19 +12,19 @@ export default function MemoTextArea({
   placeholder,
 }: MemoTextAreaProps) {
   return (
-    <div className="mt-[18px]">
+    <div className="mt-[15px]">
       <div
-        className="h-[284px] rounded-[16px]
+        className="h-[259px] rounded-[8px]
     bg-white
     shadow-[0_0_5px_rgba(0,0,0,0.25)]
-    px-[23px] py-[27px]"
+    px-[16px] py-[12px]"
       >
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           maxLength={maxLength}
           placeholder={placeholder}
-          className="min-h-[210px] w-full resize-none typo-14-regular text-black placeholder:text-neutrals-09 focus:outline-none"
+          className="min-h-[210px] w-full resize-none typo-14-regular text-black placeholder:text-neutrals-08 focus:outline-none"
         />
         <div className="mt-2 text-right typo-12-light ">
           {value.length}/{maxLength}자

@@ -34,7 +34,7 @@ export default function PhotoAddCard({
 
   if (image) {
     return (
-      <div className="mt-4 w-[343px] h-[83px] rounded-[16px] bg-white shadow-[0_0_4px_rgba(0,0,0,0.25)] px-[30px] py-3">
+      <div className="mt-4 w-[343px] h-[83px] rounded-[8px] bg-white shadow-[0_0_4px_rgba(0,0,0,0.25)] px-[30px] py-3">
         <button
           type="button"
           onClick={onRemove}
@@ -68,7 +68,7 @@ export default function PhotoAddCard({
     w-[343px] h-[83px]
     pt-[12px] pr-[152px] pb-[10px] pl-[30px]
     shrink-0
-    rounded-[16px] bg-white
+    rounded-[8px] bg-white
     shadow-[0_0_4px_rgba(0,0,0,0.25)]
   "
       >

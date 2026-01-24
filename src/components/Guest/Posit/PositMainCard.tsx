@@ -22,11 +22,18 @@ export default function PositMainCard({
         rounded-[16px]
         bg-white
         shadow-[0px_0px_8px_0px_rgba(0,0,0,0.25)]
-        border border-[#F1F1F1]
+        border border-transparent
         px-[30px] py-[34px]
         text-left
-        active:bg-corals-000 transition
+        transition-all duration-200 ease-out
+        
+        active:bg-corals-000
+        active:border-primary-01
+        active:scale-[0.98]
+
         hover:bg-corals-000
+        hover:border-primary-01
+
       "
     >
       {/* 좌: 텍스트 영역 / 우: 아이콘 영역 */}

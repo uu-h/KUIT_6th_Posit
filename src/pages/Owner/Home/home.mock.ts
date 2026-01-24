@@ -17,5 +17,11 @@ export const ownerHomeMock = {
       createdAt: "2일 전",
       commentCount: 10,
     },
+    {
+      id: 3,
+      title: "인스타로 홍보 열심히 하는데 효과가 없어요..",
+      createdAt: "9일 전",
+      commentCount: 12,
+    },
   ],
 };

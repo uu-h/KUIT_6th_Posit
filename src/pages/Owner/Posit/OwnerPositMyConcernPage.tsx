@@ -34,11 +34,11 @@ export default function OwnerPositMyConcernPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-white flex flex-col">
+    <div className="min-h-dvh w-full px-[16px] bg-white flex flex-col">
       {/* Header */}
       <AppBar title="나의 고민거리" layout="left" leftType="left" />
       {/* Body */}
-      <main className="px-[16px] flex-1">
+      <main className=" flex-1">
         {/* Textarea Card */}
         <ConcernTextareaCard
           value={content}
@@ -53,7 +53,7 @@ export default function OwnerPositMyConcernPage() {
         <CouponSection value={coupon} onChange={setCoupon} />
       </main>
       {/* Bottom Button */}
-      <div className="px-[16px] pt-[65px]">
+      <div className=" pt-[65px]">
         <Button
           disabled={!isEnabled}
           onClick={handleClickConfirm}

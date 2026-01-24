@@ -11,7 +11,8 @@ import BottomToast from "../../../components/Guest/Posit/BottomToast";
 
 export default function GuestPositOwnerConcernPage() {
   const concern = {
-    content: "매장 조명을 조금 더 밝게 바꿔야 할까요?",
+    content:
+      "매장 조명을 조금 더 밝게 바꿔야 할까요? 가게가 너무 침침해 보이는 건 아닌가 싶어 고민입니다.",
   };
 
   const [content, setContent] = useState("");
