@@ -32,7 +32,10 @@ export default function AppBar({
 
   return (
     <header
-      className={["h-[64px] px-1 py-2 bg-white relative", className].join(" ")}
+      className={[
+        "sticky top-0 z-50 h-[64px] px-1 py-2 bg-white relative",
+        className,
+      ].join(" ")}
     >
       <div className="h-full flex items-center">
         {/* layout = left : 아이콘 + 타이틀이 왼쪽 정렬 */}
