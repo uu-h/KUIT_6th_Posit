@@ -24,7 +24,7 @@ export default function ConcernTextareaCard({
             "rounded-[16px] bg-corals-000",
             "p-[18px] pb-[42px]",
             "typo-14-regular text-black",
-            "placeholder:text-[15px] font-medium leading-[120%] text-neutrals-09",
+            "placeholder:typo-15-regular placeholder:text-neutrals-09",
             "outline-none",
           ].join(" ")}
         />
