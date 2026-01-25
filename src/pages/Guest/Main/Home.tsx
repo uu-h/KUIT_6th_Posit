@@ -5,6 +5,7 @@ import SearchBar from "../../../components/Common/SearchBar";
 import PlaceList from "../../../components/Guest/Main/PlaceList";
 import type { Place } from "../../../types/place";
 import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
+import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
 
 
 const mockPlaces: Place[] = [
@@ -73,6 +74,12 @@ export default function Home() {
         <SearchBar />
       </div>
 
+      {/* 카테고리 칩 */}
+      <div className="absolute top-[72px] mt-[10px] left-4 right-4 z-20">
+        <CategoryChipBar />
+      </div>
+
+
       {/* Bottom Sheet */}
       <BottomSheet
         popularContent={<PopularPlaces />}
@@ -83,10 +90,6 @@ export default function Home() {
           </>
         }
       />
-
-
-
-
 
       {/* Bottom Bar */}
       <BottomBar active="home" />
