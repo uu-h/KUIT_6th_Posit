@@ -1,4 +1,4 @@
-import type { StorePositPreview } from "../../../pages/Guest/Store/store";
+import type { StorePositPreview } from "../../../types/store";
 import RightIcon from "../../../assets/Common/RightArrow.svg";
 
 import QuoteIcon from "../../../assets/Guest/Store/Quote.svg";

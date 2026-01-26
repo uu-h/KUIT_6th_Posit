@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { StoreInfoRow } from "../../../pages/Guest/Store/store";
+import type { StoreInfoRow } from "../../../types/store";
 
 import LocationIcon from "../../../assets/Guest/Store/Location.svg";
 import TimeIcon from "../../../assets/Guest/Store/Time.svg";
