@@ -10,7 +10,7 @@ import {
 import StoreSectionNav, {
   type StoreSectionKey,
 } from "../../../components/Guest/Store/StoreSectionNav";
-import type { StoreDetail } from "./store";
+import type { StoreDetail } from "../../../types/store";
 import { storeDetailMock } from "./store.mock";
 import { useFixedOnScroll } from "../../../hooks/Guest/useFixedOnScroll";
 

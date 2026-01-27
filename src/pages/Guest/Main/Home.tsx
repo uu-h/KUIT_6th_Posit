@@ -6,7 +6,8 @@ import PlaceList from "../../../components/Guest/Main/PlaceList";
 import type { Place } from "../../../types/place";
 import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
 import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
-
+import NaverMap from "../../../components/Map/NaverMap";
+import { storeDetailMock } from "../Store/store.mock";
 
 const mockPlaces: Place[] = [
   {
@@ -45,10 +46,10 @@ const mockPlaces: Place[] = [
       "/images/cafe9.jpg",
       "/images/cafe10.jpg",
       "/images/cafe11.jpg",
-      "/images/cafe12.jpg"
+      "/images/cafe12.jpg",
     ],
   },
-    {
+  {
     id: 4,
     name: "도우터",
     description: "유럽 감성 가득한 여유로운 브런치 공간",
@@ -58,16 +59,30 @@ const mockPlaces: Place[] = [
       "/images/cafe13.jpg",
       "/images/cafe14.jpg",
       "/images/cafe15.jpg",
-      "/images/cafe16.jpg"
+      "/images/cafe16.jpg",
     ],
   },
 ];
 
 export default function Home() {
+  const stores = [storeDetailMock]; // 여러개면 여기에 추가
+
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {/* 지도 영역 */}
-      <div className="absolute inset-0 bg-neutrals-02" />
+      <div className="absolute inset-0">
+        <NaverMap stores={stores} />{" "}
+      </div>
+
+      {/* 페이드 오버레이*/}
+      <div className="pointer-events-none absolute inset-0 z-10">
+        {/* 상단 페이드 */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[120px]
+                        bg-gradient-to-b from-white/80 via-white/20 to-transparent
+                        backdrop-blur-[1px]"
+        />
+      </div>
 
       {/* 상단 검색 바 */}
       <div className="absolute top-4 left-4 right-4 z-20">
@@ -78,7 +93,6 @@ export default function Home() {
       <div className="absolute top-[72px] mt-[10px] left-4 right-4 z-20">
         <CategoryChipBar />
       </div>
-
 
       {/* Bottom Sheet */}
       <BottomSheet

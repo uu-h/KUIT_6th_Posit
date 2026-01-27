@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { StoreDetail } from "../../../pages/Guest/Store/store";
+import type { StoreDetail } from "../../../types/store";
 import ImageCarousel from "./ImageCarousel";
 import DownIcon from "../../../assets/Common/DownArrow.svg";
 import ChatIcon from "../../../assets/Guest/Store/Chat.svg";

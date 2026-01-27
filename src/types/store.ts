@@ -29,6 +29,9 @@ export type StoreDetail = {
   fullAddress: string;
   images: string[]; // 가게 이미지들
 
+  lat: number;
+  lng: number;
+
   infoRows: StoreInfoRow[];
 
   ownerPosit: StorePositPreview;

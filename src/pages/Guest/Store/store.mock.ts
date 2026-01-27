@@ -1,4 +1,4 @@
-import type { StoreDetail } from "./store";
+import type { StoreDetail } from "../../../types/store";
 
 const statusText = "영업중";
 
@@ -10,6 +10,9 @@ export const storeDetailMock: StoreDetail = {
   shortAddress: "서울 광진구 화양동 3-75",
   fullAddress: "서울 광진구 아차산로33길 68 지하1층 레이지아워",
   images: ["/img1.png", "/img2.png", "/img3.png"],
+
+  lat: 37.543284,
+  lng: 127.071256,
 
   infoRows: [
     {

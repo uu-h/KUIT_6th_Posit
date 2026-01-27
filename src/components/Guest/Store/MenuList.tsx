@@ -1,4 +1,4 @@
-import type { StoreMenuItem } from "../../../pages/Guest/Store/store";
+import type { StoreMenuItem } from "../../../types/store";
 
 export default function MenuList({ menus }: { menus: StoreMenuItem[] }) {
   const fmtPrice = (n: number) => n.toLocaleString("ko-KR") + "원";
