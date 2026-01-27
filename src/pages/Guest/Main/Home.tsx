@@ -8,6 +8,7 @@ import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter"
 import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
 import NaverMap from "../../../components/Map/NaverMap";
 import { storeDetailMock } from "../Store/store.mock";
+import SearchContainer from "../../../components/Common/SearchContainer";
 
 const mockPlaces: Place[] = [
   {
@@ -85,8 +86,8 @@ export default function Home() {
       </div>
 
       {/* 상단 검색 바 */}
-      <div className="absolute top-4 left-4 right-4 z-20">
-        <SearchBar />
+      <div className="absolute top-4 left-4 right-4 z-30">
+        <SearchContainer />
       </div>
 
       {/* 카테고리 칩 */}
