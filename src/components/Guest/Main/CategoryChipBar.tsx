@@ -2,7 +2,7 @@ import { useState } from "react";
 import CategoryChip from "./CategoryChip";
 
 export default function CategoryChipBar() {
-  const [active, setActive] = useState<string>("내 위치");
+  const [active, setActive] = useState<string | null>(null);
 
   return (
     <div className="flex gap-2 overflow-x-auto no-scrollbar">
