@@ -1,15 +1,31 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 export default function Onboarding() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate("/splash", { replace: true });
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
   return (
-    <div className="h-[100vh] flex flex-col items-center justify-center">
+    <div className="h-screen flex flex-col items-center justify-center">
       <div className="animate-fade-in">
-        <img src="src/assets/Guest/Onboarding/Logo.svg" alt="로고 이미지" />
+        <img
+          src="/src/assets/Guest/Onboarding/Logo.svg"
+          alt="로고 이미지"
+        />
       </div>
 
-      <h1 className="text-shades-02 text-[34px] text-center font-bold">
+      <h1 className="text-shades-02 text-[34px] text-center font-bold mt-4">
         POSiT!
       </h1>
 
-      <p className="typo-14-regular text-shades-02 text-center">
+      <p className="typo-14-regular text-shades-02 text-center mt-2">
         post your idea .
       </p>
     </div>

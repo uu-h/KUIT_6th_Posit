@@ -1,5 +1,6 @@
 import CloseIcon from "../../assets/Common/Close.svg";
 import LeftIcon from "../../assets/Common/LeftArrow.svg";
+import { useNavigate } from "react-router-dom";
 
 type AppBarLayout = "center" | "left";
 
@@ -30,6 +31,8 @@ export default function AppBar({
 
   const leftIconSrc = leftType === "left" ? LeftIcon : null;
 
+  const navigate = useNavigate();
+
   return (
     <header
       className={[
@@ -46,7 +49,7 @@ export default function AppBar({
                 type="button"
                 aria-label="뒤로가기"
                 className="w-[24px] h-[24px] flex items-center justify-center"
-                onClick={() => onBack?.()}
+                onClick={() => { navigate(-1); onBack?.(); }}
               >
                 <img src={leftIconSrc} alt="뒤로가기" className="h-[20px]" />
               </button>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import HomeIcon from "../../assets/BottomBar/Home.svg";
 import HomeActiveIcon from "../../assets/BottomBar/HomeActive.svg";
 import InboxIcon from "../../assets/BottomBar/Inbox.svg"
@@ -13,11 +14,12 @@ interface BottomBarProps {
 
 export default function OwnerBottomBar({ active, onChange }: BottomBarProps) {
   const [hovered, setHovered] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const tabs = [
-    { key: "my", label: "MY", icon: MyIcon, activeIcon: MyActiveIcon },
-    { key: "home", label: "홈", icon: HomeIcon, activeIcon: HomeActiveIcon },
-    { key: "inbox", label: "수신함", icon: InboxIcon, activeIcon: InboxActiveIcon },
+    { key: "my", label: "MY", icon: MyIcon, activeIcon: MyActiveIcon, path:"/owner/my" },
+    { key: "home", label: "홈", icon: HomeIcon, activeIcon: HomeActiveIcon, path:"/owner/home" },
+    { key: "inbox", label: "수신함", icon: InboxIcon, activeIcon: InboxActiveIcon, path:"/owner/inbox" },
   ];
 
   return (
@@ -30,7 +32,10 @@ export default function OwnerBottomBar({ active, onChange }: BottomBarProps) {
         return (
           <button
             key={tab.key}
-            onClick={() => onChange(tab.key)}
+            onClick={() => {
+              navigate(tab.path); // 클릭 시 라우팅
+              if (onChange) onChange(tab.key); // 기존 콜백도 호출
+            }}
             onMouseEnter={() => setHovered(tab.key)}
             onMouseLeave={() => setHovered(null)}
             className={`

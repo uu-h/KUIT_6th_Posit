@@ -131,7 +131,7 @@ export default function GuestPositWaitingAnswer() {
                 createdAt={answer.createdAt}
                 isRead={answer.isRead}
                 onClick={() =>
-                    navigate(`/posit/waiting/${answer.id}`, {
+                    navigate(`/guest/posit/waiting/${answer.id}`, {
                     state: answer,
                 })
                 }

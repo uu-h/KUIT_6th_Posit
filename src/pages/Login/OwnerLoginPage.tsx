@@ -2,11 +2,12 @@ import ToggleOffIcon from "../../assets/Login/toggle_off.svg";
 import LeftArrowIcon from "../../assets/Login/left_arrow.svg";
 import ToggleOnIcon from "../../assets/Login/toggle_on.svg";
 import Button from "../../components/Button";
-
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 
 export default function OwnerLoginPage() {
+  const navigate = useNavigate();
 
   const [autoLogin, setAutoLogin] = useState(false);
 
@@ -15,7 +16,7 @@ export default function OwnerLoginPage() {
 
       {/* 상단 헤더 */}
       <div className="mb-[40px] flex flex-col">
-        <button className="w-fit flex items-center justify-center">
+        <button className="w-fit flex items-center justify-center cursor-pointer" onClick={() => navigate(-1)}>
           <img
             src={LeftArrowIcon}
             alt="뒤로가기"
@@ -82,7 +83,9 @@ export default function OwnerLoginPage() {
         <span className="typo-16-medium text-neutrals-06">
           아직 회원이 아니신가요?
         </span>
-        <button className="typo-16-bold text-neutrals-08">
+        <button className="typo-16-bold text-neutrals-08 cursor-pointer"
+          onClick={() => { navigate("/owner/signup")}}
+        >
           간편 회원가입
         </button>
       </div>
