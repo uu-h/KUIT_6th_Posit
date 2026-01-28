@@ -63,7 +63,7 @@ export default function BottomSheet({
       )}
 
       {/* 콘텐츠 */}
-      <div className="flex-1 overflow-y-auto px-4 pb-[90px]">
+      <div className="flex-1 overflow-y-auto no-scrollbar-y px-4 pb-[90px]">
         {sheetState !== "expanded" && popularContent}
         {sheetState === "expanded" && expandedContent}
       </div>
