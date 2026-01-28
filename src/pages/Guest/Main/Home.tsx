@@ -69,7 +69,7 @@ export default function Home() {
   const stores = [storeDetailMock]; // 여러개면 여기에 추가
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-x-hidden">
       {/* 지도 영역 */}
       <div className="absolute inset-0">
         <NaverMap stores={stores} />{" "}
@@ -91,7 +91,7 @@ export default function Home() {
       </div>
 
       {/* 카테고리 칩 */}
-      <div className="absolute top-[72px] mt-[10px] left-4 right-4 z-20">
+      <div className="absolute top-[72px] mt-[10px] left-0 right-0 z-20">
         <CategoryChipBar />
       </div>
 
