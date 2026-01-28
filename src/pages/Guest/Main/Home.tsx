@@ -69,7 +69,7 @@ export default function Home() {
   const stores = [storeDetailMock]; // 여러개면 여기에 추가
 
   return (
-    <div className="relative w-full h-screen overflow-x-hidden">
+    <div className="relative w-full h-screen overflow-hidden">
       {/* 지도 영역 */}
       <div className="absolute inset-0">
         <NaverMap stores={stores} />{" "}
