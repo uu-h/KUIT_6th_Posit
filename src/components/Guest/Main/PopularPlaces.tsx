@@ -10,6 +10,12 @@ const places: Place[] = [
   { id: 3, name: "카페 언필드", image: "/images/place3.jpg" },
 ];
 
+// 가게 이름 축약 함수 (공백 포함 9글자 기준)
+const truncateText = (text: string, maxLength = 9) => {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + "…";
+};
+
 export default function PopularPlaces() {
   return (
     <>
@@ -43,11 +49,14 @@ export default function PopularPlaces() {
                 alt={place.name}
                 className="w-full h-full object-cover"
               />
-            </div> 
+            </div>
 
-            {/* 텍스트 */}
-            <div className="mt-1 typo-12-semibold text-black">
-              {place.name}
+            {/* 가게 이름 */}
+            <div
+              className="mt-1 typo-12-semibold text-black"
+              title={place.name}
+            >
+              {truncateText(place.name)}
             </div>
           </div>
         ))}
