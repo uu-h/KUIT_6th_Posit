@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import SignLeftArrowIcon from "../../assets/Login/Sign_left_arrow.svg";
 import Button from "../../components/Button";
 
 export default function GuestSignUpPage() {
+  const navigate = useNavigate();
+
   // ================= 성별 =================
   const [gender, setGender] = useState<"female" | "male">("female");
 
@@ -143,7 +146,7 @@ export default function GuestSignUpPage() {
     <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px] flex flex-col">
       {/* ================= 헤더 ================= */}
       <div className="flex items-center">
-        <button className="w-fit flex items-center justify-center">
+        <button className="w-fit flex items-center justify-center" onClick={() => navigate(-1)}>
           <img
             src={SignLeftArrowIcon}
             alt="뒤로가기"

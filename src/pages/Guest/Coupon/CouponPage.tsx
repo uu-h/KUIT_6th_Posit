@@ -11,7 +11,7 @@ export default function CouponPage() {
   const location = useLocation();
 
   const handleUseCoupon = () => {
-    navigate("/coupon/verify");
+    navigate("verify");
   };
 
   // VerifyPage에서 돌아올 때 state.used 확인

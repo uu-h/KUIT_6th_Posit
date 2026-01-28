@@ -131,7 +131,7 @@ export default function GuestPositSelectedAnswer() {
                 createdAt={answer.createdAt}
                 isRead={answer.isRead}
                 onClick={() =>
-                    navigate(`/posit/selected/${answer.id}`, {
+                    navigate(`/guest/posit/selected/${answer.id}`, {
                     state: answer,
                 })
                 }

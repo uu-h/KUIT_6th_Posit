@@ -3,8 +3,11 @@ import Lottie from "lottie-react";
 import type { LottieRefCurrentProps } from "lottie-react";
 import splashAnim from "../../assets/lottie/splash.json";
 import Button from "../../components/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function SplashPage() {
+  const navigate = useNavigate(); 
+
   const lottieRef = useRef<LottieRefCurrentProps | null>(null);
   const [showButton, setShowButton] = useState(false);
 
@@ -80,7 +83,7 @@ export default function SplashPage() {
               className="w-[343px]"
               height="h-[52px]"
               onClick={() => {
-                // TODO: navigate
+                navigate("/type", { replace: true })
               }}
             >
               다음

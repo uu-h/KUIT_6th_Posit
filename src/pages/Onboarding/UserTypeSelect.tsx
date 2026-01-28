@@ -1,4 +1,10 @@
+import { useNavigate } from "react-router-dom";
+import BossIcon from "../../assets/Guest/Onboarding/Boss.svg";
+import GuestIcon from "../../assets/Guest/Onboarding/Guest.svg";
+
 export default function UserTypeSelect() {
+  const navigate = useNavigate();
+
   return (
     <div className="pt-[105px] flex flex-col gap-[97px]">
       
@@ -8,13 +14,17 @@ export default function UserTypeSelect() {
 
         <div className="flex flex-col justify-center gap-[42px]">
 
-          <button className={userButtonClass}>
-            <img src="Boss.svg" className="w-[100px]" />
+          <button className={userButtonClass} onClick={() => {
+            navigate("/owner/login");
+          }}>
+            <img src={BossIcon} className="w-[100px]" />
             <span className="typo-headline text-shades-02">사장님인가요?</span>
           </button>
 
-          <button className={userButtonClass}>
-            <img src="Guest.svg" className="w-[82px]"/>
+          <button className={userButtonClass} onClick={() => {
+            navigate("/guest/login");
+          }}>
+            <img src={GuestIcon} className="w-[82px]"/>
             <span className="typo-headline text-shades-02">게스트인가요?</span>
           </button>
 

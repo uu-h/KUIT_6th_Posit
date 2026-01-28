@@ -1,8 +1,10 @@
 import SignLeftArrowIcon from "../../assets/Login/Sign_left_arrow.svg";
 import Button from "../../components/Button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function OwnerSignUpPage() {
+  const navigate = useNavigate();
 
   // 아이디
   const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
@@ -95,7 +97,7 @@ export default function OwnerSignUpPage() {
     <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px] flex flex-col">
       {/* 헤더 */}
       <div className="flex flex-row">
-        <button className="w-fit flex items-center justify-center">
+        <button className="w-fit flex items-center justify-center" onClick={() => navigate(-1)}>
           <img
             src={SignLeftArrowIcon}
             alt="뒤로가기"

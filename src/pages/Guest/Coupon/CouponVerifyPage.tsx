@@ -11,7 +11,7 @@ export default function CouponVerifyPage() {
 
   // 비밀번호 성공 시 CouponPage로 돌아가면서 used=true 전달
   const handleSuccess = () => {
-    navigate("/couponpage", { state: { used: true } });
+    navigate("/guest/coupon", { state: { used: true } });
   };
 
   return (

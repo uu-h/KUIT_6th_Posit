@@ -3,8 +3,10 @@ import SelectedIcon from "../../../assets/Guest/Posit/Selected.svg";
 import PositMainCard from "../../../components/Guest/Posit/PositMainCard";
 import AppBar from "../../../components/Common/AppBar";
 import BottomBar from "../../../components/BottomBar/BottomBar";
+import { useNavigate } from "react-router-dom";
 
 export default function GuestPositMainPage() {
+  const navigate = useNavigate();
 
   const cards = [
     {
@@ -12,14 +14,14 @@ export default function GuestPositMainPage() {
       title: "대기 중인 답변",
       description: "내가 보낸 답변을 확인할 수 있어요.",
       iconSrc: WaitingIcon,
-      onClick: () => {}, // TODO: 라우팅 연결
+      onClick: () => { navigate("/guest/posit/waiting")}, // TODO: 라우팅 연결
     },
     {
       key: "selected",
       title: "채택된 답변",
       description: "지금 받은 쿠폰을 확인해보세요.",
       iconSrc: SelectedIcon,
-      onClick: () => {}, // TODO: 라우팅 연결
+      onClick: () => { navigate("/guest/posit/selected") }, // TODO: 라우팅 연결
     },
   ] as const;
 

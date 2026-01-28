@@ -20,10 +20,10 @@ export default function BottomBar({ active, onChange }: BottomBarProps) {
   const navigate = useNavigate();
 
   const tabs = [
-    { key: "posit", label: "POSiT", icon: PositIcon, activeIcon: PositActiveIcon, path: "/posit" },
-    { key: "home", label: "홈", icon: HomeIcon, activeIcon: HomeActiveIcon, path: "/" },
-    { key: "coupon", label: "쿠폰함", icon: CouponIcon, activeIcon: CouponActiveIcon, path: "/coupon" },
-    { key: "my", label: "MY", icon: MyIcon, activeIcon: MyActiveIcon, path: "/my" },
+    { key: "posit", label: "POSiT", icon: PositIcon, activeIcon: PositActiveIcon, path: "/guest/posit" },
+    { key: "home", label: "홈", icon: HomeIcon, activeIcon: HomeActiveIcon, path: "/guest/home" },
+    { key: "coupon", label: "쿠폰함", icon: CouponIcon, activeIcon: CouponActiveIcon, path: "/guest/coupon" },
+    { key: "my", label: "MY", icon: MyIcon, activeIcon: MyActiveIcon, path: "/guest/my" },
   ];
 
   return (
