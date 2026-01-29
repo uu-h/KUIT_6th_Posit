@@ -1,4 +1,16 @@
-export default function CouponDescription() {
+interface DescriptionProps {
+  expiration: string; 
+  brand: string;
+}
+
+export default function CouponDescription({ expiration, brand }: DescriptionProps) {
+
+  const dateParts = expiration.split(".");
+  
+  const formattedDate = dateParts.length === 3 
+    ? `${dateParts[0]}년 ${dateParts[1]}월 ${dateParts[2]}일`
+    : expiration;
+
   return (
     <section
       className="
@@ -7,13 +19,22 @@ export default function CouponDescription() {
         [&>div]:flex
         [&>div]:justify-between
         [&>div>span:first-child]:text-neutrals-07
+        w-full
         pt-[20px]
       "
     >
-      {/* 나중에 바꿔야할 부분 */}
-      <div><span>조건</span><span>교환 장소에 방문 후 쿠폰 제시</span></div>
-      <div><span>유효기간</span><span>2025년 11월 24일</span></div>
-      <div><span>쿠폰 사용처</span><span>카페 레이지아워</span></div>
+      <div>
+        <span>조건</span>
+        <span>교환 장소에 방문 후 쿠폰 제시</span>
+      </div>
+      <div>
+        <span>유효기간</span>
+        <span>{formattedDate}</span> 
+      </div>
+      <div>
+        <span>쿠폰 사용처</span>
+        <span>{brand}</span>
+      </div>
     </section>
   );
 }

@@ -49,7 +49,13 @@ export default function AppBar({
                 type="button"
                 aria-label="뒤로가기"
                 className="w-[24px] h-[24px] flex items-center justify-center"
-                onClick={() => { navigate(-1); onBack?.(); }}
+                onClick={() => {
+                  if (onBack) {
+                    onBack(); 
+                  } else {
+                    navigate(-1); 
+                  }
+                }}
               >
                 <img src={leftIconSrc} alt="뒤로가기" className="h-[20px]" />
               </button>

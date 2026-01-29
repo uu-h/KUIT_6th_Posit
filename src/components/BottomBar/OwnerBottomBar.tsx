@@ -9,7 +9,7 @@ import MyActiveIcon from "../../assets/BottomBar/MyActive.svg";
 
 interface BottomBarProps {
   active: string;
-  onChange: (key: string) => void;
+  onChange?: (key: string) => void;
 }
 
 export default function OwnerBottomBar({ active, onChange }: BottomBarProps) {
