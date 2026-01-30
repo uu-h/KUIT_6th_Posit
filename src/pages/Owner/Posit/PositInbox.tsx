@@ -99,7 +99,7 @@ export default function PositInbox() {
         <div className="flex flex-col gap-[8px] px-[16px] mt-[15px]">
           {filteredData.length === 0 ? (
             <div className="text-center text-[#79747E] py-10">
-              아직 받은 아이디어가 없어요
+              아직 아이디어가 없어요
             </div>
           ) : (
             filteredData.map((item) => (

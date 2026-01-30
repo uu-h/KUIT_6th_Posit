@@ -34,7 +34,7 @@ export default function MyPage() {
     {
       key: "store",
       label: "내 가게 관리",
-      onClick: () => navigate("/guest/my/store"),
+      onClick: () => navigate("/owner/my/store"),
     },
   ];
 

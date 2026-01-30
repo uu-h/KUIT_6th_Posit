@@ -45,7 +45,7 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
     setTimeout(() => {
       setShowToast(false);
       navigate(-1);
-    }, 1500);
+    },1200); //time
   };
 
   const inputClass = `w-full h-[56px] rounded-[8px] border border-neutrals-04 px-[16px] typo-16-regular focus:outline-none focus:border-primary-01 transition-all bg-white flex items-center`;
@@ -134,11 +134,11 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
           />
         </div>
 
-        {/* 수정 완료 버튼 (하단 우측) */}
+        {/* 수정 완료 버튼 */}
         <div className="flex justify-end mt-[10px]">
           <button
             onClick={handleComplete}
-            className="w-[84px] h-[39px] bg-white text-primary-01 rounded-[100px] typo-14-medium border border-primary-01 active:bg-primary-01 active:text-white transition-all"
+            className="w-[84px] h-[39px] bg-primary-01 text-white rounded-full typo-14-medium active:bg-primary-01 active:text-white transition-all"
           > 
             수정 완료
           </button>
@@ -147,8 +147,14 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
 
       {/* 토스트 메시지 */}
       {showToast && (
-        <div className="fixed bottom-[120px] left-1/2 -translate-x-1/2 w-[343px] h-[56px] bg-shades-02 text-white rounded-[4px] flex justify-start items-center typo-15-regular z-50 animate-fade-in-up shadow-lg">
-          <span className="ml-[16px]">회원 정보가 수정 완료되었습니다.</span>
+        <div className="fixed inset-0 z-[999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="flex items-center relative justify-center bg-neutrals-01 w-[274px] h-[130px] rounded-[8px]">
+            <p className="typo-15-meidum text-center text-shades-02">
+              회원 정보가<br/>
+              수정 완료되었습니다.
+            </p>
+          </div>
         </div>
       )}
 

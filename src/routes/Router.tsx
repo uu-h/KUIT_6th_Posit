@@ -23,7 +23,7 @@ import GuestMyAccount from "../pages/Guest/My/GuestMyAccount";
 import OwnerMyPolicy from "../pages/Owner/My/OwnerMyPolicy";
 import OwnerMyAccount from "../pages/Owner/My/OwnerMyAccount";
 import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
-
+import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 
 export default function Router() {
   return (
@@ -78,6 +78,7 @@ export default function Router() {
         <Route path="/owner/my/policy" element={<OwnerMyPolicy/>} />
         <Route path="/owner/my/account" element={<OwnerMyAccount/>}/>
         <Route path="/owner/my/coupon" element={<OwnerMyCoupon/>} />
+        <Route path="/owner/my/store" element={<OwnerMyStore/>} />
         
 
         {/* Owner - Home (아직 미완성이라 비워둠)
