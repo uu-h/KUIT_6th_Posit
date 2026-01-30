@@ -1,5 +1,5 @@
 import Setting from "../../../assets/Owner/My/Setting.svg";
-import Avatar from "../../../assets/Owner/My/GenericAvatar.svg";
+import Avatar from "../../../assets/Common/GenericAvatar.svg";
 
 type Profile = {
   name: string;

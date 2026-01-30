@@ -22,8 +22,11 @@ export default function ConcernList({ items, onItemClick }: Props) {
           onClick={() => onItemClick?.(c.id)}
           className="
             w-full text-left
-            rounded-[16px] bg-[#F4F5F9]
+            rounded-[16px] border border-neutrals-04
             px-[16px] py-[16px]
+            cursor-pointer transition
+        hover:bg-corals-000 hover:border-primary-01
+        active:bg-corals-000 active:border-primary-01
           "
         >
           <p className="text-[14px] font-medium text-black leading-[21px] line-clamp-2">
