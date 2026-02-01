@@ -11,6 +11,7 @@ import CloseIcon from "../../../assets/Common/Close.svg"
 export default function StoreRegistration() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [intro, setIntro] = useState("");
 
   /* ---------------- 전화번호 포맷 ---------------- */
   const formatPhoneNumber = (value: string) => {
@@ -148,10 +149,12 @@ export default function StoreRegistration() {
           <div className="relative mt-2">
             <textarea
               className="w-full h-[113px] rounded-lg border border-neutrals-04 px-3 py-2 typo-14-regular resize-none"
-              maxLength={500}
+              maxLength={49}
+              value={intro}
+              onChange={(e) => setIntro(e.target.value)}
             />
-            <span className="absolute bottom-3 right-3 typo-12-regular text-[#868686]">
-              500
+            <span className="absolute bottom-4 right-3 typo-12-regular text-black">
+              {intro.length}/50자
             </span>
           </div>
         </div>
