@@ -22,7 +22,8 @@ export default function AddressSearch() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white max-w-[375px] mx-auto w-full overflow-x-hidden">
+
       {/* AppBar */}
       <AppBar
         title="주소 검색"
