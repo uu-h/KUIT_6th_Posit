@@ -1,10 +1,10 @@
 import PolicyContent from "../../../components/Common/PolicyContent";
-import BottomBar from "../../../components/BottomBar/BottomBar";
+import GuestLayout from "../../../layouts/GuestLayout";
 
 export default function GuestMyPolicy() {
   return (
-    <PolicyContent 
-      bottomBar={<BottomBar active="my" />} // 게스트용 바 전달
-    />
+    <GuestLayout active="my">
+      <PolicyContent />
+    </GuestLayout>
   );
 }
