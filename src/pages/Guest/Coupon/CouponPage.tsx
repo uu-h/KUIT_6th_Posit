@@ -1,51 +1,54 @@
-import { useState, useEffect } from "react"; 
-import { useNavigate, useLocation } from "react-router-dom";
-import BottomBar from "../../../components/BottomBar/BottomBar";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import type { Coupon } from "./couponData";
 import Coupons from "../../../components/Guest/Coupon/Coupons";
 import CouponDescription from "../../../components/Guest/Coupon/CouponDescription";
+import BottomBar from "../../../components/BottomBar/BottomBar";
 import AppBar from "../../../components/Common/AppBar";
 
 export default function CouponPage() {
-  const [isUsed, setIsUsed] = useState(false);
+  const { couponId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  const rawCoupon = location.state?.coupon as Coupon;
+  const successId = location.state?.usedCouponId;
+
+  const isUsed = rawCoupon?.isUsed || (successId && Number(successId) === Number(couponId));
+  
+  const coupon = rawCoupon ? { ...rawCoupon, isUsed } : null;
+
+  if (!coupon) return <div>쿠폰 정보를 불러올 수 없습니다.</div>;
 
   const handleUseCoupon = () => {
-    navigate("verify");
+    navigate(`/guest/coupon/${couponId}/verify`, { state: { coupon } });
   };
-
-  // VerifyPage에서 돌아올 때 state.used 확인
-  useEffect(() => {
-    if (location.state?.used) {
-      setIsUsed(true);
-      // 선택적으로 state 초기화
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location.state, location.pathname, navigate]);
 
   return (
     <div className="flex flex-col min-h-screen px-[16px]">
-      <AppBar title="쿠폰" layout="left" leftType="left" />
-
-      <div className="flex flex-col items-center">
-      <div className="flex flex-col w-full gap-[26px]">
-        <h1 className="typo-sub-title leading-[130%] my-[13px] h-[48px]">
+      <AppBar title="쿠폰" layout="left" leftType="left" onBack={() => navigate("/guest/coupon")} />
+      
+      <div className="flex flex-col items-center w-full gap-[26px]">
+        <h1 className="typo-sub-title leading-[130%] my-[13px] h-[48px] w-full text-left">
           {isUsed ? "사용이 완료되었어요." : <>사용할 때<br />점원에게 보여주세요.</>}
         </h1>
 
-        <Coupons used={isUsed} onUse={handleUseCoupon} />
+        <Coupons 
+          used={isUsed} 
+          onUse={handleUseCoupon} 
+        />
 
         {isUsed ? (
           <div className="pt-[37px] typo-sub-title text-primary-01 text-center">
             다음 POSiT!도 기대할게요!
           </div>
         ) : (
-          <CouponDescription />
+          <CouponDescription 
+            expiration={coupon.expiration} 
+            brand={coupon.brand}
+          />
         )}
       </div>
-      </div>
-  
-      <BottomBar active="coupon" onChange={() => {}} />
+      <BottomBar active="coupon" />
     </div>
   );
 }

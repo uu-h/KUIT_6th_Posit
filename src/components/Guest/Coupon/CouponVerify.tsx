@@ -2,25 +2,24 @@ import { useRef, useState } from "react";
 import NumberPad from "../../Guest/Coupon/NumberPad";
 import RightArrow from "../../../assets/Guest/Coupon/RightArrow.svg"
 
-const CORRECT_CODE = "1234";
-
 interface Props {
+  correctPassword: string; 
   onSuccess: () => void;
 }
 
-export default function CouponVerify({ onSuccess }: Props) {
+export default function CouponVerify({ correctPassword, onSuccess }: Props) {
   const [code, setCode] = useState("");
   const [isError, setIsError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /** 숫자 입력 */
+  /* 숫자 입력 */
   const handlePress = (num: string) => {
     if (code.length >= 4) return;
     setIsError(false);
     setCode((prev) => prev + num);
   };
 
-  /** 한 글자 삭제 */
+  /* 한 글자 삭제 */
   const handleDelete = () => {
     setIsError(false);
     setCode((prev) => prev.slice(0, -1));
@@ -32,13 +31,13 @@ export default function CouponVerify({ onSuccess }: Props) {
     setCode("");
   };
 
-  /** 완료 버튼 눌렀을 때 검증 */
+  /* 완료 버튼 눌렀을 때 검증 */
   const handleComplete = () => {
     if (code.length !== 4) {
       setIsError(true);
       return;
     }
-    if (code === CORRECT_CODE) {
+    if (code === correctPassword) {
       onSuccess();
     } else {
       setIsError(true);
@@ -46,7 +45,7 @@ export default function CouponVerify({ onSuccess }: Props) {
   };
 
   return (
-    <div className="flex flex-col flex-1 mt-[86px]">
+    <div className="flex flex-col flex-1 mt-[60px]">
   {/* 상태 동기화용 input */}
   <input
     ref={inputRef}
@@ -61,7 +60,7 @@ export default function CouponVerify({ onSuccess }: Props) {
     <div className="flex justify-center gap-[24px]">
       {[0, 1, 2, 3].map((i) => (
         <div key={i} className="flex flex-col items-center">
-          <div className="w-[48px] h-[48px] flex items-center justify-center">
+          <div className="w-[46px] h-[46px] flex items-center justify-center">
             <span
               className={`text-[32px] font-normal mb-[2px] ${
                 isError ? "text-[#FF0000]" : "text-black"
@@ -114,3 +113,4 @@ export default function CouponVerify({ onSuccess }: Props) {
 
   );
 }
+

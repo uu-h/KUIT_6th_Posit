@@ -1,4 +1,4 @@
-import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
+import BottomBar from "../../../components/BottomBar/BottomBar";
 import AppBar from "../../../components/Common/AppBar";
 import MenuItem from "../../../components/Owner/My/MenuItem";
 import ProfileHeader from "../../../components/Owner/My/ProfileHeader";
@@ -11,36 +11,26 @@ export default function MyPage() {
 
   //나중에 API 붙이면 여기만 교체
   const profile = {
-    name: "뉴베이크",
-    handle: "@tera_coffee_owner",
+    name: "김쿠잇",
+    handle: "@kuit_posit",
   };
 
   const menus: Menu[] = [
     {
       key: "policy",
       label: "약관 및 정책",
-      onClick: () => navigate("/owner/my/policy"),
+      onClick: () => navigate("/guest/my/policy"),
     },
     {
       key: "account",
       label: "내 계정 관리",
-      onClick: () => navigate("/owner/my/account"),
-    },
-    {
-      key: "coupon",
-      label: "쿠폰 비밀번호 설정",
-      onClick: () => navigate("/owner/my/coupon"),
-    },
-    {
-      key: "store",
-      label: "내 가게 관리",
-      onClick: () => navigate("/owner/my/store"),
+      onClick: () => navigate("/guest/my/account"),
     },
   ];
 
   return (
     <div className="min-h-dvh w-full bg-white">
-      <AppBar title="MY" layout="center" />
+      <AppBar title="MY" layout="center" onBack={() => navigate(-1)}/>
 
       <main className="px-[16px] pt-[24px]">
         {/* 프로필 영역 */}
@@ -55,7 +45,7 @@ export default function MyPage() {
       </main>
 
       {/* 하단 네비게이션바 */}
-      <OwnerBottomBar active="my" onChange={() => {}} />
+      <BottomBar active="my" onChange={() => {}} />
     </div>
   );
 }

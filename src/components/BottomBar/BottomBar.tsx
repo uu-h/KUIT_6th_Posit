@@ -11,7 +11,6 @@ import MyActiveIcon from "../../assets/BottomBar/MyActive.svg";
 
 interface BottomBarProps {
   active: string;
-  // onChange는 이제 선택적
   onChange?: (key: string) => void;
 }
 

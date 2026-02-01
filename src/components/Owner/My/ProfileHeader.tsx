@@ -1,16 +1,16 @@
+
+import Avatar from "../../../assets/Owner/My/GenericAvatar.svg";
 import Setting from "../../../assets/Owner/My/Setting.svg";
-import Avatar from "../../../assets/Common/GenericAvatar.svg";
+
 
 type Profile = {
   name: string;
   handle: string; // @tera_coffee_owner
-  onClickSetting?: () => void; // 나중에 설정 화면 라우팅
 };
 
 export default function ProfileHeader({
   name,
   handle,
-  onClickSetting,
 }: Profile) {
   return (
     <div className=" flex items-center justify-between">
@@ -25,15 +25,6 @@ export default function ProfileHeader({
           </span>
         </div>
       </div>
-
-      <button
-        type="button"
-        aria-label="설정"
-        onClick={onClickSetting}
-        className="w-[24px] h-[24px] flex items-center justify-center"
-      >
-        <img src={Setting} alt="설정" className="h-[20px]" />
-      </button>
     </div>
   );
 }
