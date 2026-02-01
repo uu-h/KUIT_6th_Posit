@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import AppBar from "../../../components/Common/AppBar";
 import SearchIcon from "../../../assets/Common/Search.svg";
@@ -6,6 +6,7 @@ import DaumPostcode from "react-daum-postcode";
 
 export default function AddressSearch() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
 
   const handleComplete = (data: any) => {
@@ -15,6 +16,7 @@ export default function AddressSearch() {
     // 이전 화면으로 주소 전달
     navigate("/owner/store/register", {
       state: {
+        ...location.state,
         address: fullAddress,
         zonecode,
       },

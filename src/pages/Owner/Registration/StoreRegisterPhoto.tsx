@@ -42,7 +42,7 @@ export default function StoreRegisterPhoto() {
   const isValid = uploadedCount >= 3;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white max-w-[375px] mx-auto">
+    <div className="flex flex-col min-h-screen bg-white">
       {/* AppBar */}
       <AppBar
         layout="center"
@@ -58,9 +58,9 @@ export default function StoreRegisterPhoto() {
             </h1>
 
         {/* Step Pill */}
-            <div className="w-[43px] h-[23px] rounded-full bg-[#F5F5F5] flex items-center justify-center shrink-0">
+            <div className="w-[43px] h-[23px] rounded-full bg-neutrals-02 flex items-center justify-center shrink-0">
             <span className="typo-14-medium">2</span>
-            <span className="typo-14-medium text-neutrals-04">/4</span>
+            <span className="typo-14-medium text-neutrals-06">/4</span>
             </div>
         </div>
 
@@ -83,7 +83,7 @@ export default function StoreRegisterPhoto() {
                 setCurrentIndex(index);
                 fileInputRef.current?.click();
               }}
-              className="w-full aspect-square rounded-lg border border-neutrals-04 flex items-center justify-center cursor-pointer overflow-hidden"
+              className="w-[111px] h-[111px] aspect-square rounded-lg border border-neutrals-04 flex items-center justify-center cursor-pointer overflow-hidden"
             >
               {photo ? (
                 <img
@@ -95,7 +95,7 @@ export default function StoreRegisterPhoto() {
                 <img
                   src={PhotoPlusIcon}
                   alt="사진 추가"
-                  className="w-[24px] h-[24px] opacity-40"
+                  className="w-[32px] h-[32px] opacity-40"
                 />
               )}
             </div>
@@ -108,6 +108,7 @@ export default function StoreRegisterPhoto() {
         <Button
           height="h-[48px]"
           disabled={!isValid}
+          onClick={() => navigate("/owner/store/register/hours")}
         >
           완료
         </Button>

@@ -29,7 +29,8 @@ import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
 import StoreRegisterPhoto from "../pages/Owner/Registration/StoreRegisterPhoto"
-
+import StoreRegisterHours from "../pages/Owner/Registration/StoreRegisterHours"
+import StoreRegisterAmenities from "../pages/Owner/Registration/StoreRegisterAmenities";
 
 
 export default function Router() {
@@ -98,7 +99,8 @@ export default function Router() {
         <Route path="/owner/store/register" element={<StoreRegistration />} />
         <Route path="/owner/store/address-search" element={<AddressSearch />} />
         <Route path="/owner/store/register/photo" element={<StoreRegisterPhoto />} />
-
+        <Route path="/owner/store/register/hours" element={<StoreRegisterHours />} />
+        <Route path="/owner/store/register/amenities" element={<StoreRegisterAmenities />} />
 
 
       </Routes>

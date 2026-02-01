@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import AppBar from "../../../components/Common/AppBar";
@@ -13,58 +13,83 @@ export default function StoreRegistration() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const saved = location.state;
+
   /* ---------- 필수 state ---------- */
-  const [storeName, setStoreName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [detailAddress, setDetailAddress] = useState("");
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [intro, setIntro] = useState("");
+  const [storeName, setStoreName] = useState(saved?.storeName ?? "");
+  const [phoneNumber, setPhoneNumber] = useState(saved?.phoneNumber ?? "");
+  const [detailAddress, setDetailAddress] = useState(
+    saved?.detailAddress ?? ""
+  );
+  const [selectedType, setSelectedType] = useState<string | null>(
+    saved?.selectedType ?? null
+  );
+  const [intro, setIntro] = useState(saved?.intro ?? "");
 
-  const [menuNames, setMenuNames] = useState(["", "", ""]);
-  const [menuPrices, setMenuPrices] = useState(["", "", ""]);
+  const [menuNames, setMenuNames] = useState<string[]>(
+    saved?.menuNames ?? ["", "", ""]
+  );
+  const [menuPrices, setMenuPrices] = useState<string[]>(
+    saved?.menuPrices ?? ["", "", ""]
+  );
 
-  // 주소
-  const address = location.state?.address;
+  useEffect(() => {
+  if (!saved) return;
+
+  if (saved.storeName !== undefined) setStoreName(saved.storeName);
+  if (saved.phoneNumber !== undefined) setPhoneNumber(saved.phoneNumber);
+  if (saved.detailAddress !== undefined) setDetailAddress(saved.detailAddress);
+  if (saved.selectedType !== undefined) setSelectedType(saved.selectedType);
+  if (saved.intro !== undefined) setIntro(saved.intro);
+
+  if (saved.menuNames) setMenuNames(saved.menuNames);
+  if (saved.menuPrices) setMenuPrices(saved.menuPrices);
+  if (saved.menuImages) setMenuImages(saved.menuImages);
+}, [saved]);
+
+
+  /* ---------- 주소 ---------- */
+  const address = saved?.address ?? "";
 
   /* ---------- 사진 ---------- */
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
-  const [menuImages, setMenuImages] = useState<(string | null)[]>([
-    null,
-    null,
-    null,
-  ]);
+  const [menuImages, setMenuImages] = useState<(string | null)[]>(
+    saved?.menuImages ?? [null, null, null]
+  );
   const [currentMenuIndex, setCurrentMenuIndex] = useState<number | null>(null);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-/* ---------- 전화번호 포맷 ---------- */
-const formatPhoneNumber = (value: string) => {
-  const rawNumbers = value.replace(/\D/g, "");
+  /* ---------- 전화번호 포맷 ---------- */
+  const formatPhoneNumber = (value: string) => {
+    const rawNumbers = value.replace(/\D/g, "");
 
-  // 서울(02)은 최대 10자리
-  if (rawNumbers.startsWith("02")) {
-    const numbersOnly = rawNumbers.slice(0, 10);
+    if (rawNumbers.startsWith("02")) {
+      const numbersOnly = rawNumbers.slice(0, 10);
+      if (numbersOnly.length <= 2) return numbersOnly;
+      if (numbersOnly.length <= 5)
+        return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2)}`;
+      if (numbersOnly.length <= 9)
+        return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(
+          2,
+          5
+        )}-${numbersOnly.slice(5)}`;
+      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(
+        2,
+        6
+      )}-${numbersOnly.slice(6)}`;
+    }
 
-    if (numbersOnly.length <= 2) return numbersOnly;
-    if (numbersOnly.length <= 5)
-      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2)}`;
-    if (numbersOnly.length <= 9)
-      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2, 5)}-${numbersOnly.slice(5)}`;
-
-    return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2, 6)}-${numbersOnly.slice(6)}`;
-  }
-
-  // 휴대폰 / 기타 지역번호는 최대 11자리
-  const numbersOnly = rawNumbers.slice(0, 11);
-
-  if (numbersOnly.length <= 3) return numbersOnly;
-  if (numbersOnly.length <= 7)
-    return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3)}`;
-
-  return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3, 7)}-${numbersOnly.slice(7)}`;
-};
-
+    const numbersOnly = rawNumbers.slice(0, 11);
+    if (numbersOnly.length <= 3) return numbersOnly;
+    if (numbersOnly.length <= 7)
+      return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3)}`;
+    return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(
+      3,
+      7
+    )}-${numbersOnly.slice(7)}`;
+  };
 
   /* ---------- 사진 선택 ---------- */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,14 +110,14 @@ const formatPhoneNumber = (value: string) => {
 
   /* ---------- 필수 입력 검증 ---------- */
   const isFormValid =
-    storeName.trim().length > 0 &&
-    phoneNumber.trim().length > 0 &&
-    address?.trim().length > 0 &&
-    detailAddress.trim().length > 0 &&
-    selectedType !== null &&
-    intro.trim().length > 0 &&
-    menuNames.every((name) => name.trim().length > 0) &&
-    menuPrices.every((price) => price.trim().length > 0) &&
+    storeName.trim() &&
+    phoneNumber.trim() &&
+    address.trim() &&
+    detailAddress.trim() &&
+    selectedType &&
+    intro.trim() &&
+    menuNames.every((n) => n.trim()) &&
+    menuPrices.every((p) => p.trim()) &&
     menuImages.every((img) => img !== null);
 
   return (
@@ -112,9 +137,9 @@ const formatPhoneNumber = (value: string) => {
           등록해주세요
         </h1>
 
-        <div className="w-[43px] h-[23px] -mt-5 rounded-full bg-[#F5F5F5] flex items-center justify-center">
+        <div className="w-[43px] h-[23px] -mt-5 rounded-full bg-neutrals-02 flex items-center justify-center">
           <span className="typo-14-medium">1</span>
-          <span className="typo-14-medium text-neutrals-04">/4</span>
+          <span className="typo-14-medium text-neutrals-06">/4</span>
         </div>
       </div>
 
@@ -148,13 +173,26 @@ const formatPhoneNumber = (value: string) => {
           <label className="typo-14-medium">가게 주소</label>
           <div className="mt-2 flex gap-2">
             <input
-              value={address ?? ""}
+              value={address}
               readOnly
               className="flex-1 h-[48px] rounded-lg border border-neutrals-04 px-3"
             />
             <button
               type="button"
-              onClick={() => navigate("/owner/store/address-search")}
+              onClick={() =>
+                navigate("/owner/store/address-search", {
+                  state: {
+                    storeName,
+                    phoneNumber,
+                    detailAddress,
+                    selectedType,
+                    intro,
+                    menuNames,
+                    menuPrices,
+                    menuImages,
+                  },
+                })
+              }
               className="w-[88px] h-[48px] rounded-[8px] bg-primary-01 text-corals-000"
             >
               주소 찾기
@@ -201,7 +239,7 @@ const formatPhoneNumber = (value: string) => {
             <textarea
               value={intro}
               onChange={(e) => setIntro(e.target.value)}
-              maxLength={50}
+              maxLength={49}
               className="w-full h-[113px] rounded-lg border border-neutrals-04 px-3 py-2 resize-none"
             />
             <span className="absolute bottom-4 right-3 text-12-regular">
