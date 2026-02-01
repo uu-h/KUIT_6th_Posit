@@ -1,8 +1,8 @@
-import BottomBar from "../../../components/BottomBar/BottomBar";
 import AppBar from "../../../components/Common/AppBar";
 import MenuItem from "../../../components/Owner/My/MenuItem";
 import ProfileHeader from "../../../components/Owner/My/ProfileHeader";
 import { useNavigate } from "react-router-dom";
+import GuestLayout from "../../../layouts/GuestLayout";
 
 type Menu = { key: string; label: string; onClick?: () => void };
 
@@ -29,8 +29,8 @@ export default function MyPage() {
   ];
 
   return (
-    <div className="min-h-dvh w-full bg-white">
-      <AppBar title="MY" layout="center" onBack={() => navigate(-1)}/>
+    <GuestLayout active="my">
+      <AppBar title="MY" layout="center" onBack={() => navigate(-1)} />
 
       <main className="px-[16px] pt-[24px]">
         {/* 프로필 영역 */}
@@ -43,9 +43,6 @@ export default function MyPage() {
           ))}
         </nav>
       </main>
-
-      {/* 하단 네비게이션바 */}
-      <BottomBar active="my" onChange={() => {}} />
-    </div>
+    </GuestLayout>
   );
 }

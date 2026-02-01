@@ -1,7 +1,5 @@
 import BottomSheet from "../../../components/Guest/Main/BottomSheet";
 import PopularPlaces from "../../../components/Guest/Main/PopularPlaces";
-import BottomBar from "../../../components/BottomBar/BottomBar";
-import SearchBar from "../../../components/Common/SearchBar";
 import PlaceList from "../../../components/Guest/Main/PlaceList";
 import type { Place } from "../../../types/place";
 import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
@@ -9,6 +7,7 @@ import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
 import NaverMap from "../../../components/Map/NaverMap";
 import { storeDetailMock } from "../Store/store.mock";
 import SearchContainer from "../../../components/Common/SearchContainer";
+import GuestLayout from "../../../layouts/GuestLayout";
 
 const mockPlaces: Place[] = [
   {
@@ -69,7 +68,7 @@ export default function Home() {
   const stores = [storeDetailMock]; // 여러개면 여기에 추가
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <GuestLayout>
       {/* 지도 영역 */}
       <div className="absolute inset-0">
         <NaverMap stores={stores} />{" "}
@@ -105,9 +104,6 @@ export default function Home() {
           </>
         }
       />
-
-      {/* Bottom Bar */}
-      <BottomBar active="home" />
-    </div>
+    </GuestLayout>
   );
 }
