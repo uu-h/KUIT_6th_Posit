@@ -22,7 +22,8 @@ export default function AddressSearch() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white max-w-[375px] mx-auto w-full overflow-x-hidden">
+
       {/* AppBar */}
       <AppBar
         title="주소 검색"
@@ -52,14 +53,14 @@ export default function AddressSearch() {
 
       {/* Guide */}
       <div className="px-6 pt-6 space-y-2">
-        <p className="typo-14-medium">이렇게 검색해 보세요</p>
-        <p className="typo-12-regular text-shade-02">
+        <p className="typo-12-medium mb-3">이렇게 검색해 보세요</p>
+        <p className="typo-12-regular text-neutrals-07">
           도로명 + 건물번호 (판교역로 166)
         </p>
-        <p className="typo-12-regular text-shade-02">
+        <p className="typo-12-regular text-neutrals-07">
           건물명 + 번지 (백현동 532)
         </p>
-        <p className="typo-12-regular text-shade-02">
+        <p className="typo-12-regular text-neutrals-07">
           건물명, 아파트명 (분당 주공)
         </p>
       </div>
