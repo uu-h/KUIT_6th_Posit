@@ -2,7 +2,7 @@ import { useState } from "react";
 import AppBar from "../../../components/Common/AppBar";
 import InboxToggle from "../../../components/Owner/Inbox/InboxToggle";
 import IdeaCard from "../../../components/Owner/Inbox/IdeaCard";
-import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
+import OwnerLayout from "../../../layouts/OwnerLayout";
 
 /* 목업 데이터 나중에 api로 대체 */
 interface InboxItem {
@@ -12,8 +12,7 @@ interface InboxItem {
   date: string;
 }
 
-
-const MOCK_DATA : InboxItem[] = [
+const MOCK_DATA: InboxItem[] = [
   {
     id: 1,
     type: "answer",
@@ -23,13 +22,15 @@ const MOCK_DATA : InboxItem[] = [
   {
     id: 2,
     type: "answer",
-    contents: "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
+    contents:
+      "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
     date: "1일전",
   },
   {
     id: 3,
     type: "memo",
-    contents: "매장 안 음악이 조금 커서 대화하기 어려워요 음악 볼륨을 조금만...",
+    contents:
+      "매장 안 음악이 조금 커서 대화하기 어려워요 음악 볼륨을 조금만...",
     date: "10월 12일",
   },
   {
@@ -41,7 +42,8 @@ const MOCK_DATA : InboxItem[] = [
   {
     id: 5,
     type: "answer",
-    contents: "스탬프 적립을 앱으로도 할 수 있으면 좋겠어요 종이 쿠폰은 자꾸...",
+    contents:
+      "스탬프 적립을 앱으로도 할 수 있으면 좋겠어요 종이 쿠폰은 자꾸...",
     date: "10월 9일",
   },
   {
@@ -53,7 +55,8 @@ const MOCK_DATA : InboxItem[] = [
   {
     id: 7,
     type: "answer",
-    contents: "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
+    contents:
+      "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
     date: "1일전",
   },
   {
@@ -65,7 +68,8 @@ const MOCK_DATA : InboxItem[] = [
   {
     id: 9,
     type: "answer",
-    contents: "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
+    contents:
+      "콘센트 있는 자리가 너무 적어요. 노트북 작업하는 사람들을 위해...",
     date: "1일전",
   },
 ];
@@ -82,19 +86,13 @@ export default function PositInbox() {
     done: MOCK_DATA.filter((i) => i.type === "done").length,
   };
 
-  const filteredData = MOCK_DATA.filter(
-    (item) => item.type === active
-  );
+  const filteredData = MOCK_DATA.filter((item) => item.type === active);
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-hidden">
+    <OwnerLayout active="inbox">
       <AppBar title="수신함" layout="center" />
 
-      <InboxToggle
-        active={active}
-        counts={counts}
-        onChange={setActive}
-      />
+      <InboxToggle active={active} counts={counts} onChange={setActive} />
       <div className="flex-1 overflow-y-auto no-scrollbar mb-[100px]">
         <div className="flex flex-col gap-[8px] px-[16px] mt-[15px]">
           {filteredData.length === 0 ? (
@@ -104,18 +102,15 @@ export default function PositInbox() {
           ) : (
             filteredData.map((item) => (
               <IdeaCard
-                  key={item.id}
-                  type={item.type}
-                  contents={item.contents}
-                  date={item.date}
+                key={item.id}
+                type={item.type}
+                contents={item.contents}
+                date={item.date}
               />
             ))
           )}
         </div>
       </div>
-
-    <OwnerBottomBar active="inbox" onChange={() => {}}></OwnerBottomBar>
-
-    </div>
+    </OwnerLayout>
   );
 }

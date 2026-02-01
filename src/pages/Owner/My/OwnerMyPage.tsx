@@ -1,8 +1,8 @@
-import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
 import AppBar from "../../../components/Common/AppBar";
 import MenuItem from "../../../components/Owner/My/MenuItem";
 import ProfileHeader from "../../../components/Owner/My/ProfileHeader";
 import { useNavigate } from "react-router-dom";
+import OwnerLayout from "../../../layouts/OwnerLayout";
 
 type Menu = { key: string; label: string; onClick?: () => void };
 
@@ -39,7 +39,7 @@ export default function MyPage() {
   ];
 
   return (
-    <div className="min-h-dvh w-full bg-white">
+    <OwnerLayout active="my">
       <AppBar title="MY" layout="center" />
 
       <main className="px-[16px] pt-[24px]">
@@ -53,9 +53,6 @@ export default function MyPage() {
           ))}
         </nav>
       </main>
-
-      {/* 하단 네비게이션바 */}
-      <OwnerBottomBar active="my" onChange={() => {}} />
-    </div>
+    </OwnerLayout>
   );
 }

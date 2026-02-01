@@ -2,22 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppBar from "../../components/Common/AppBar";
 
-interface MyAccountContentProps {
-  bottomBar: React.ReactNode;
-}
-
-export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
+export default function MyAccountContent() {
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
 
   // 1. 상태 관리
   const [form, setForm] = useState({
     gender: "male",
-    guestId: "kuit6thdesign", 
-    password: "password", 
+    guestId: "kuit6thdesign",
+    password: "password",
     name: "김쿠잇",
     phone: "01011111111",
-    birth: "20031208",  
+    birth: "20031208",
   });
 
   // 2. 포맷팅 로직
@@ -31,7 +27,8 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
   const formatBirthDate = (value: string) => {
     const numbers = value.replace(/[^0-9]/g, "").slice(0, 8);
     if (numbers.length < 5) return numbers;
-    if (numbers.length < 7) return `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
+    if (numbers.length < 7)
+      return `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
     return `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
   };
 
@@ -45,7 +42,7 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
     setTimeout(() => {
       setShowToast(false);
       navigate(-1);
-    },1200); //time
+    }, 1200); //time
   };
 
   const inputClass = `w-full h-[56px] rounded-[8px] border border-neutrals-04 px-[16px] typo-16-regular focus:outline-none focus:border-primary-01 transition-all bg-white flex items-center`;
@@ -69,7 +66,9 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
                 key={type}
                 onClick={() => handleChange("gender", type)}
                 className={`flex-1 h-[56px] rounded-[8px] border typo-13-regular transition-all ${
-                  form.gender === type ? "border-primary-01 text-primary-01" : "border-neutrals-04 text-shades-02"
+                  form.gender === type
+                    ? "border-primary-01 text-primary-01"
+                    : "border-neutrals-04 text-shades-02"
                 }`}
               >
                 {type === "female" ? "여성" : "남성"}
@@ -118,7 +117,9 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
           <input
             type="tel"
             value={formatPhoneNumber(form.phone)}
-            onChange={(e) => handleChange("phone", e.target.value.replace(/[^0-9]/g, ""))}
+            onChange={(e) =>
+              handleChange("phone", e.target.value.replace(/[^0-9]/g, ""))
+            }
             className={inputClass}
           />
         </div>
@@ -129,7 +130,9 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
           <input
             type="tel"
             value={formatBirthDate(form.birth)}
-            onChange={(e) => handleChange("birth", e.target.value.replace(/[^0-9]/g, ""))}
+            onChange={(e) =>
+              handleChange("birth", e.target.value.replace(/[^0-9]/g, ""))
+            }
             className={inputClass}
           />
         </div>
@@ -139,7 +142,7 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
           <button
             onClick={handleComplete}
             className="w-[84px] h-[39px] bg-primary-01 text-white rounded-full typo-14-medium active:bg-primary-01 active:text-white transition-all"
-          > 
+          >
             수정 완료
           </button>
         </div>
@@ -151,14 +154,13 @@ export default function MyAccountContent({ bottomBar }: MyAccountContentProps) {
           <div className="absolute inset-0 bg-black/50" />
           <div className="flex items-center relative justify-center bg-neutrals-01 w-[274px] h-[130px] rounded-[8px]">
             <p className="typo-15-meidum text-center text-shades-02">
-              회원 정보가<br/>
+              회원 정보가
+              <br />
               수정 완료되었습니다.
             </p>
           </div>
         </div>
       )}
-
-      {bottomBar}
     </div>
   );
 }

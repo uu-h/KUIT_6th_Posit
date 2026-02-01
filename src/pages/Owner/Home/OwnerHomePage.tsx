@@ -2,17 +2,16 @@ import { ownerHomeMock } from "./home.mock";
 import AppBar from "../../../components/Common/AppBar";
 import StatSummary from "../../../components/Owner/Home/StatSummary";
 import QuickActions from "../../../components/Owner/Home/QuickActions";
-import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
 import SectionHeader from "../../../components/Owner/Home/SectionHeader";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
+import OwnerLayout from "../../../layouts/OwnerLayout";
 
 export default function OwnerHomePage() {
   const { stats, concerns } = ownerHomeMock;
 
   return (
-    <div className="min-h-dvh bg-white">
+    <OwnerLayout active="home">
       <AppBar title="HOME" layout="center" />
-
       <main className="px-[16px] pt-[26px]">
         <StatSummary title="누적 아이디어 현황" items={stats} />
 
@@ -32,9 +31,6 @@ export default function OwnerHomePage() {
           <ConcernList items={concerns} />
         </div>
       </main>
-
-      {/* 하단 네비게이션 바 */}
-      <OwnerBottomBar active="home" onChange={() => {}} />
-    </div>
+    </OwnerLayout>
   );
 }
