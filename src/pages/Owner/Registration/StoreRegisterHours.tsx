@@ -159,6 +159,7 @@ export default function StoreRegisterHours() {
         <Button
           height="h-[48px]"
           disabled={!isValid}
+          onClick={() => navigate("/owner/store/register/amenities")}
         >
           완료
         </Button>
