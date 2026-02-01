@@ -58,9 +58,9 @@ export default function StoreRegisterPhoto() {
             </h1>
 
         {/* Step Pill */}
-            <div className="w-[43px] h-[23px] rounded-full bg-[#F5F5F5] flex items-center justify-center shrink-0">
+            <div className="w-[43px] h-[23px] rounded-full bg-neutrals-02 flex items-center justify-center shrink-0">
             <span className="typo-14-medium">2</span>
-            <span className="typo-14-medium text-neutrals-04">/4</span>
+            <span className="typo-14-medium text-neutrals-06">/4</span>
             </div>
         </div>
 
@@ -108,6 +108,7 @@ export default function StoreRegisterPhoto() {
         <Button
           height="h-[48px]"
           disabled={!isValid}
+          onClick={() => navigate("/owner/store/register/hours")}
         >
           완료
         </Button>

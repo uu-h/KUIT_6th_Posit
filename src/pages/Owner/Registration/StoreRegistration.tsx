@@ -112,9 +112,9 @@ const formatPhoneNumber = (value: string) => {
           등록해주세요
         </h1>
 
-        <div className="w-[43px] h-[23px] -mt-5 rounded-full bg-[#F5F5F5] flex items-center justify-center">
+        <div className="w-[43px] h-[23px] -mt-5 rounded-full bg-neutrals-02 flex items-center justify-center">
           <span className="typo-14-medium">1</span>
-          <span className="typo-14-medium text-neutrals-04">/4</span>
+          <span className="typo-14-medium text-neutrals-06">/4</span>
         </div>
       </div>
 
