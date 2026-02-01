@@ -1,18 +1,4 @@
-export type CouponStatus = "USED" | "UNUSED";
-
-export type CouponItem = {
-  id: number;
-  receiverName: string; // @kuit_posit, slowturtle...
-  title: string; // 아메리카노 1잔 무료 교환권
-  quantity: number; // 수량 1개
-  status: CouponStatus; // USED / UNUSED
-  imageUrl: string;
-};
-
-export type CouponIssuedSection = {
-  issuedAt: string; // "2025.12.27"
-  items: CouponItem[];
-};
+import type { CouponIssuedSection } from "../../../types/coupon.types";
 
 export const ownerCouponMock = {
   stats: [
@@ -27,10 +13,9 @@ export const ownerCouponMock = {
         {
           id: 1,
           receiverName: "@kuit_posit",
-          title: "아메리카노 1잔 무료 교환권",
+          couponType: "AMERICANO_FREE",
           quantity: 1,
           status: "USED",
-          imageUrl: "/images/coupon/americano.png",
         },
       ],
     },
@@ -40,20 +25,85 @@ export const ownerCouponMock = {
         {
           id: 2,
           receiverName: "slowturtle",
-          title: "디저트 20% 할인 쿠폰",
+          couponType: "DESSERT_20_PERCENT",
           quantity: 1,
           status: "USED",
-          imageUrl: "/images/coupon/dessert.png",
         },
         {
           id: 3,
           receiverName: "subinn",
-          title: "디저트 20% 할인 쿠폰",
+          couponType: "DESSERT_20_PERCENT",
           quantity: 1,
-          status: "UNUSED",
-          imageUrl: "/images/coupon/dessert.png",
+          status: "USED",
         },
       ],
     },
-  ],
+    {
+      issuedAt: "2025.12.25",
+      items: [
+        {
+          id: 4,
+          receiverName: "Ryuuu",
+          couponType: "AMERICANO_FREE",
+          quantity: 1,
+          status: "USED",
+        },
+      ],
+    },
+    {
+      issuedAt: "2025.12.24",
+      items: [
+        {
+          id: 5,
+          receiverName: "yeon",
+          couponType: "ICED_TEA_FREE",
+          quantity: 1,
+          status: "UNUSED",
+        },
+      ],
+    },
+    {
+      issuedAt: "2025.12.23",
+      items: [
+        {
+          id: 6,
+          receiverName: "yeon",
+          couponType: "ICED_TEA_FREE",
+          quantity: 1,
+          status: "USED",
+        },
+      ],
+    },
+    {
+      issuedAt: "2025.12.22",
+      items: [
+        {
+          id: 7,
+          receiverName: "yeon",
+          couponType: "ICED_TEA_FREE",
+          quantity: 1,
+          status: "UNUSED",
+        },
+        {
+          id: 8,
+          receiverName: "yeon",
+          couponType: "ICED_TEA_FREE",
+          quantity: 1,
+          status: "UNUSED",
+        },
+      ],
+    },
+    {
+      issuedAt: "2025.12.21",
+      items: [
+        {
+          id: 9,
+          receiverName: "yeon",
+          couponType: "AMERICANO_FREE",
+          quantity: 1,
+          status: "USED",
+        },
+      ],
+    },
+  ] satisfies CouponIssuedSection[],
 };

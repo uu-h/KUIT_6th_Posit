@@ -1,4 +1,4 @@
-import CouponIcon from "../../../assets/Guest/Coupon/Coffee.png"
+import CouponIcon from "../../../assets/images/Coffee.png";
 interface Props {
   used: boolean;
   onUse: () => void;
@@ -8,7 +8,11 @@ export default function Coupon({ used, onUse }: Props) {
   return (
     <div className="w-[343px] h-[370px] flex flex-col rounded-[16px] overflow-hidden shadow-[0_0_5px_0_rgba(0,0,0,0.25)]">
       <div className="h-[225px] bg-gray-100">
-        <img src={CouponIcon} alt="쿠폰 이미지" className="w-full h-full object-cover" />
+        <img
+          src={CouponIcon}
+          alt="쿠폰 이미지"
+          className="w-full h-full object-cover"
+        />
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center gap-[14px]">
