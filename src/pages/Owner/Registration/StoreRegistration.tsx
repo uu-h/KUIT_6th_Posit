@@ -13,17 +13,21 @@ export default function StoreRegistration() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [intro, setIntro] = useState("");
+  /* ---------- 필수 state ---------- */
+  const [storeName, setStoreName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [intro, setIntro] = useState("");
+
+  const [menuNames, setMenuNames] = useState(["", "", ""]);
+  const [menuPrices, setMenuPrices] = useState(["", "", ""]);
 
   // 주소
   const address = location.state?.address;
 
-  // 사진 모달
+  /* ---------- 사진 ---------- */
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
-
-  // 사진 state (메뉴 3개용)
   const [menuImages, setMenuImages] = useState<(string | null)[]>([
     null,
     null,
@@ -31,42 +35,38 @@ export default function StoreRegistration() {
   ]);
   const [currentMenuIndex, setCurrentMenuIndex] = useState<number | null>(null);
 
-  // file input ref
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  /* ---------------- 전화번호 포맷 ---------------- */
-  const formatPhoneNumber = (value: string) => {
-    const numbersOnly = value.replace(/\D/g, "");
+/* ---------- 전화번호 포맷 ---------- */
+const formatPhoneNumber = (value: string) => {
+  const rawNumbers = value.replace(/\D/g, "");
 
-    if (numbersOnly.startsWith("02")) {
-      if (numbersOnly.length <= 2) return numbersOnly;
-      if (numbersOnly.length <= 5)
-        return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2)}`;
-      if (numbersOnly.length <= 9)
-        return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(
-          2,
-          5
-        )}-${numbersOnly.slice(5)}`;
-      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(
-        2,
-        6
-      )}-${numbersOnly.slice(6, 10)}`;
-    }
+  // 서울(02)은 최대 10자리
+  if (rawNumbers.startsWith("02")) {
+    const numbersOnly = rawNumbers.slice(0, 10);
 
-    if (numbersOnly.length <= 3) return numbersOnly;
-    if (numbersOnly.length <= 7)
-      return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3)}`;
-    if (numbersOnly.length <= 11)
-      return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(
-        3,
-        7
-      )}-${numbersOnly.slice(7)}`;
+    if (numbersOnly.length <= 2) return numbersOnly;
+    if (numbersOnly.length <= 5)
+      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2)}`;
+    if (numbersOnly.length <= 9)
+      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2, 5)}-${numbersOnly.slice(5)}`;
 
-    return numbersOnly;
-  };
+    return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2, 6)}-${numbersOnly.slice(6)}`;
+  }
 
-  /* ---------------- 사진 선택 핸들러 ---------------- */
+  // 휴대폰 / 기타 지역번호는 최대 11자리
+  const numbersOnly = rawNumbers.slice(0, 11);
+
+  if (numbersOnly.length <= 3) return numbersOnly;
+  if (numbersOnly.length <= 7)
+    return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3)}`;
+
+  return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3, 7)}-${numbersOnly.slice(7)}`;
+};
+
+
+  /* ---------- 사진 선택 ---------- */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || currentMenuIndex === null) return;
@@ -83,9 +83,20 @@ export default function StoreRegistration() {
     e.target.value = "";
   };
 
+  /* ---------- 필수 입력 검증 ---------- */
+  const isFormValid =
+    storeName.trim().length > 0 &&
+    phoneNumber.trim().length > 0 &&
+    address?.trim().length > 0 &&
+    detailAddress.trim().length > 0 &&
+    selectedType !== null &&
+    intro.trim().length > 0 &&
+    menuNames.every((name) => name.trim().length > 0) &&
+    menuPrices.every((price) => price.trim().length > 0) &&
+    menuImages.every((img) => img !== null);
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* AppBar */}
       <AppBar
         title="가게 등록하기"
         layout="center"
@@ -108,11 +119,15 @@ export default function StoreRegistration() {
       </div>
 
       {/* Form */}
-      <div className="flex-1 overflow-y-auto px-6 space-y-5">
+      <div className="flex-1 overflow-y-auto px-6 space-y-5 pb-[90px]">
         {/* 가게 이름 */}
         <div>
           <label className="typo-14-medium">가게 이름</label>
-          <input className="mt-2 w-full h-[48px] rounded-lg border border-neutrals-04 px-3" />
+          <input
+            value={storeName}
+            onChange={(e) => setStoreName(e.target.value)}
+            className="mt-2 w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
+          />
         </div>
 
         {/* 전화번호 */}
@@ -140,12 +155,16 @@ export default function StoreRegistration() {
             <button
               type="button"
               onClick={() => navigate("/owner/store/address-search")}
-              className="w-[88px] h-[41px] rounded-[4px] border border-primary-01 text-primary-01"
+              className="w-[88px] h-[48px] rounded-[8px] bg-primary-01 text-corals-000"
             >
               주소 찾기
             </button>
           </div>
-          <input className="mt-2 w-full h-[48px] rounded-lg border border-neutrals-04 px-3" />
+          <input
+            value={detailAddress}
+            onChange={(e) => setDetailAddress(e.target.value)}
+            className="mt-2 w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
+          />
         </div>
 
         {/* 가게 종류 */}
@@ -155,10 +174,11 @@ export default function StoreRegistration() {
             {["스터디 카페", "브런치 카페", "디저트 카페"].map((type) => (
               <button
                 key={type}
+                type="button"
                 onClick={() => setSelectedType(type)}
-                className={`px-3 h-[43px] rounded-[16px] border ${
+                className={`px-3 h-[43px] rounded-[8px] border ${
                   selectedType === type
-                    ? "bg-[#FF7A6E] text-white border-[#FF7A6E]"
+                    ? "bg-[#FF7A6E] text-corals-000 border-[#FF7A6E]"
                     : "border-[#c5c5c5]"
                 }`}
               >
@@ -166,6 +186,12 @@ export default function StoreRegistration() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* SNS 링크 (선택) */}
+        <div>
+          <label className="typo-14-medium">가게 SNS 링크</label>
+          <input className="mt-2 w-full h-[48px] rounded-lg border border-neutrals-04 px-3" />
         </div>
 
         {/* 가게 소개 */}
@@ -178,25 +204,37 @@ export default function StoreRegistration() {
               maxLength={50}
               className="w-full h-[113px] rounded-lg border border-neutrals-04 px-3 py-2 resize-none"
             />
-            <span className="absolute bottom-4 right-3 text-sm">
+            <span className="absolute bottom-4 right-3 text-12-regular">
               {intro.length}/50자
             </span>
           </div>
         </div>
 
-        {/* 메뉴 소개 */}
+        {/* 메뉴 */}
         <div className="space-y-4">
           <label className="typo-14-medium">메뉴 소개</label>
 
           {[0, 1, 2].map((index) => (
             <div key={index} className="space-y-2">
               <input
-                className="w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
+                value={menuNames[index]}
+                onChange={(e) => {
+                  const next = [...menuNames];
+                  next[index] = e.target.value;
+                  setMenuNames(next);
+                }}
                 placeholder={`${index + 1}. 대표 메뉴명`}
+                className="w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
               />
               <input
-                className="w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
+                value={menuPrices[index]}
+                onChange={(e) => {
+                  const next = [...menuPrices];
+                  next[index] = e.target.value;
+                  setMenuPrices(next);
+                }}
                 placeholder="대표 메뉴 가격"
+                className="w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
               />
 
               <div
@@ -209,15 +247,10 @@ export default function StoreRegistration() {
                 {menuImages[index] ? (
                   <img
                     src={menuImages[index]!}
-                    alt="메뉴 이미지"
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <img
-                    src={PhotoPlusIcon}
-                    alt="사진 추가"
-                    className="w-[32px] h-[32px]"
-                  />
+                  <img src={PhotoPlusIcon} className="w-[32px] h-[32px]" />
                 )}
               </div>
             </div>
@@ -227,10 +260,16 @@ export default function StoreRegistration() {
 
       {/* Bottom Button */}
       <div className="px-6 py-4">
-        <Button height="h-[48px]">완료</Button>
+        <Button
+          height="h-[48px]"
+          disabled={!isFormValid}
+          onClick={() => navigate("/owner/store/register/photo")}
+        >
+          완료
+        </Button>
       </div>
 
-      {/* file input */}
+      {/* file inputs */}
       <input
         ref={cameraInputRef}
         type="file"
@@ -254,7 +293,6 @@ export default function StoreRegistration() {
             className="absolute inset-0 bg-black/40"
             onClick={() => setIsPhotoModalOpen(false)}
           />
-
           <div className="absolute bottom-0 w-full max-w-[375px] bg-white rounded-t-[16px] px-6 pt-4 pb-6">
             <div className="flex items-center justify-between mb-6">
               <span className="typo-16-medium">사진 등록</span>

@@ -28,6 +28,7 @@ import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
+import StoreRegisterPhoto from "../pages/Owner/Registration/StoreRegisterPhoto"
 
 
 
@@ -96,6 +97,7 @@ export default function Router() {
         {/* Owner - Registration */}
         <Route path="/owner/store/register" element={<StoreRegistration />} />
         <Route path="/owner/store/address-search" element={<AddressSearch />} />
+        <Route path="/owner/store/register/photo" element={<StoreRegisterPhoto />} />
 
 
 
