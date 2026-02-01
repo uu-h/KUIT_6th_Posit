@@ -201,7 +201,7 @@ const formatPhoneNumber = (value: string) => {
             <textarea
               value={intro}
               onChange={(e) => setIntro(e.target.value)}
-              maxLength={50}
+              maxLength={49}
               className="w-full h-[113px] rounded-lg border border-neutrals-04 px-3 py-2 resize-none"
             />
             <span className="absolute bottom-4 right-3 text-12-regular">
