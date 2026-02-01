@@ -30,7 +30,7 @@ export default function GuestLayout({
 
   return (
     <div
-      className={`min-h-dvh bg-white ${className}`}
+      className={`relative overflow-hidden min-h-dvh bg-white ${className}`}
       style={{ paddingBottom: bottomBarHeightPx }}
     >
       {children}
