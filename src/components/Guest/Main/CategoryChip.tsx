@@ -17,6 +17,7 @@ export default function CategoryChip({
       onClick={onClick}
       className={`
         flex items-center gap-1
+        shrink-0
         px-3 py-[5px]
         rounded-full
         typo-14-semibold

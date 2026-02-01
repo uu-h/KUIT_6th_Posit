@@ -91,7 +91,7 @@ export default function Home() {
       </div>
 
       {/* 카테고리 칩 */}
-      <div className="absolute top-[72px] mt-[10px] left-4 right-4 z-20">
+      <div className="absolute top-[72px] mt-[10px] left-0 right-0 z-20">
         <CategoryChipBar />
       </div>
 

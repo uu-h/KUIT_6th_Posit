@@ -16,6 +16,7 @@ import GuestPositSelectedDetail from "../pages/Guest/Posit/GuestPositSelectedDet
 import GuestPositWaitingDetail from "../pages/Guest/Posit/GuestPositWaitingDetail";
 import CouponVerifyPage from "../pages/Guest/Coupon/CouponVerifyPage";
 import PositInbox from "../pages/Owner/Posit/PositInbox";
+
 import OwnerMyPage from "../pages/Owner/My/OwnerMyPage";
 import GuestMyPage from "../pages/Guest/My/GuestMyPage";
 import GuestMyPolicy from "../pages/Guest/My/GuestMyPolicy";
@@ -24,6 +25,11 @@ import OwnerMyPolicy from "../pages/Owner/My/OwnerMyPolicy";
 import OwnerMyAccount from "../pages/Owner/My/OwnerMyAccount";
 import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
 import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
+
+import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
+import AddressSearch from "../pages/Owner/Registration/AddressSearch";
+
+
 
 export default function Router() {
   return (
@@ -86,6 +92,11 @@ export default function Router() {
 
         {/* Owner - Inbox*/}
         <Route path="/owner/inbox" element={<PositInbox/>}/>
+
+        {/* Owner - Registration */}
+        <Route path="/owner/store/register" element={<StoreRegistration />} />
+        <Route path="/owner/store/address-search" element={<AddressSearch />} />
+
 
 
       </Routes>

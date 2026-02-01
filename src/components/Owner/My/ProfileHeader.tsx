@@ -1,4 +1,7 @@
+
 import Avatar from "../../../assets/Owner/My/GenericAvatar.svg";
+import Setting from "../../../assets/Owner/My/Setting.svg";
+
 
 type Profile = {
   name: string;

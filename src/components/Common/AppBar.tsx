@@ -36,7 +36,7 @@ export default function AppBar({
   return (
     <header
       className={[
-        "sticky top-0 z-50 h-[64px] px-1 py-2 bg-white relative",
+        "sticky top-0 z-50 h-[64px] px-[16px] py-2 bg-white relative",
         className,
       ].join(" ")}
     >
@@ -50,6 +50,7 @@ export default function AppBar({
                 aria-label="뒤로가기"
                 className="w-[24px] h-[24px] flex items-center justify-center"
                 onClick={() => {
+
                   if (onBack) {
                     onBack(); 
                   } else {
