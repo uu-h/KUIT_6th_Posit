@@ -49,7 +49,7 @@ export default function BottomSheet({
 
         if (sheetState === "half") {
           if (offsetY < -60) setSheetState("expanded");
-          else if (offsetY > 35) setSheetState("collapsed"); 
+          else if (offsetY > 35) setSheetState("collapsed");
           else setSheetState("half");
           return;
         }
@@ -90,11 +90,7 @@ export default function BottomSheet({
       {sheetState === "expanded" && (
         <div className="flex items-center gap-1 px-8 pb-2 mb-1">
           <span className="typo-12-light text-black">거리순 정렬</span>
-          <img
-            src={downArrow}
-            alt="정렬 옵션"
-            className="w-5 h-5"
-          />
+          <img src={downArrow} alt="정렬 옵션" className="w-5 h-5" />
         </div>
       )}
 
