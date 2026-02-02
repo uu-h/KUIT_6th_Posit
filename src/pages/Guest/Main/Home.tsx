@@ -5,7 +5,7 @@ import type { Place } from "../../../types/place";
 import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
 import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
 import NaverMap from "../../../components/Map/NaverMap";
-import { storeDetailMock } from "../Store/store.mock";
+import { storeDetailMocks } from "../Store/store.mock";
 import SearchContainer from "../../../components/Common/SearchContainer";
 import GuestLayout from "../../../layouts/GuestLayout";
 
@@ -65,7 +65,7 @@ const mockPlaces: Place[] = [
 ];
 
 export default function Home() {
-  const stores = [storeDetailMock]; // 여러개면 여기에 추가
+  const stores = storeDetailMocks; // 여러개면 여기에 추가
 
   return (
     <GuestLayout>
