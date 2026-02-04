@@ -149,13 +149,13 @@ export default function Home() {
     return Number(selectedStore.id.replace("store_", ""));
   }, [selectedStore]);
 
-  const getCenterOffsetPx = () => {
+  const getCenterOffsetPx = useCallback(() => {
     // halfHeight가 "38vh" or "53vh" 같은 문자열이니까
     // 실제 px로 바꿔야 함.
     const vh = isDetailMode ? 53 : 38;
     const sheetPx = (window.innerHeight * vh) / 100;
     return sheetPx / 2; // 가려진 영역의 절반만큼 위로
-  };
+  }, [isDetailMode]);
 
   const [currentSheetState, setCurrentSheetState] = useState<SheetState>(
     sheetOpen ? "half" : "collapsed",

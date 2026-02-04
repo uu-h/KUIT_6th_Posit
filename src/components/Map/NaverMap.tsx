@@ -20,6 +20,11 @@ export default function NaverMap({
 }: NaverMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const getCenterOffsetPxRef = useRef(getCenterOffsetPx);
+  useEffect(() => {
+    getCenterOffsetPxRef.current = getCenterOffsetPx;
+  }, [getCenterOffsetPx]);
+
   // 지도 인스턴스
   const mapRef = useRef<naver.maps.Map | null>(null);
 
@@ -113,8 +118,7 @@ export default function NaverMap({
   // 2) markers 바뀌면: 마커 다시 생성
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    if (!window.naver) return;
+    if (!map || !window.naver) return;
 
     // markers 바뀔 때만 닫기 (OK)
     infoWindowRef.current?.close();
@@ -149,7 +153,6 @@ export default function NaverMap({
         zIndex: 100,
       });
 
-      // 마커 클릭: InfoWindow 먼저 열고 → 그 다음 부모 콜백
       const listener = window.naver.maps.Event.addListener(
         dotMarker,
         "click",
@@ -157,14 +160,18 @@ export default function NaverMap({
           const info = infoWindowRef.current;
           if (!info) return;
 
-          // 1) 클릭한 마커가 '보이는 지도 영역의 중앙'으로 오도록 보정 이동
-          const offsetY = getCenterOffsetPx?.() ?? 0; // 아래 시트만큼 위로 올릴 값(+) (px)
-          map.panTo(position, {
-            // 네이버 지도 옵션은 pixelOffset이 Point로 들어감
-            // y가 양수면 아래로, 음수면 위로 움직이는 경우가 많아서
-            // 실제 동작 보고 부호만 바꾸면 됨.
-            pixelOffset: new window.naver.maps.Point(0, offsetY),
-          } as any);
+          const offsetY = getCenterOffsetPxRef.current?.() ?? 0;
+          const projection = map.getProjection();
+          const positionPoint = projection.fromCoordToOffset(position); // 위경도를 픽셀로
+
+          // y값에서 offsetY만큼 더함 (마커를 위로 올림)
+          const newPoint = new window.naver.maps.Point(
+            positionPoint.x,
+            positionPoint.y + offsetY,
+          );
+          const newCoord = projection.fromOffsetToCoord(newPoint); // 다시 위경도로
+
+          map.panTo(newCoord); // 보정된 좌표로 이동
 
           info.setContent(`
             <div style="
