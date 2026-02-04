@@ -1,7 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import StoreDotIcon from "../../assets/Map/StoreMarker.svg";
 import MyLocationIcon from "../../assets/Map/MylocationPin.svg";
 import type { StoreMarker } from "../../api/map";
+
+export type MapBounds = {
+  minLat: number;
+  minLng: number;
+  maxLat: number;
+  maxLng: number;
+};
+
+export type NaverMapHandle = {
+  getBounds: () => MapBounds | null;
+};
 
 type NaverMapProps = {
   markers: StoreMarker[];
@@ -10,14 +27,15 @@ type NaverMapProps = {
 
   /** 마커 클릭 후 지도 센터를 보정(픽셀 단위) */
   getCenterOffsetPx?: () => number;
+
+  /** 지도를 움직였을 때(Home에서 버튼 띄우기 용) */
+  onMapMoved?: () => void;
 };
 
-export default function NaverMap({
-  markers,
-  onMarkerClick,
-  onMapClick,
-  getCenterOffsetPx,
-}: NaverMapProps) {
+const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
+  { markers, onMarkerClick, onMapClick, getCenterOffsetPx, onMapMoved },
+  ref,
+) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const getCenterOffsetPxRef = useRef(getCenterOffsetPx);
@@ -25,23 +43,16 @@ export default function NaverMap({
     getCenterOffsetPxRef.current = getCenterOffsetPx;
   }, [getCenterOffsetPx]);
 
-  // 지도 인스턴스
   const mapRef = useRef<naver.maps.Map | null>(null);
 
-  // 가게 마커들
   const storeMarkersRef = useRef<naver.maps.Marker[]>([]);
-
-  // 내 위치 마커
   const myMarkerRef = useRef<naver.maps.Marker | null>(null);
-
-  // InfoWindow 1개 재사용
   const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
 
-  // 이벤트 리스너(정리용)
   const mapClickListenerRef = useRef<naver.maps.MapEventListener | null>(null);
   const markerClickListenersRef = useRef<naver.maps.MapEventListener[]>([]);
+  const movedListenersRef = useRef<naver.maps.MapEventListener[]>([]);
 
-  // onMarkerClick이 바뀌어도 effect가 재실행 안 되게 ref로 보관
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
@@ -49,7 +60,32 @@ export default function NaverMap({
 
   const [locating, setLocating] = useState(false);
 
-  // 1) 지도 생성 (최초 1회)
+  const onMapMovedRef = useRef(onMapMoved);
+  useEffect(() => {
+    onMapMovedRef.current = onMapMoved;
+  }, [onMapMoved]);
+
+  // ✅ Home에서 bounds 가져가게 노출
+  useImperativeHandle(ref, () => ({
+    getBounds: () => {
+      const map = mapRef.current;
+      if (!map || !window.naver) return null;
+
+      const b = map.getBounds() as unknown as naver.maps.LatLngBounds;
+
+      const sw = b.getSW();
+      const ne = b.getNE();
+
+      return {
+        minLat: sw.lat(),
+        minLng: sw.lng(),
+        maxLat: ne.lat(),
+        maxLng: ne.lng(),
+      };
+    },
+  }));
+
+  // 1) 지도 생성
   useEffect(() => {
     if (!containerRef.current) return;
     if (!window.naver) return;
@@ -74,60 +110,62 @@ export default function NaverMap({
       pixelOffset: new window.naver.maps.Point(0, 60),
     });
 
-    // 지도 빈 곳 클릭하면 InfoWindow 닫기
     mapClickListenerRef.current = window.naver.maps.Event.addListener(
       map,
       "click",
       () => {
-        // 지도 빈 곳 클릭: 인포윈도우 닫고 + Home에 알려서 선택 해제/시트 닫기
         infoWindowRef.current?.close();
         onMapClick?.();
       },
     );
 
+    // ✅ 지도 이동 감지 (드래그/줌/idle 조합)
+    const onMoved = () => onMapMoved?.();
+    movedListenersRef.current = [
+      window.naver.maps.Event.addListener(map, "dragend", onMoved),
+      window.naver.maps.Event.addListener(map, "zoom_changed", onMoved),
+    ];
+
     return () => {
-      // 마커 제거
       storeMarkersRef.current.forEach((m) => m.setMap(null));
       storeMarkersRef.current = [];
 
-      // 마커 클릭 리스너 제거
       markerClickListenersRef.current.forEach((l) =>
         window.naver.maps.Event.removeListener(l),
       );
       markerClickListenersRef.current = [];
 
-      // 내 위치 마커 제거
       myMarkerRef.current?.setMap(null);
       myMarkerRef.current = null;
 
-      // InfoWindow 제거
       infoWindowRef.current?.close();
       infoWindowRef.current = null;
 
-      // 지도 클릭 리스너 제거
       if (mapClickListenerRef.current) {
         window.naver.maps.Event.removeListener(mapClickListenerRef.current);
         mapClickListenerRef.current = null;
       }
+
+      movedListenersRef.current.forEach((l) =>
+        window.naver.maps.Event.removeListener(l),
+      );
+      movedListenersRef.current = [];
 
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2) markers 바뀌면: 마커 다시 생성
+  // 2) markers 바뀌면 마커 재생성
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !window.naver) return;
 
-    // markers 바뀔 때만 닫기 (OK)
     infoWindowRef.current?.close();
 
-    // 기존 마커 제거
     storeMarkersRef.current.forEach((m) => m.setMap(null));
     storeMarkersRef.current = [];
 
-    // 기존 마커 리스너 제거
     markerClickListenersRef.current.forEach((l) =>
       window.naver.maps.Event.removeListener(l),
     );
@@ -162,16 +200,16 @@ export default function NaverMap({
 
           const offsetY = getCenterOffsetPxRef.current?.() ?? 0;
           const projection = map.getProjection();
-          const positionPoint = projection.fromCoordToOffset(position); // 위경도를 픽셀로
+          const positionPoint = projection.fromCoordToOffset(position);
 
-          // y값에서 offsetY만큼 더함 (마커를 위로 올림)
           const newPoint = new window.naver.maps.Point(
             positionPoint.x,
             positionPoint.y + offsetY,
           );
-          const newCoord = projection.fromOffsetToCoord(newPoint); // 다시 위경도로
+          const newCoord = projection.fromOffsetToCoord(newPoint);
 
-          map.panTo(newCoord); // 보정된 좌표로 이동
+          map.panTo(newCoord);
+          onMapMovedRef.current?.();
 
           info.setContent(`
             <div style="
@@ -190,8 +228,6 @@ export default function NaverMap({
           `);
 
           info.open(map, dotMarker);
-
-          // ref로 호출 (onMarkerClick 변경으로 effect 재실행 방지)
           onMarkerClickRef.current?.(store.storeId);
         },
       );
@@ -201,9 +237,9 @@ export default function NaverMap({
     });
 
     storeMarkersRef.current = nextDots;
-  }, [markers]); // onMarkerClick 제거
+  }, [markers]);
 
-  // 3) 내 위치로 이동 + 블루닷
+  // 3) 내 위치 이동
   const moveToMyLocation = () => {
     const map = mapRef.current;
     if (!map) return;
@@ -224,6 +260,7 @@ export default function NaverMap({
         const myLatLng = new window.naver.maps.LatLng(latitude, longitude);
 
         map.panTo(myLatLng);
+        onMapMovedRef.current?.();
 
         myMarkerRef.current?.setMap(null);
 
@@ -275,7 +312,9 @@ export default function NaverMap({
       </button>
     </div>
   );
-}
+});
+
+export default NaverMap;
 
 function escapeHtml(input: string) {
   return input
