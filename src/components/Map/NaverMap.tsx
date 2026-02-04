@@ -1,38 +1,96 @@
-import { useEffect, useRef, useState } from "react";
-import type { StoreDetail } from "../../types/store";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import StoreDotIcon from "../../assets/Map/StoreMarker.svg";
 import MyLocationIcon from "../../assets/Map/MylocationPin.svg";
+import type { StoreMarker } from "../../api/map";
 
-type NaverMapProps = {
-  stores: StoreDetail[];
+export type MapBounds = {
+  minLat: number;
+  minLng: number;
+  maxLat: number;
+  maxLng: number;
 };
 
-export default function NaverMap({ stores }: NaverMapProps) {
+export type NaverMapHandle = {
+  getBounds: () => MapBounds | null;
+};
+
+type NaverMapProps = {
+  markers: StoreMarker[];
+  onMarkerClick?: (storeId: number) => void;
+  onMapClick?: () => void;
+
+  /** 마커 클릭 후 지도 센터를 보정(픽셀 단위) */
+  getCenterOffsetPx?: () => number;
+
+  /** 지도를 움직였을 때(Home에서 버튼 띄우기 용) */
+  onMapMoved?: () => void;
+};
+
+const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
+  { markers, onMarkerClick, onMapClick, getCenterOffsetPx, onMapMoved },
+  ref,
+) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // 지도 인스턴스
+  const getCenterOffsetPxRef = useRef(getCenterOffsetPx);
+  useEffect(() => {
+    getCenterOffsetPxRef.current = getCenterOffsetPx;
+  }, [getCenterOffsetPx]);
+
   const mapRef = useRef<naver.maps.Map | null>(null);
 
-  // 가게 마커들 (이미지 마커)
   const storeMarkersRef = useRef<naver.maps.Marker[]>([]);
-
-  // 내 위치(블루닷) 마커
   const myMarkerRef = useRef<naver.maps.Marker | null>(null);
-
-  // 클릭 시 표시할 InfoWindow (하나만 재사용)
   const infoWindowRef = useRef<naver.maps.InfoWindow | null>(null);
 
-  // map click 리스너 보관 (cleanup용)
   const mapClickListenerRef = useRef<naver.maps.MapEventListener | null>(null);
+  const markerClickListenersRef = useRef<naver.maps.MapEventListener[]>([]);
+  const movedListenersRef = useRef<naver.maps.MapEventListener[]>([]);
+
+  const onMarkerClickRef = useRef(onMarkerClick);
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick;
+  }, [onMarkerClick]);
 
   const [locating, setLocating] = useState(false);
 
-  // 1) 지도 생성 (최초 1회)
+  const onMapMovedRef = useRef(onMapMoved);
+  useEffect(() => {
+    onMapMovedRef.current = onMapMoved;
+  }, [onMapMoved]);
+
+  // ✅ Home에서 bounds 가져가게 노출
+  useImperativeHandle(ref, () => ({
+    getBounds: () => {
+      const map = mapRef.current;
+      if (!map || !window.naver) return null;
+
+      const b = map.getBounds() as unknown as naver.maps.LatLngBounds;
+
+      const sw = b.getSW();
+      const ne = b.getNE();
+
+      return {
+        minLat: sw.lat(),
+        minLng: sw.lng(),
+        maxLat: ne.lat(),
+        maxLng: ne.lng(),
+      };
+    },
+  }));
+
+  // 1) 지도 생성
   useEffect(() => {
     if (!containerRef.current) return;
     if (!window.naver) return;
 
-    const first = stores[0];
+    const first = markers[0];
     const center = first
       ? new window.naver.maps.LatLng(first.lat, first.lng)
       : new window.naver.maps.LatLng(37.5665, 126.978);
@@ -44,67 +102,79 @@ export default function NaverMap({ stores }: NaverMapProps) {
 
     mapRef.current = map;
 
-    // InfoWindow 1개 생성 (스타일은 여기서 통일)
     infoWindowRef.current = new window.naver.maps.InfoWindow({
       content: "",
       borderWidth: 0,
       disableAnchor: true,
       backgroundColor: "transparent",
-      // 점 마커 아래에 띄우기 (값 조절 가능)
       pixelOffset: new window.naver.maps.Point(0, 60),
     });
 
-    // 지도 빈 곳 클릭하면 닫기
     mapClickListenerRef.current = window.naver.maps.Event.addListener(
       map,
       "click",
       () => {
         infoWindowRef.current?.close();
+        onMapClick?.();
       },
     );
 
+    // ✅ 지도 이동 감지 (드래그/줌/idle 조합)
+    const onMoved = () => onMapMoved?.();
+    movedListenersRef.current = [
+      window.naver.maps.Event.addListener(map, "dragend", onMoved),
+      window.naver.maps.Event.addListener(map, "zoom_changed", onMoved),
+    ];
+
     return () => {
-      // cleanup - 가게 마커
       storeMarkersRef.current.forEach((m) => m.setMap(null));
       storeMarkersRef.current = [];
 
-      // 내 위치 마커
+      markerClickListenersRef.current.forEach((l) =>
+        window.naver.maps.Event.removeListener(l),
+      );
+      markerClickListenersRef.current = [];
+
       myMarkerRef.current?.setMap(null);
       myMarkerRef.current = null;
 
-      // infowindow
       infoWindowRef.current?.close();
       infoWindowRef.current = null;
 
-      // map click listener
       if (mapClickListenerRef.current) {
         window.naver.maps.Event.removeListener(mapClickListenerRef.current);
         mapClickListenerRef.current = null;
       }
+
+      movedListenersRef.current.forEach((l) =>
+        window.naver.maps.Event.removeListener(l),
+      );
+      movedListenersRef.current = [];
 
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2) stores 바뀌면: 마커 다시 생성 + 마커 클릭 시 InfoWindow 띄우기
+  // 2) markers 바뀌면 마커 재생성
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-    if (!window.naver) return;
+    if (!map || !window.naver) return;
 
-    // stores 바뀌면 열려있던 인포윈도우는 닫아두자
     infoWindowRef.current?.close();
 
-    // 기존 마커 제거
     storeMarkersRef.current.forEach((m) => m.setMap(null));
     storeMarkersRef.current = [];
 
-    const iconSize = 36;
+    markerClickListenersRef.current.forEach((l) =>
+      window.naver.maps.Event.removeListener(l),
+    );
+    markerClickListenersRef.current = [];
 
+    const iconSize = 36;
     const nextDots: naver.maps.Marker[] = [];
 
-    stores.forEach((store) => {
+    markers.forEach((store) => {
       const position = new window.naver.maps.LatLng(store.lat, store.lng);
 
       const dotMarker = new window.naver.maps.Marker({
@@ -115,47 +185,61 @@ export default function NaverMap({ stores }: NaverMapProps) {
           size: new window.naver.maps.Size(iconSize, iconSize),
           scaledSize: new window.naver.maps.Size(iconSize, iconSize),
           origin: new window.naver.maps.Point(0, 0),
-          // ✅ 점(원) 마커면 중앙 앵커가 제일 자연스러움
           anchor: new window.naver.maps.Point(iconSize / 2, iconSize / 2),
-          // 만약 네 아이콘이 "핀(아래 뾰족)" 형태면 아래로 바꿔:
-          // anchor: new window.naver.maps.Point(iconSize / 2, iconSize),
         },
         clickable: true,
         zIndex: 100,
       });
 
-      // 마커 클릭 시 가게 이름 InfoWindow 띄우기
-      window.naver.maps.Event.addListener(dotMarker, "click", () => {
-        const info = infoWindowRef.current;
-        if (!info) return;
+      const listener = window.naver.maps.Event.addListener(
+        dotMarker,
+        "click",
+        () => {
+          const info = infoWindowRef.current;
+          if (!info) return;
 
-        info.setContent(`
-          <div style="
-            height: 17px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-            font-size: 14px;
-      line-height: 16px;
-      font-weight: 500;
+          const offsetY = getCenterOffsetPxRef.current?.() ?? 0;
+          const projection = map.getProjection();
+          const positionPoint = projection.fromCoordToOffset(position);
+
+          const newPoint = new window.naver.maps.Point(
+            positionPoint.x,
+            positionPoint.y + offsetY,
+          );
+          const newCoord = projection.fromOffsetToCoord(newPoint);
+
+          map.panTo(newCoord);
+          onMapMovedRef.current?.();
+
+          info.setContent(`
+            <div style="
+              height: 17px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 14px;
+              line-height: 16px;
+              font-weight: 500;
               white-space: nowrap;
               user-select: none;
             ">
-            ${escapeHtml(store.name)}
-          </div>
-        `);
+              ${escapeHtml(store.name)}
+            </div>
+          `);
 
-        // ✅ 이게 핵심: marker에 붙여 열면 위치가 자연스럽게 따라감
-        info.open(map, dotMarker);
-      });
+          info.open(map, dotMarker);
+          onMarkerClickRef.current?.(store.storeId);
+        },
+      );
 
+      markerClickListenersRef.current.push(listener);
       nextDots.push(dotMarker);
     });
 
     storeMarkersRef.current = nextDots;
-  }, [stores]);
+  }, [markers]);
 
-  // 3) 내 위치로 이동 + 블루닷
+  // 3) 내 위치 이동
   const moveToMyLocation = () => {
     const map = mapRef.current;
     if (!map) return;
@@ -176,6 +260,7 @@ export default function NaverMap({ stores }: NaverMapProps) {
         const myLatLng = new window.naver.maps.LatLng(latitude, longitude);
 
         map.panTo(myLatLng);
+        onMapMovedRef.current?.();
 
         myMarkerRef.current?.setMap(null);
 
@@ -198,36 +283,18 @@ export default function NaverMap({ stores }: NaverMapProps) {
           zIndex: 300,
         });
       },
-      (err) => {
+      () => {
         setLocating(false);
-
-        if (err.code === err.PERMISSION_DENIED) {
-          alert(
-            "위치 권한이 거부되었어요. 브라우저 설정에서 위치 권한을 허용해주세요.",
-          );
-          return;
-        }
-        if (err.code === err.POSITION_UNAVAILABLE) {
-          alert("현재 위치를 확인할 수 없어요.");
-          return;
-        }
-        if (err.code === err.TIMEOUT) {
-          alert("위치 요청 시간이 초과되었어요. 잠시 후 다시 시도해주세요.");
-          return;
-        }
         alert("현재 위치를 가져오지 못했어요.");
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 0,
-      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
     );
   };
 
   return (
     <div className="relative w-full h-full">
       <div ref={containerRef} className="w-full h-full" />
+
       <button
         type="button"
         onClick={moveToMyLocation}
@@ -243,11 +310,11 @@ export default function NaverMap({ stores }: NaverMapProps) {
       >
         <img src={MyLocationIcon} className="h-[48px]" />
       </button>
-      console.log("naver maps", !!window.naver?.maps); console.log("InfoWindow",
-      window.naver?.maps?.InfoWindow);
     </div>
   );
-}
+});
+
+export default NaverMap;
 
 function escapeHtml(input: string) {
   return input

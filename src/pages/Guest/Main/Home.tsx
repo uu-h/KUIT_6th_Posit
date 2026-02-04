@@ -1,13 +1,22 @@
-import BottomSheet from "../../../components/Guest/Main/BottomSheet";
+import BottomSheet, {
+  type SheetState,
+} from "../../../components/Guest/Main/BottomSheet";
 import PopularPlaces from "../../../components/Guest/Main/PopularPlaces";
 import PlaceList from "../../../components/Guest/Main/PlaceList";
 import type { Place } from "../../../types/place";
-import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
+import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter"; //수정!!
 import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
-import NaverMap from "../../../components/Map/NaverMap";
-import { storeDetailMocks } from "../Store/store.mock";
+import NaverMap, {
+  type NaverMapHandle,
+} from "../../../components/Map/NaverMap";
 import SearchContainer from "../../../components/Common/SearchContainer";
 import GuestLayout from "../../../layouts/GuestLayout";
+import { mapApi, type StoreMarker } from "../../../api/map";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { StoreDetail } from "../../../types/store";
+import { storeDetailMocks } from "../Store/store.mock";
+import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
+import { useNavigate } from "react-router-dom";
 
 const mockPlaces: Place[] = [
   {
@@ -64,14 +73,175 @@ const mockPlaces: Place[] = [
   },
 ];
 
-export default function Home() {
-  const stores = storeDetailMocks; // 여러개면 여기에 추가
+// 임시 마커(목업)
+const mockMarkers: StoreMarker[] = [
+  { storeId: 1, name: "카페 레이지아워", lat: 37.54312, lng: 127.071253 },
+  { storeId: 2, name: "마이 디어 버터하우스", lat: 37.544966, lng: 127.069126 },
+  { storeId: 3, name: "도우터", lat: 37.542712, lng: 127.070158 },
+  { storeId: 4, name: "cafe 462", lat: 37.543181, lng: 127.06788 },
+  { storeId: 5, name: "카페 언필드", lat: 37.542093, lng: 127.06594 },
+  { storeId: 6, name: "메롱", lat: 37.538513, lng: 127.133774 },
+];
 
+const ENABLE_SERVER = false;
+
+export default function Home() {
+  const navigate = useNavigate();
+
+  const mapHandleRef = useRef<NaverMapHandle | null>(null);
+
+  // 서버 안 쓰면 초기값을 mock으로
+  const [allMarkers, setAllMarkers] = useState<StoreMarker[]>(
+    ENABLE_SERVER ? [] : mockMarkers,
+  );
+
+  // ✅ 현재 표시 마커(필터 결과)
+  const [markers, setMarkers] = useState<StoreMarker[]>(
+    ENABLE_SERVER ? [] : mockMarkers,
+  );
+
+  // ✅ '현재 위치에서 검색하기' 버튼 노출 상태
+  const [showSearchHere, setShowSearchHere] = useState(false);
+
+  // 서버 seed 넣으면 고치기
+
+  // const [markers, setMarkers] = useState<StoreMarker[]>([]);
+
+  // useEffect(() => {
+  //   const run = async () => {
+  //     try {
+  //       const res = await mapApi.getMarkers();
+  //       if (!res.data.isSuccess) return;
+  //       setMarkers(res.data.data.stores);
+  //     } catch (e) {
+  //       console.error(e);
+  //     }
+  //   };
+  //   void run();
+  // }, []);
+
+  useEffect(() => {
+    // 서버 켤때만 effect 실행
+    if (!ENABLE_SERVER) return;
+
+    const run = async () => {
+      try {
+        const res = await mapApi.getMarkers();
+        const serverMarkers = res.data.data.stores ?? [];
+        const base = serverMarkers.length > 0 ? serverMarkers : mockMarkers;
+
+        setAllMarkers(base);
+        setMarkers(base);
+      } catch (e) {
+        console.error(e);
+        setAllMarkers(mockMarkers);
+        setMarkers(mockMarkers);
+      }
+    };
+
+    void run();
+  }, []);
+
+  // ✅ 지도 bounds 안에 들어오는지 필터
+  const filterByBounds = useCallback(
+    (
+      list: StoreMarker[],
+      b: { minLat: number; minLng: number; maxLat: number; maxLng: number },
+    ) => {
+      // 한국에서는 경도 역전(anti-meridian) 거의 없어서 단순 비교로 충분
+      return list.filter((m) => {
+        const inLat = m.lat >= b.minLat && m.lat <= b.maxLat;
+        const inLng = m.lng >= b.minLng && m.lng <= b.maxLng;
+        return inLat && inLng;
+      });
+    },
+    [],
+  );
+
+  const onSearchHere = useCallback(() => {
+    const bounds = mapHandleRef.current?.getBounds();
+    if (!bounds) return;
+
+    const filtered = filterByBounds(allMarkers, bounds);
+
+    // ✅ “현재 화면 내 가게만” 표시
+    setMarkers(filtered);
+
+    // 버튼 다시 숨김 (네이버 지도처럼)
+    setShowSearchHere(false);
+  }, [allMarkers, filterByBounds]);
+
+  // 선택된 가게 상세
+  const [selectedStore, setSelectedStore] = useState<StoreDetail | null>(null);
+
+  // 바텀시트 열림 여부
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const isDetailMode = selectedStore !== null;
+
+  const handleMarkerClick = useCallback((storeId: number) => {
+    const store =
+      storeDetailMocks.find(
+        (s) => Number(s.id.replace("store_", "")) === storeId,
+      ) ?? null;
+
+    setSelectedStore(store);
+    setSheetOpen(true); // 마커 클릭하면 무조건 시트 열기
+  }, []);
+
+  // 페이지 전환용 id (mock "store_001" -> 1)
+  const selectedStoreNumericId = useMemo(() => {
+    if (!selectedStore) return null;
+    return Number(selectedStore.id.replace("store_", ""));
+  }, [selectedStore]);
+
+  const getCenterOffsetPx = useCallback(() => {
+    // halfHeight가 "38vh" or "53vh" 같은 문자열이니까
+    // 실제 px로 바꿔야 함.
+    const vh = isDetailMode ? 53 : 38;
+    const sheetPx = (window.innerHeight * vh) / 100;
+    return sheetPx / 2; // 가려진 영역의 절반만큼 위로
+  }, [isDetailMode]);
+
+  const [currentSheetState, setCurrentSheetState] = useState<SheetState>(
+    sheetOpen ? "half" : "collapsed",
+  );
   return (
     <GuestLayout>
       {/* 지도 영역 */}
       <div className="absolute inset-0">
-        <NaverMap stores={stores} />{" "}
+        <NaverMap
+          ref={mapHandleRef}
+          markers={markers}
+          onMarkerClick={handleMarkerClick}
+          onMapClick={() => {
+            setSelectedStore(null);
+            setSheetOpen(false);
+          }}
+          getCenterOffsetPx={getCenterOffsetPx}
+          onMapMoved={() => {
+            // ✅ 사용자가 지도를 움직이면 버튼 표시
+            setShowSearchHere(true);
+          }}
+        />
+
+        {/* ✅ 현재 위치에서 검색하기 버튼 (지도 위 오버레이) */}
+        {showSearchHere && (
+          <button
+            type="button"
+            onClick={onSearchHere}
+            className="
+              absolute left-1/2 -translate-x-1/2
+              bottom-[140px] z-40
+              px-[14px] h-[40px]
+              rounded-full bg-white
+              shadow-[0px_2px_12px_rgba(0,0,0,0.18)]
+              typo-14-medium
+            "
+          >
+            현재 지도에서 검색
+          </button>
+        )}
       </div>
 
       {/* 페이드 오버레이*/}
@@ -96,7 +266,40 @@ export default function Home() {
 
       {/* Bottom Sheet */}
       <BottomSheet
-        popularContent={<PopularPlaces />}
+        // 기본은 collapsed, 마커 클릭-> sheetOpen이면 half로 시작
+        initialState={sheetOpen ? "half" : "collapsed"}
+        halfHeight={isDetailMode ? "53vh" : "38vh"}
+        disableScrollOnHalf={isDetailMode}
+        onStateChange={(state) => {
+          setCurrentSheetState(state);
+
+          if (state === "collapsed") {
+            setSheetOpen(false);
+          }
+        }}
+        showSortBar={!isDetailMode}
+        disableExpanded={isDetailMode}
+        onExpandedIntent={() => {
+          if (!selectedStoreNumericId) return;
+          navigate(`/stores/${selectedStoreNumericId}`);
+        }}
+        popularContent={
+          isDetailMode && selectedStore ? (
+            <div className="bg-white">
+              <StoreDetailBody
+                store={selectedStore}
+                headerOffset={64}
+                hideSectionNav={currentSheetState === "collapsed"}
+                onClose={() => {
+                  setSheetOpen(false);
+                  setSelectedStore(null);
+                }}
+              />
+            </div>
+          ) : (
+            <PopularPlaces />
+          )
+        }
         expandedContent={
           <>
             <PlaceList places={mockPlaces} />
