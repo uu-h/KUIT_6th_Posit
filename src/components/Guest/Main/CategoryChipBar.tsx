@@ -53,11 +53,6 @@ export default function CategoryChipBar() {
           onClick={() => setActive("스터디 카페")}
         />
         <CategoryChip
-          label="책방"
-          selected={active === "책방"}
-          onClick={() => setActive("책방")}
-        />
-        <CategoryChip
           label="브런치 카페"
           selected={active === "브런치 카페"}
           onClick={() => setActive("브런치 카페")}
