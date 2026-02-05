@@ -1,17 +1,11 @@
-
 import Avatar from "../../../assets/Common/GenericAvatar.svg";
-import Setting from "../../../assets/Owner/My/Setting.svg";
-
 
 type Profile = {
   name: string;
   handle: string; // @tera_coffee_owner
 };
 
-export default function ProfileHeader({
-  name,
-  handle,
-}: Profile) {
+export default function ProfileHeader({ name, handle }: Profile) {
   return (
     <div className=" flex items-center justify-between">
       {/* 왼쪽: 아바타 + 텍스트 */}

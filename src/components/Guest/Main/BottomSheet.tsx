@@ -148,7 +148,7 @@ export default function BottomSheet({
 
       {/* 정렬 바: 리스트 모드에서 expanded일 때만 */}
       {sheetState === "expanded" && showSortBar && (
-        <div className="flex items-center gap-1 px-8 pb-2 mb-1">
+        <div className="flex items-center gap-1 px-4 pb-2 mb-1">
           <span className="typo-12-light text-black">거리순 정렬</span>
           <img src={downArrow} alt="정렬 옵션" className="w-5 h-5" />
         </div>
