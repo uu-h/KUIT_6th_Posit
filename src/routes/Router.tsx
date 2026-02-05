@@ -28,81 +28,93 @@ import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
-import StoreRegisterPhoto from "../pages/Owner/Registration/StoreRegisterPhoto"
-import StoreRegisterHours from "../pages/Owner/Registration/StoreRegisterHours"
+import StoreRegisterPhoto from "../pages/Owner/Registration/StoreRegisterPhoto";
+import StoreRegisterHours from "../pages/Owner/Registration/StoreRegisterHours";
 import StoreRegisterAmenities from "../pages/Owner/Registration/StoreRegisterAmenities";
-
+import GuestStoreDetailPage from "../pages/Guest/Store/GuestStoreDetailPage";
 
 export default function Router() {
   return (
-      <Routes>
-        {/* Onboarding */}
-        <Route path="/" element={<Onboarding />} />
-        <Route path="/splash" element={<SplashPage />} />
-        <Route path="/type" element={<UserTypeSelect />} />
-        
-        {/* Guest */}
-        {/* Guest - login */}
-        <Route path="/guest/login" element={<GuestLoginPage />}/>
-        <Route path="/guest/signup" element={<GuestSignUpPage />}/>
+    <Routes>
+      {/* Onboarding */}
+      <Route path="/" element={<Onboarding />} />
+      <Route path="/splash" element={<SplashPage />} />
+      <Route path="/type" element={<UserTypeSelect />} />
 
-        {/* Guest - home */}
-        <Route path="/guest/home" element={<Home />} />
-        {/* TODO : 가게 별로 다르게 표시해야함  */}
+      {/* Guest */}
+      {/* Guest - login */}
+      <Route path="/guest/login" element={<GuestLoginPage />} />
+      <Route path="/guest/signup" element={<GuestSignUpPage />} />
 
-        {/* Guest - POSiT */}
-        <Route path="/guest/posit" element={<GuestPositMainPage />} />
-        <Route path="/guest/posit/waiting" element={<GuestPositWaitingAnswer />} />
-        <Route path="/guest/posit/selected" element={<GuestPositSelectedAnswer />} />
-        <Route
-          path="/guest/posit/selected/:id"
-          element={<GuestPositSelectedDetail />}
-        />
-        <Route
-          path="/guest/posit/waiting/:id"
-          element={<GuestPositWaitingDetail />}
-        />
+      {/* Guest - home */}
+      <Route path="/guest/home" element={<Home />} />
 
-        {/* Guest - 쿠폰 */}
-        <Route path="/guest/coupon" element={<CouponBox />} />
-        <Route
-          path="/guest/coupon/:id"
-          element={<CouponPage />}
-        />
-        <Route path="/guest/coupon/:id/verify" element={<CouponVerifyPage />} />
+      {/* TODO : 가게 별로 다르게 표시해야함  */}
+      {/* Guest - store */}
+      <Route path="/stores/:storeId" element={<GuestStoreDetailPage />} />
 
-        {/* Guest - MY */}
-        <Route path="/guest/my" element={<GuestMyPage/>}/>
-        <Route path="/guest/my/policy" element={<GuestMyPolicy/>}/>
-        <Route path="/guest/my/account" element={<GuestMyAccount/>}/>
+      {/* Guest - POSiT */}
+      <Route path="/guest/posit" element={<GuestPositMainPage />} />
+      <Route
+        path="/guest/posit/waiting"
+        element={<GuestPositWaitingAnswer />}
+      />
+      <Route
+        path="/guest/posit/selected"
+        element={<GuestPositSelectedAnswer />}
+      />
+      <Route
+        path="/guest/posit/selected/:id"
+        element={<GuestPositSelectedDetail />}
+      />
+      <Route
+        path="/guest/posit/waiting/:id"
+        element={<GuestPositWaitingDetail />}
+      />
 
-        {/* Owner */}
-        {/* Owner - login */}
-        <Route path="/owner/login" element={<OwnerLoginPage />}/>
-        <Route path="/owner/signup" element={<OwnerSignUpPage />}/>
+      {/* Guest - 쿠폰 */}
+      <Route path="/guest/coupon" element={<CouponBox />} />
+      <Route path="/guest/coupon/:id" element={<CouponPage />} />
+      <Route path="/guest/coupon/:id/verify" element={<CouponVerifyPage />} />
 
-        {/* Owner - MY*/}
-        <Route path="/owner/my" element={<OwnerMyPage/>} />
-        <Route path="/owner/my/policy" element={<OwnerMyPolicy/>} />
-        <Route path="/owner/my/account" element={<OwnerMyAccount/>}/>
-        <Route path="/owner/my/coupon" element={<OwnerMyCoupon/>} />
-        <Route path="/owner/my/store" element={<OwnerMyStore/>} />
-        
+      {/* Guest - MY */}
+      <Route path="/guest/my" element={<GuestMyPage />} />
+      <Route path="/guest/my/policy" element={<GuestMyPolicy />} />
+      <Route path="/guest/my/account" element={<GuestMyAccount />} />
 
-        {/* Owner - Home (아직 미완성이라 비워둠)
+      {/* Owner */}
+      {/* Owner - login */}
+      <Route path="/owner/login" element={<OwnerLoginPage />} />
+      <Route path="/owner/signup" element={<OwnerSignUpPage />} />
+
+      {/* Owner - MY*/}
+      <Route path="/owner/my" element={<OwnerMyPage />} />
+      <Route path="/owner/my/policy" element={<OwnerMyPolicy />} />
+      <Route path="/owner/my/account" element={<OwnerMyAccount />} />
+      <Route path="/owner/my/coupon" element={<OwnerMyCoupon />} />
+      <Route path="/owner/my/store" element={<OwnerMyStore />} />
+
+      {/* Owner - Home (아직 미완성이라 비워둠)
         <Route path="/owner/home" element={} />*/}
 
-        {/* Owner - Inbox*/}
-        <Route path="/owner/inbox" element={<PositInbox/>}/>
+      {/* Owner - Inbox*/}
+      <Route path="/owner/inbox" element={<PositInbox />} />
 
-        {/* Owner - Registration */}
-        <Route path="/owner/store/register" element={<StoreRegistration />} />
-        <Route path="/owner/store/address-search" element={<AddressSearch />} />
-        <Route path="/owner/store/register/photo" element={<StoreRegisterPhoto />} />
-        <Route path="/owner/store/register/hours" element={<StoreRegisterHours />} />
-        <Route path="/owner/store/register/amenities" element={<StoreRegisterAmenities />} />
-
-
-      </Routes>
+      {/* Owner - Registration */}
+      <Route path="/owner/store/register" element={<StoreRegistration />} />
+      <Route path="/owner/store/address-search" element={<AddressSearch />} />
+      <Route
+        path="/owner/store/register/photo"
+        element={<StoreRegisterPhoto />}
+      />
+      <Route
+        path="/owner/store/register/hours"
+        element={<StoreRegisterHours />}
+      />
+      <Route
+        path="/owner/store/register/amenities"
+        element={<StoreRegisterAmenities />}
+      />
+    </Routes>
   );
 }

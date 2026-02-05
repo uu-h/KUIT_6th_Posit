@@ -3,19 +3,65 @@ import type { StoreDetail } from "../../../types/store";
 import { storeDetailMock } from "./store.mock";
 import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
 import GuestLayout from "../../../layouts/GuestLayout";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useMemo } from "react";
 
-type Props = { store?: StoreDetail };
+type GuestStoreDetailLocationState = {
+  restore?: unknown; // 복원 데이터의 구체 타입을 알면 더 좁혀도 좋아요
+  from?: "home" | "posit" | "coupon" | "my" | string;
+};
 
-export default function GuestStoreDetailPage({
-  store = storeDetailMock,
-}: Props) {
+export default function GuestStoreDetailPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { storeId } = useParams();
+
+  const state = location.state as GuestStoreDetailLocationState | null;
+  const restore = state?.restore;
+  const from = state?.from;
+
+  const goBackToHomeWithRestore = () => {
+    if (from === "home" && restore) {
+      navigate("/guest/home", {
+        state: { restoreFromDetail: restore },
+      });
+      return;
+    }
+    navigate(-1);
+  };
+
+  const store: StoreDetail | null = useMemo(() => {
+    const idNum = Number(storeId);
+    if (!Number.isFinite(idNum)) return null;
+
+    // storeDetailMock이 배열이면 find로 찾기
+    // return storeDetailMock.find((s) => Number(s.id) === idNum) ?? null;
+
+    // 목업이 단일 객체일때
+    return storeDetailMock as unknown as StoreDetail;
+  }, [storeId]);
+
+  if (!store) {
+    return (
+      <GuestLayout active="home">
+        <AppBar
+          title="가게 정보 없음"
+          layout="left"
+          leftType="left"
+          rightType="close"
+        />
+        <div className="p-4">존재하지 않는 가게입니다.</div>
+      </GuestLayout>
+    );
+  }
+
   return (
     <GuestLayout active="home">
       <AppBar
         title={store.name}
         layout="left"
         leftType="left"
-        rightType="close"
+        onBack={goBackToHomeWithRestore}
       />
       <StoreDetailBody store={store} headerOffset={64} />
     </GuestLayout>

@@ -16,7 +16,8 @@ type Props = {
   store: StoreDetail;
   headerOffset?: number; // 바텀시트/페이지에 따라 top offset 다르게
   onClose?: () => void; // 바텀시트에서 닫기 연결용
-  hideSectionNav?: boolean; //추가!!
+  hideSectionNav?: boolean;
+  px?: number;
 };
 
 const APPBAR_H_DEFAULT = 64;
@@ -27,6 +28,7 @@ export default function StoreDetailBody({
   headerOffset = APPBAR_H_DEFAULT,
   onClose,
   hideSectionNav = false,
+  px = 16,
 }: Props) {
   const [activeTab, setActiveTab] = useState<StoreSectionKey>("home");
 
@@ -55,7 +57,7 @@ export default function StoreDetailBody({
   };
 
   return (
-    <main className="px-[16px] pt-[7px]">
+    <main style={{ paddingLeft: px, paddingRight: px }} className=" pt-[7px]">
       <StoreHeaderCard
         store={store}
         onClose={onClose}

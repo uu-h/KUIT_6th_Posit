@@ -22,7 +22,7 @@ export default function PlaceHeader({
   const scrollLeft = useRef(0);
 
   const onMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     isDown.current = true;
     startX.current = e.pageX;
     scrollLeft.current = containerRef.current!.scrollLeft;
@@ -46,7 +46,7 @@ export default function PlaceHeader({
   };
 
   return (
-    <div className="flex flex-col gap-4 px-4">
+    <div className="flex flex-col gap-4">
       {/* 텍스트 영역 */}
       <div className="flex flex-col gap-2">
         <h1 className="typo-16-bold text-black">{name}</h1>
@@ -78,7 +78,7 @@ export default function PlaceHeader({
           onMouseUp={onMouseUp}
           onMouseLeave={onMouseLeave}
           onMouseMove={onMouseMove}
-          onTouchStart={(e) => e.stopPropagation()} 
+          onTouchStart={(e) => e.stopPropagation()}
         >
           {images.map((src, index) => (
             <img
