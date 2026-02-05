@@ -7,7 +7,7 @@ import DaumPostcode from "react-daum-postcode";
 export default function AddressSearch() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleComplete = (data: any) => {
     const fullAddress = data.address;
