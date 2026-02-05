@@ -17,6 +17,7 @@ import type { StoreDetail } from "../../../types/store";
 import { storeDetailMocks } from "../Store/store.mock";
 import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
 import { useNavigate } from "react-router-dom";
+import SearchArrowIcon from "../../../assets/Guest/Main/SearchArrow.svg";
 
 const mockPlaces: Place[] = [
   {
@@ -232,14 +233,17 @@ export default function Home() {
             onClick={onSearchHere}
             className="
               absolute left-1/2 -translate-x-1/2
-              bottom-[140px] z-40
-              px-[14px] h-[40px]
+              bottom-[150px] z-40 h-[40px] px-[15px]
               rounded-full bg-white
-              shadow-[0px_2px_12px_rgba(0,0,0,0.18)]
-              typo-14-medium
+              shadow-[0px_2px_4px_0px_rgba(0,0,0,0.25)]
+              flex items-center gap-[10px]
             "
           >
-            현재 지도에서 검색
+            <img src={SearchArrowIcon} alt="재검색" className="h-[20px]" />
+            <p className="typo-14-semibold text-primary-01">
+              {" "}
+              현 지도에서 검색
+            </p>
           </button>
         )}
       </div>

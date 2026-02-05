@@ -300,7 +300,7 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
         onClick={moveToMyLocation}
         disabled={locating}
         className="
-          absolute right-4 bottom-[180px] z-30
+          absolute right-4 bottom-[150px] z-30
           w-[44px] h-[44px] rounded-full bg-white
           shadow-[0px_2px_10px_rgba(0,0,0,0.15)]
           flex items-center justify-center
