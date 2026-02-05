@@ -1,6 +1,6 @@
 import AppBar from "../../../components/Common/AppBar";
 import type { StoreDetail } from "../../../types/store";
-import { storeDetailMock } from "./store.mock";
+import { storeDetailMocks } from "./store.mock";
 import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
 import GuestLayout from "../../../layouts/GuestLayout";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -34,11 +34,11 @@ export default function GuestStoreDetailPage() {
     const idNum = Number(storeId);
     if (!Number.isFinite(idNum)) return null;
 
-    // storeDetailMock이 배열이면 find로 찾기
-    // return storeDetailMock.find((s) => Number(s.id) === idNum) ?? null;
-
-    // 목업이 단일 객체일때
-    return storeDetailMock as unknown as StoreDetail;
+    return (
+      storeDetailMocks.find(
+        (s) => Number(s.id.replace("store_", "")) === idNum,
+      ) ?? null
+    );
   }, [storeId]);
 
   if (!store) {
