@@ -88,7 +88,7 @@ const mockMarkers: StoreMarker[] = [
   { storeId: 3, name: "도우터", lat: 37.542712, lng: 127.070158 },
   { storeId: 4, name: "cafe 462", lat: 37.543181, lng: 127.06788 },
   { storeId: 5, name: "카페 언필드", lat: 37.542093, lng: 127.06594 },
-  { storeId: 6, name: "메롱", lat: 37.538513, lng: 127.133774 },
+  { storeId: 6, name: "test", lat: 37.538513, lng: 127.133774 },
 ];
 
 const ENABLE_SERVER = false;
@@ -106,6 +106,14 @@ type HomeRestoreState = {
 
 type HomeLocationState = {
   restoreFromDetail?: HomeRestoreState;
+};
+
+type SearchPlace = {
+  id: number;
+  name: string;
+  address: string;
+  lat?: number;
+  lng?: number;
 };
 
 export default function Home() {
@@ -287,6 +295,25 @@ export default function Home() {
     }, 0);
   }, [location.state, location.pathname, navigate, allMarkers]);
 
+  const searchPlaces: SearchPlace[] = useMemo(() => {
+    // 1) 마커 기반 (서버든 목업이든 allMarkers가 source)
+    // 2) address는 상세 mock에서 붙임(지금 단계에서)
+    return allMarkers.map((m) => {
+      const detail =
+        storeDetailMocks.find(
+          (s) => Number(s.id.replace("store_", "")) === m.storeId,
+        ) ?? null;
+
+      return {
+        id: m.storeId,
+        name: m.name,
+        address: detail?.fullAddress ?? detail?.shortAddress ?? "",
+        lat: m.lat,
+        lng: m.lng,
+      };
+    });
+  }, [allMarkers]);
+
   return (
     <GuestLayout>
       {/* 지도 영역 */}
@@ -341,7 +368,21 @@ export default function Home() {
 
       {/* 상단 검색 바 */}
       <div className="absolute top-4 left-4 right-4 z-30">
-        <SearchContainer />
+        <SearchContainer
+          places={searchPlaces}
+          onSelectPlace={(place) => {
+            // 1) 지도 이동
+            if (place.lat && place.lng) {
+              mapHandleRef.current?.setCamera({
+                center: { lat: place.lat, lng: place.lng },
+                zoom: 16,
+              });
+            }
+
+            // 2) 마커 클릭과 동일하게 시트 열기
+            handleMarkerClick(place.id);
+          }}
+        />
       </div>
 
       {/* 카테고리 칩 */}
