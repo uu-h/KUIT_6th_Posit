@@ -95,7 +95,7 @@ export default function StoreDetailBody({
         <PositSection variant="my" data={store.myPosit} />
       </div>
 
-      <div ref={menuRef} className="mt-[52px] scroll-mt-[144px]">
+      <div ref={menuRef} className="mt-[52px] scroll-mt-[144px] ">
         <MenuList menus={store.menus} />
       </div>
 
