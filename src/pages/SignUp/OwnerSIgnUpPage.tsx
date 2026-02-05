@@ -43,6 +43,7 @@ export default function OwnerSignUpPage() {
   // 쿠폰 비밀번호 (4자리)
   const couponPasswordRegex = /^\d{4}$/;
   const [couponPassword, setCouponPassword] = useState("");
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false)
 
 
   // 휴대폰 포맷
@@ -306,6 +307,9 @@ export default function OwnerSignUpPage() {
         <button
           type="button"
           disabled={!couponPasswordRegex.test(couponPassword)}
+          onClick={()=> {
+             setIsCouponModalOpen(true);
+           }}
           className={`
             absolute right-[12px] top-1/2 -translate-y-1/2
             w-[105px] h-[32px] px-[12px] rounded-[6px]
@@ -370,6 +374,27 @@ export default function OwnerSignUpPage() {
         </div>
       </div>
     )}
+
+    {/* ================= 쿠폰 비밀번호 설정 완료 모달 ================= */}
+    {isCouponModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
+          <div className="px-[24px] py-[32px] text-center">
+            <p className="typo-13-regular text-black">
+              쿠폰 비밀번호 설정이 완료되었습니다.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsCouponModalOpen(false)}
+            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    )}
+
 
 
 
