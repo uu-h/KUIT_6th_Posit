@@ -4,6 +4,14 @@ import { useNavigate } from "react-router-dom";
 import SignLeftArrowIcon from "../../assets/Login/Sign_left_arrow.svg";
 import Button from "../../components/Button";
 
+import {
+  requestPhoneVerification,
+  confirmPhoneVerification,
+} from "../../api/phoneVerification";
+
+import { signup } from "../../api/auth";
+
+
 export default function GuestSignUpPage() {
   const navigate = useNavigate();
 
@@ -36,6 +44,9 @@ export default function GuestSignUpPage() {
   // 인증 성공 여부
   const [isAuthVerified, setIsAuthVerified] = useState(false);
 
+  // signupToken 
+  const [signupToken, setSignupToken] = useState<string | undefined>(undefined);
+
   // 인증 성공 모달
   const [isAuthSuccessModalOpen, setIsAuthSuccessModalOpen] = useState(false);
 
@@ -43,8 +54,69 @@ export default function GuestSignUpPage() {
   // ================= 인증번호 오류 모달 =================
   const [isAuthErrorModalOpen, setIsAuthErrorModalOpen] = useState(false);
 
-  // 임시 인증번호 (나중에 API 연동 시 제거)
-  const CORRECT_AUTH_CODE = "123456";
+  // ================= 인증 API 상태 =================
+  const [verificationId, setVerificationId] = useState<number | null>(null);
+  const [isRequestingAuth, setIsRequestingAuth] = useState(false);
+  const [isVerifyingAuth, setIsVerifyingAuth] = useState(false);
+
+  // ================= 인증번호 요청 함수 =================
+  const handleRequestAuthCode = async () => {
+    try {
+      setIsRequestingAuth(true);
+
+      const res = await requestPhoneVerification({
+        phone: phone.replace(/[^0-9]/g, ""),
+      });
+
+      // 성공
+      if (res.isSuccess) {
+        setVerificationId(res.data.verificationId);
+        alert("인증번호가 전송되었습니다.");
+        return;
+      }
+
+      // 서버 응답은 왔지만 실패한 경우
+      alert("인증번호 요청에 실패했습니다.");
+    } catch (error: any) {
+      // axios 에러 처리 (http.ts 기준)
+      if (error?.code === 40301) {
+        alert("인증 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.");
+        return;
+      }
+
+      alert("인증번호 요청 중 오류가 발생했습니다.");
+    } finally {
+      setIsRequestingAuth(false);
+    }
+  };
+  // ================= 인증번호 확인 함수 =================
+    const handleConfirmAuthCode = async () => {
+    if (!verificationId) return;
+
+    try {
+      setIsVerifyingAuth(true);
+
+      const res = await confirmPhoneVerification({
+        verificationId,
+        phone: phone.replace(/[^0-9]/g, ""),
+        code: authCode,
+      });
+
+      if (res.isSuccess && res.data.verified) {
+        setSignupToken(res.data.signupToken ?? undefined);
+        setIsAuthSuccessModalOpen(true);
+      } else {
+        setIsAuthErrorModalOpen(true);
+      }
+    } catch (error: any) {
+      // 에러 코드 분기 가능
+      setIsAuthErrorModalOpen(true);
+    } finally {
+      setIsVerifyingAuth(false);
+    }
+  };
+
+
 
   // ================= 휴대폰 포맷 =================
   const formatPhoneNumber = (value: string) => {
@@ -122,6 +194,58 @@ export default function GuestSignUpPage() {
       isAuthVerified &&             
       isValidBirthDate(birth);
 
+    // ================= 가입하기 핸들러 =================
+      const handleSignup = async () => {
+        try {
+          const res = await signup({
+            role: "GUEST",
+            loginId: username,
+            password,
+            name,
+            phone: phone.replace(/[^0-9]/g, ""),
+            gender: gender === "male" ? "MALE" : "FEMALE",
+            birth: birth.replace(/[^0-9]/g, "").replace(
+              /^(\d{4})(\d{2})(\d{2})$/,
+              "$1-$2-$3"
+            ),
+             signupToken,
+          });
+
+          if (res.isSuccess) {
+            const { accessToken, refreshToken } = res.data.tokens;
+
+            localStorage.setItem("accessToken", accessToken);
+            localStorage.setItem("refreshToken", refreshToken);
+
+            alert("회원가입이 완료되었습니다.");
+            navigate("/");
+          }
+        } catch (error: any) {
+            const errorCode = error?.response?.data?.errorCode;
+
+            switch (errorCode) {
+              case "DUPLICATE_LOGIN_ID":
+                setIsUsernameAvailable(false);
+                alert("이미 사용 중인 아이디입니다.");
+                break;
+
+              case "DUPLICATE_PHONE":
+                alert("이미 가입된 휴대폰 번호입니다.");
+                break;
+
+              case "PHONE_VERIFICATION_REQUIRED":
+                alert("휴대폰 인증을 먼저 완료해주세요.");
+                break;
+
+              default:
+                alert("회원가입에 실패했습니다.");
+            }
+          }
+
+      };
+
+      //아이디 중복 확인
+      const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
 
   // ================= 공통 클래스 =================
   const inputClass = (value: string, hasRightArea = false) => `
@@ -203,16 +327,28 @@ export default function GuestSignUpPage() {
         <input
           type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setIsUsernameAvailable(null);
+          }}
           className={inputClass(username, true)}
         />
         {username !== "" && (
-          <span className={guideTextClass(usernameRegex.test(username))}>
-            {usernameRegex.test(username)
+          <span
+            className={guideTextClass(
+              usernameRegex.test(username) && isUsernameAvailable !== false
+            )}
+          >
+            {!usernameRegex.test(username)
+              ? "아이디를 다시 설정해주세요."
+              : isUsernameAvailable === false
+              ? "이미 사용 중인 아이디입니다."
+              : isUsernameAvailable === true
               ? "사용 가능한 아이디입니다."
-              : "아이디를 다시 설정해주세요."}
+              : ""}
           </span>
         )}
+
       </div>
 
       {/* ================= 비밀번호 ================= */}
@@ -271,28 +407,32 @@ export default function GuestSignUpPage() {
           className={inputClass(phone, true)}
         />
 
-        <button
-          type="button"
-          disabled={phone.replace(/[^0-9]/g, "").length !== 11}
-          className={`
-            absolute
-            right-[12px]
-            top-1/2
-            -translate-y-1/2
-            w-[105px]
-            h-[32px]
-            rounded-[6px]
-            typo-14-medium
-            border
-            ${
-              phone.replace(/[^0-9]/g, "").length === 11
-                ? "bg-primary-01 text-corals-000"
-                : "border-primary-01 text-primary-01 cursor-not-allowed"
-            }
-          `}
-        >
-          인증번호 요청
-        </button>
+      <button
+        type="button"
+        disabled={
+          phone.replace(/[^0-9]/g, "").length !== 11 || isRequestingAuth
+        }
+        onClick={handleRequestAuthCode}
+        className={`
+          absolute
+          right-[12px]
+          top-1/2
+          -translate-y-1/2
+          w-[105px]
+          h-[32px]
+          rounded-[6px]
+          typo-14-medium
+          border
+          ${
+            phone.replace(/[^0-9]/g, "").length === 11
+              ? "bg-primary-01 text-corals-000"
+              : "border-primary-01 text-primary-01 cursor-not-allowed"
+          }
+        `}
+      >
+        인증번호 요청
+      </button>
+
       </div>
 
       {/* ================= 인증번호 ================= */}
@@ -314,35 +454,30 @@ export default function GuestSignUpPage() {
           className={inputClass(authCode, true)}
         />
 
-        <button
-          type="button"
-          disabled={authCodeRegex.test(authCode) === false}
-          onClick={() => {
-            if (authCode !== CORRECT_AUTH_CODE) {
-              setIsAuthErrorModalOpen(true);
-            } else {
-               setIsAuthSuccessModalOpen(true);
-            }
-          }}
-          className={`
-            absolute
-            right-[12px]
-            top-1/2
-            -translate-y-1/2
-            w-[105px]
-            h-[32px]
-            rounded-[6px]
-            typo-14-medium
-            border
-            ${
-              authCodeRegex.test(authCode)
-                ? "bg-primary-01 text-corals-000"
-                : "border-primary-01 text-primary-01 cursor-not-allowed"
-            }
-          `}
-        >
-          확인
-        </button>
+      <button
+        type="button"
+        disabled={!authCodeRegex.test(authCode) || isVerifyingAuth}
+        onClick={handleConfirmAuthCode}
+        className={`
+          absolute
+          right-[12px]
+          top-1/2
+          -translate-y-1/2
+          w-[105px]
+          h-[32px]
+          rounded-[6px]
+          typo-14-medium
+          border
+          ${
+            authCodeRegex.test(authCode)
+              ? "bg-primary-01 text-corals-000"
+              : "border-primary-01 text-primary-01 cursor-not-allowed"
+          }
+        `}
+      >
+        확인
+      </button>
+
       </div>
 
       {/* ================= 생년월일 ================= */}
@@ -378,9 +513,11 @@ export default function GuestSignUpPage() {
       <Button
         className="mt-auto mb-[24px]"
         disabled={!isFormValid}
+        onClick={handleSignup}
       >
         가입하기
       </Button>
+
 
 
     {/* ================= 인증번호 성공 모달 ================= */}
