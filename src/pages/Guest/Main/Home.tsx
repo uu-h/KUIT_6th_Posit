@@ -91,7 +91,7 @@ const mockMarkers: StoreMarker[] = [
   { storeId: 6, name: "test", lat: 37.538513, lng: 127.133774 },
 ];
 
-const ENABLE_SERVER = true;
+const ENABLE_SERVER = false;
 
 type HomeRestoreState = {
   selectedStoreId?: number | null;
