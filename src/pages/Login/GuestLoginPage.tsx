@@ -29,15 +29,26 @@ export default function GuestLoginPage() {
       });
 
       const { accessToken, refreshToken } = res.data.data.tokens;
+      const { role } = res.data.data.user;
 
+      // 토큰 저장
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
 
-      // 자동 로그인 체크 시 (지금은 동일 처리)
       if (autoLogin) {
         localStorage.setItem("autoLogin", "true");
       }
 
+      // 게스트 로그인 화면에서는 GUEST만 허용
+      if (role !== "GUEST") {
+        alert("게스트 계정이 아닙니다.\n사장님 로그인 화면을 이용해주세요.");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("autoLogin");
+        return;
+      }
+
+      // 게스트 홈으로 이동
       navigate("/guest/home", { replace: true });
     } catch (error) {
       console.error(error);
