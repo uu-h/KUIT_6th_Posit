@@ -66,7 +66,7 @@ function OwnerQuoteCard({ text }: { text: string }) {
       {/* quote icon */}
       <img src={QuoteIcon} alt="" className="h-[13px]" />
       {/* text */}
-      <p className="typo-14-regular text-neutrals-09 text-center break-words line-clamp-1">
+      <p className="typo-14-regular text-neutrals-09 text-center break-words truncate">
         {text}
       </p>
     </div>

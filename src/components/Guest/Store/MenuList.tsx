@@ -14,11 +14,11 @@ export default function MenuList({ menus }: { menus: StoreMenuItem[] }) {
             className="flex items-center justify-between gap-[12px]"
           >
             <div className="min-w-0">
-              <p className="typo-14-medium text-shades-02 line-clamp-2">
+              <p className="typo-15-medium text-shades-02 line-clamp-2">
                 {m.category ? `[${m.category}] ` : ""}
                 {m.name}
               </p>
-              <p className="mt-[4px] typo-14-semibold">{fmtPrice(m.price)}</p>
+              <p className="mt-[4px] typo-15-semibold">{fmtPrice(m.price)}</p>
             </div>
 
             <div className="w-[90px] h-[90px] rounded-[12px] bg-neutrals-03 overflow-hidden shrink-0">

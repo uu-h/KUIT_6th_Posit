@@ -1,113 +1,43 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import SearchBar from "./SearchBar";
 import SearchResultList from "./SearchResultList";
 
-type Place = {
+export type SearchPlace = {
   id: number;
   name: string;
   address: string;
-  distance: string;
+  distance?: string; // 나중에 서버에서 주거나 계산할 때
+  lat?: number;
+  lng?: number;
 };
 
-const PLACES: Place[] = [
-  {
-    id: 1,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-  {
-    id: 2,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-  {
-    id: 3,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-  {
-    id: 4,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-  {
-    id: 5,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-  {
-    id: 6,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-    {
-    id: 7,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-    {
-    id: 8,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-    {
-    id: 9,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-    {
-    id: 10,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-    {
-    id: 11,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-    {
-    id: 12,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-    {
-    id: 13,
-    name: "카페 레이지아워",
-    address: "서울 광진구 아차산로 33길 68 지하 1층",
-    distance: "2km",
-  },
-];
+type Props = {
+  places: SearchPlace[];
+  onSelectPlace?: (place: SearchPlace) => void;
+};
 
 const PAGE_SIZE = 4;
 
-export default function SearchContainer() {
+export default function SearchContainer({ places, onSelectPlace }: Props) {
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(0);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // 검색 필터
-  const filteredPlaces = PLACES.filter((place) =>
-    place.name.includes(keyword)
-  );
+  const filteredPlaces = useMemo(() => {
+    const q = keyword.trim();
+    if (!q) return [];
+    // 초성검색까지는 나중에, 일단 includes
+    return places.filter((p) => p.name.includes(q));
+  }, [places, keyword]);
 
   // 페이지 계산
   const totalPages = Math.ceil(filteredPlaces.length / PAGE_SIZE);
 
-  const pages = Array.from({ length: totalPages }, (_, i) =>
-    filteredPlaces.slice(i * PAGE_SIZE, (i + 1) * PAGE_SIZE)
-  );
+  const pages = useMemo(() => {
+    return Array.from({ length: totalPages }, (_, i) =>
+      filteredPlaces.slice(i * PAGE_SIZE, (i + 1) * PAGE_SIZE),
+    );
+  }, [filteredPlaces, totalPages]);
 
   return (
     <div className="relative">
@@ -116,6 +46,7 @@ export default function SearchContainer() {
         onChange={(v) => {
           setKeyword(v);
           setPage(0); // 검색어 바뀌면 첫 페이지로
+          if (scrollRef.current) scrollRef.current.scrollTo({ left: 0 });
         }}
         onBack={() => setKeyword("")}
       />
@@ -133,16 +64,19 @@ export default function SearchContainer() {
             }}
           >
             {pages.map((pagePlaces, pageIndex) => (
-              <div
-                key={pageIndex}
-                className="w-full shrink-0 snap-start"
-              >
+              <div key={pageIndex} className="w-full shrink-0 snap-start">
                 {/* 리스트 */}
-                <SearchResultList places={pagePlaces} />
-
+                <SearchResultList
+                  places={pagePlaces}
+                  onClickPlace={(place) => {
+                    onSelectPlace?.(place);
+                    setKeyword(""); // 선택 후 닫고 싶으면
+                  }}
+                />
                 {/* 페이지 인디케이터 (각 페이지 하단에 고정) */}
                 {totalPages > 1 && (
-                  <div className="
+                  <div
+                    className="
                   flex justify-center 
                   gap-1 
                   -mt-2 
@@ -151,7 +85,8 @@ export default function SearchContainer() {
                   bg-shades-01 
                   rounded-b-[8px] 
                   box-shadow: 0 8px 16px rgba(0,0,0,0.12);
-">
+"
+                  >
                     {Array.from({ length: totalPages }).map((_, idx) => (
                       <button
                         key={idx}
@@ -163,9 +98,7 @@ export default function SearchContainer() {
                           });
                         }}
                         className={`typo-12-semibold ${
-                          page === idx
-                            ? "text-neutrals-09"
-                            : "text-neutrals-06"
+                          page === idx ? "text-neutrals-09" : "text-neutrals-06"
                         }`}
                       >
                         {idx + 1}
