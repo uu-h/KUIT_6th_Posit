@@ -25,6 +25,7 @@ import OwnerMyPolicy from "../pages/Owner/My/OwnerMyPolicy";
 import OwnerMyAccount from "../pages/Owner/My/OwnerMyAccount";
 import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
 import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
+import OwnerHomePage from "../pages/Owner/Home/OwnerHomePage"
 
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
@@ -94,8 +95,8 @@ export default function Router() {
       <Route path="/owner/my/coupon" element={<OwnerMyCoupon />} />
       <Route path="/owner/my/store" element={<OwnerMyStore />} />
 
-      {/* Owner - Home (아직 미완성이라 비워둠)
-        <Route path="/owner/home" element={} />*/}
+      {/*Owner - Home*/}
+        <Route path="/owner/home" element={<OwnerHomePage />} />
 
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />
