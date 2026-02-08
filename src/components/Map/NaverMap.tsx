@@ -25,6 +25,13 @@ export type NaverMapHandle = {
   getBounds: () => MapBounds | null;
   getCamera: () => MapCamera | null;
   setCamera: (cam: MapCamera) => void;
+
+  panToWithOffset: (args: {
+    lat: number;
+    lng: number;
+    zoom?: number;
+    offsetYPx?: number;
+  }) => void;
 };
 
 type NaverMapProps = {
@@ -129,6 +136,31 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
         new window.naver.maps.LatLng(cam.center.lat, cam.center.lng),
       );
       map.setZoom(cam.zoom);
+    },
+    // ✅ 검색 결과 클릭에서도 마커 클릭과 동일한 오프셋 이동을 쓰기 위함
+    panToWithOffset: ({ lat, lng, zoom, offsetYPx }) => {
+      const map = mapRef.current;
+      if (!map || !window.naver) return;
+
+      const target = new window.naver.maps.LatLng(lat, lng);
+
+      // zoom 먼저 반영(원하면)
+      if (typeof zoom === "number") map.setZoom(zoom);
+
+      const offsetY = offsetYPx ?? getCenterOffsetPxRef.current?.() ?? 0;
+
+      const projection = map.getProjection();
+      // projection이 없을 수도 있으니 안전 처리
+      if (!projection?.fromCoordToOffset || !projection?.fromOffsetToCoord) {
+        map.panTo(target);
+        return;
+      }
+
+      const pt = projection.fromCoordToOffset(target);
+      const newPt = new window.naver.maps.Point(pt.x, pt.y + offsetY);
+      const newCoord = projection.fromOffsetToCoord(newPt);
+
+      map.panTo(newCoord);
     },
   }));
 

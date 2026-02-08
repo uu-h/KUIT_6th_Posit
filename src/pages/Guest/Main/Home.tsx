@@ -91,7 +91,7 @@ const mockMarkers: StoreMarker[] = [
   { storeId: 6, name: "test", lat: 37.538513, lng: 127.133774 },
 ];
 
-const ENABLE_SERVER = false;
+const ENABLE_SERVER = true;
 
 type HomeRestoreState = {
   selectedStoreId?: number | null;
@@ -108,7 +108,7 @@ type HomeLocationState = {
   restoreFromDetail?: HomeRestoreState;
 };
 
-type SearchPlace = {
+export type SearchPlace = {
   id: number;
   name: string;
   address: string;
@@ -119,6 +119,7 @@ type SearchPlace = {
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
+  const suppressMapMovedRef = useRef(false);
 
   const mapHandleRef = useRef<NaverMapHandle | null>(null);
 
@@ -331,6 +332,10 @@ export default function Home() {
           }}
           getCenterOffsetPx={getCenterOffsetPx}
           onMapMoved={() => {
+            if (suppressMapMovedRef.current) {
+              suppressMapMovedRef.current = false; // 1번만 무시
+              return;
+            }
             setShowSearchHere(true);
           }}
         />
@@ -371,18 +376,24 @@ export default function Home() {
         <SearchContainer
           places={searchPlaces}
           onSelectPlace={(place) => {
+            // 프로그램 이동에서는 "현 지도에서 검색" 버튼 뜨지 않게
+            suppressMapMovedRef.current = true;
             // 1) 지도 이동
             if (place.lat && place.lng) {
-              mapHandleRef.current?.setCamera({
-                center: { lat: place.lat, lng: place.lng },
+              mapHandleRef.current?.panToWithOffset({
+                lat: place.lat,
+                lng: place.lng,
                 zoom: 16,
+                // offsetYPx를 안 넣으면 NaverMap 내부에서 getCenterOffsetPxRef로 계산해서 사용
+                // 확실히 하고 싶으면 아래처럼 넣어도 됨:
+                // offsetYPx: getCenterOffsetPx(),
               });
             }
 
             // 2) 마커 클릭과 동일하게 시트 열기
             handleMarkerClick(place.id);
           }}
-        />
+        />{" "}
       </div>
 
       {/* 카테고리 칩 */}
