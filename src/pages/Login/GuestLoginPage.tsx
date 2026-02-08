@@ -4,19 +4,57 @@ import ToggleOnIcon from "../../assets/Login/toggle_on.svg";
 import Button from "../../components/Button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { login } from "../../api/auth";
 
 export default function GuestLoginPage() {
   const navigate = useNavigate();
 
+  const [loginId, setLoginId] = useState("");
+  const [password, setPassword] = useState("");
   const [autoLogin, setAutoLogin] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!loginId || !password) {
+      alert("아이디와 비밀번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await login({
+        loginId,
+        password,
+      });
+
+      const { accessToken, refreshToken } = res.data.data.tokens;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      // 자동 로그인 체크 시 (지금은 동일 처리)
+      if (autoLogin) {
+        localStorage.setItem("autoLogin", "true");
+      }
+
+      navigate("/guest/home", { replace: true });
+    } catch (error) {
+      console.error(error);
+      alert("로그인에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px]">
-
       {/* 상단 헤더 */}
       <div className="mb-[40px] flex flex-col">
-        <button className="w-fit flex items-center justify-center cursor-pointer" onClick={() => navigate(-1)}>
+        <button
+          className="w-fit flex items-center justify-center cursor-pointer"
+          onClick={() => navigate(-1)}
+        >
           <img
             src={LeftArrowIcon}
             alt="뒤로가기"
@@ -37,6 +75,8 @@ export default function GuestLoginPage() {
           </label>
           <input
             type="email"
+            value={loginId}
+            onChange={(e) => setLoginId(e.target.value)}
             className="border-b border-neutrals-09 outline-none typo-16-medium"
           />
         </div>
@@ -47,6 +87,8 @@ export default function GuestLoginPage() {
           </label>
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="border-b border-neutrals-09 outline-none typo-16-medium"
           />
         </div>
@@ -55,7 +97,7 @@ export default function GuestLoginPage() {
       <div className="mt-[20px] flex items-center justify-between">
         <button
           type="button"
-          onClick={() => setAutoLogin(prev => !prev)}
+          onClick={() => setAutoLogin((prev) => !prev)}
           className="flex items-center gap-[8px]"
         >
           <img
@@ -73,24 +115,26 @@ export default function GuestLoginPage() {
         </button>
       </div>
 
-
       {/* 로그인 버튼 */}
-      <Button className="mt-[32px]">
-        로그인
+      <Button
+        className="mt-[32px]"
+        onClick={handleLogin}
+        disabled={loading}
+      >
+        {loading ? "로그인 중..." : "로그인"}
       </Button>
 
       <div className="mt-[24px] flex items-center justify-center gap-[26px]">
         <span className="typo-16-medium text-neutrals-06">
           아직 회원이 아니신가요?
         </span>
-        <button className="typo-16-bold text-neutrals-08 cursor-pointer"
-          onClick={() => { navigate("/guest/signup") }}
+        <button
+          className="typo-16-bold text-neutrals-08 cursor-pointer"
+          onClick={() => navigate("/guest/signup")}
         >
           간편 회원가입
         </button>
       </div>
-
-    
     </div>
   );
 }
