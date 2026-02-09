@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppBar from "../../components/Common/AppBar";
+import EyeOffIcon from "../../assets/Common/EyeClose.svg";
+import EyeIcon from "../../assets/Common/EyeOpen.svg";
 
 export default function MyAccountContent() {
   const navigate = useNavigate();
@@ -15,6 +17,8 @@ export default function MyAccountContent() {
     phone: "01011111111",
     birth: "20031208",
   });
+
+  const [showPassword, setShowPassword] = useState(true);
 
   // 2. 포맷팅 로직
   const formatPhoneNumber = (value: string) => {
@@ -51,7 +55,7 @@ export default function MyAccountContent() {
   return (
     <div className="w-full flex flex-col min-h-screen relative bg-white">
       {/* 상단바 */}
-      <AppBar layout="center" leftType="left" />
+      <AppBar layout="center" leftType="left" onBack={() => navigate(-1)} />
 
       {/* 메인 폼 영역 */}
       <div className="flex-1 px-[16px] flex flex-col gap-[12px] overflow-y-auto pb-[100px]">
@@ -89,15 +93,26 @@ export default function MyAccountContent() {
         </div>
 
         {/* 비밀번호 */}
-        <div>
+        <div className="relative">
           <p className={sectionLabel}>비밀번호</p>
           <input
-            type="password"
+            type={showPassword ? "password" : "text"}
             placeholder="변경할 비밀번호를 입력하세요"
             value={form.password}
             onChange={(e) => handleChange("password", e.target.value)}
             className={inputClass}
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-[12px] top-[50px] -translate-y-1/2"
+          >
+            <img
+              src={showPassword ? EyeOffIcon : EyeIcon}
+              alt="toggle password visibility"
+              className="w-5 h-5"
+            />
+          </button>
         </div>
 
         {/* 이름 */}

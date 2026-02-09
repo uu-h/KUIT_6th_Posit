@@ -1,7 +1,12 @@
 import DownloadIcon from "../../../assets/Guest/Coupon/Download.svg";
-import type { Coupon } from "../../../pages/Guest/Coupon/couponData"; // 쿠폰 타입 가져오기
 
-interface CouponCardProps extends Coupon {
+interface CouponCardProps {
+  id: number;           // optional? 필요하면 넣어도 ok
+  brand: string;
+  menu: string;
+  expiration: string;
+  brandImg: string;
+  isUsed: boolean;
   onClick: () => void;
 }
 

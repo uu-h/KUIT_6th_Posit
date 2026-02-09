@@ -6,33 +6,36 @@ export default function UserTypeSelect() {
   const navigate = useNavigate();
 
   return (
-    <div className="pt-[105px] flex flex-col gap-[97px]">
+    <div className="min-h-screen w-full pt-[105px] flex flex-col items-center gap-[97px]">
       
-        <span className="typo-title text-center">
-          안녕하세요, POSiT! 입니다.
-        </span>
+      <span className="typo-title text-center">
+        안녕하세요, POSiT! 입니다.
+      </span>
 
-        <div className="flex flex-col justify-center gap-[42px]">
+      <div className="flex flex-col items-center gap-[42px]">
 
-          <button className={userButtonClass} onClick={() => {
-            navigate("/owner/login");
-          }}>
-            <img src={BossIcon} className="w-[100px]" />
-            <span className="typo-headline text-shades-02">사장님인가요?</span>
-          </button>
+        <button
+          className={userButtonClass}
+          onClick={() => navigate("/owner/login")}
+        >
+          <img src={BossIcon} className="w-[100px]" />
+          <span className="typo-headline text-shades-02">사장님인가요?</span>
+        </button>
 
-          <button className={userButtonClass} onClick={() => {
-            navigate("/guest/login");
-          }}>
-            <img src={GuestIcon} className="w-[82px]"/>
-            <span className="typo-headline text-shades-02">게스트인가요?</span>
-          </button>
+        <button
+          className={userButtonClass}
+          onClick={() => navigate("/guest/login")}
+        >
+          <img src={GuestIcon} className="w-[82px]" />
+          <span className="typo-headline text-shades-02">게스트인가요?</span>
+        </button>
 
-        </div>
+      </div>
 
     </div>
   );
 }
+
 
 const userButtonClass = `
   w-[297px] h-[211px] 

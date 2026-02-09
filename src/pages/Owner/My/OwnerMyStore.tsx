@@ -15,27 +15,27 @@ export default function OwnerMyStore(){
 
     const storeEdit : EditMenu[] = [
         {
-            key: "service",
-            label : "편의시설 및 서비스",
-            // TODO 라우팅 연결
-            onClick: () => console.log("편의시설 및 서비스"),
-        },
-        {
             key: "menu",
             label : "기본 가게 정보 및 대표 메뉴",
             // TODO 라우팅 연결
-            onClick: () => console.log("기본 가게 정보 및 대표 메뉴"),
+            onClick: () => navigate("/owner/store/register"),
         },
         {
             key: "photo",
             label : "가게 사진 및 영상",
             // TODO 라우팅 연결
-            onClick: () => console.log("가게 사진 및 영상"),
+            onClick: () => navigate("/owner/store/register/photo"),
         },
         {
             key: "holidays",
             label : "운영시간 및 휴무일",
-            onClick : () => console.log("운영시간 및 휴무일"),
+            onClick : () => navigate("/owner/store/register/hours"),
+        },
+        {
+            key: "service",
+            label : "편의시설 및 서비스",
+            // TODO 라우팅 연결
+            onClick: () => navigate("/owner/store/register/amenities"),
         },
     ];
 
