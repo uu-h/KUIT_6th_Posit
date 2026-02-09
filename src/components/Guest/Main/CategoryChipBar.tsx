@@ -1,8 +1,36 @@
 import { useRef, useState } from "react";
 import CategoryChip from "./CategoryChip";
 
-export default function CategoryChipBar() {
-  const [active, setActive] = useState<string | null>(null);
+export type CategoryTypeCode =
+  | "DESSERT"
+  | "HUGE"
+  | "BRUNCH"
+  | "ROASTERY"
+  | "BOOK_CAFE"
+  | "PET_FRIENDLY"
+  | "STUDY_CAFE"
+  | "TEA_HOUSE";
+
+type ChipItem = {
+  label: string;
+  type?: CategoryTypeCode; // undefined면 "전체" 같은 의미
+};
+
+type Props = {
+  value?: CategoryTypeCode | null;
+  onChange?: (next: CategoryTypeCode | null) => void;
+};
+
+const CHIPS: ChipItem[] = [
+  { label: "전체", type: undefined },
+  { label: "스터디 카페", type: "STUDY_CAFE" },
+  { label: "브런치 카페", type: "BRUNCH" },
+  { label: "디저트 카페", type: "DESSERT" },
+  // 필요하면 계속 추가
+];
+
+export default function CategoryChipBar({ value = null, onChange }: Props) {
+  const [active, setActive] = useState<CategoryTypeCode | null>(value);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isDown = useRef(false);
@@ -32,6 +60,11 @@ export default function CategoryChipBar() {
     containerRef.current!.scrollLeft = scrollLeft.current - walk;
   };
 
+  const setNext = (next: CategoryTypeCode | null) => {
+    setActive(next);
+    onChange?.(next);
+  };
+
   return (
     <div
       ref={containerRef}
@@ -42,26 +75,17 @@ export default function CategoryChipBar() {
       onMouseMove={onMouseMove}
     >
       <div className="flex w-max gap-2 px-4">
-        <CategoryChip
-          label="내 위치"
-          selected={active === "내 위치"}
-          onClick={() => setActive("내 위치")}
-        />
-        <CategoryChip
-          label="스터디 카페"
-          selected={active === "스터디 카페"}
-          onClick={() => setActive("스터디 카페")}
-        />
-        <CategoryChip
-          label="브런치 카페"
-          selected={active === "브런치 카페"}
-          onClick={() => setActive("브런치 카페")}
-        />
-        <CategoryChip
-          label="디저트 카페"
-          selected={active === "디저트 카페"}
-          onClick={() => setActive("디저트 카페")}
-        />
+        {CHIPS.map((c) => {
+          const code = c.type ?? null;
+          return (
+            <CategoryChip
+              key={c.label}
+              label={c.label}
+              selected={active === code}
+              onClick={() => setNext(code)}
+            />
+          );
+        })}
       </div>
     </div>
   );

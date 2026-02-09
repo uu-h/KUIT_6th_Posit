@@ -5,7 +5,9 @@ import PopularPlaces from "../../../components/Guest/Main/PopularPlaces";
 import PlaceList from "../../../components/Guest/Main/PlaceList";
 import type { Place } from "../../../types/place";
 import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
-import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
+import CategoryChipBar, {
+  type CategoryTypeCode,
+} from "../../../components/Guest/Main/CategoryChipBar";
 import NaverMap, {
   type NaverMapHandle,
   type MapCamera,
@@ -123,6 +125,9 @@ export default function Home() {
 
   const mapHandleRef = useRef<NaverMapHandle | null>(null);
 
+  const [keyword, setKeyword] = useState("");
+  const [typeCode, setTypeCode] = useState<CategoryTypeCode | null>(null);
+
   const [allMarkers, setAllMarkers] = useState<StoreMarker[]>(
     ENABLE_SERVER ? [] : mockMarkers,
   );
@@ -222,23 +227,31 @@ export default function Home() {
     const bounds = mapHandleRef.current?.getBounds();
     if (!bounds) return;
 
-    // 서버 모드: 서버에 bounds로 요청
     if (ENABLE_SERVER) {
       try {
-        await fetchMarkersByCurrentBounds();
+        await fetchMarkersByCurrentBounds({
+          keyword: keyword.trim() || undefined,
+          type: typeCode ?? undefined,
+          limit: 20,
+        });
         setShowSearchHere(false);
         return;
       } catch (e) {
         console.error(e);
-        // 서버 실패 시 프론트 필터 fallback
       }
     }
 
-    // 목업/실패 fallback: 프론트 필터
     const filtered = filterByBounds(allMarkers, bounds);
     setMarkers(filtered);
     setShowSearchHere(false);
-  }, [ENABLE_SERVER, fetchMarkersByCurrentBounds, filterByBounds, allMarkers]);
+  }, [
+    ENABLE_SERVER,
+    fetchMarkersByCurrentBounds,
+    keyword,
+    typeCode,
+    filterByBounds,
+    allMarkers,
+  ]);
 
   const [selectedStore, setSelectedStore] = useState<StoreDetail | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -272,7 +285,7 @@ export default function Home() {
     sheetOpen ? "half" : "collapsed",
   );
 
-  // ✅ 상세로 이동할 때 restore를 만들어서 전달
+  // 상세로 이동할 때 restore를 만들어서 전달
   const onGoDetail = useCallback(() => {
     if (!selectedStoreNumericId) return;
 
@@ -302,7 +315,7 @@ export default function Home() {
     navigate,
   ]);
 
-  // ✅ 상세에서 home으로 돌아왔을 때 복원
+  // 상세에서 home으로 돌아왔을 때 복원
   const didRestoreRef = useRef(false);
 
   useEffect(() => {
@@ -378,6 +391,20 @@ export default function Home() {
     });
   }, [allMarkers]);
 
+  const searchDebounceRef = useRef<number | null>(null);
+
+  const refetchWithCurrentFilters = useCallback(
+    async (opt?: { keyword?: string; type?: CategoryTypeCode }) => {
+      // 서버 호출
+      await fetchMarkersByCurrentBounds({
+        keyword: (opt?.keyword ?? keyword.trim()) || undefined,
+        type: opt?.type ?? typeCode ?? undefined,
+        limit: 20,
+      });
+    },
+    [fetchMarkersByCurrentBounds, keyword, typeCode],
+  );
+
   return (
     <GuestLayout>
       {/* 지도 영역 */}
@@ -438,6 +465,17 @@ export default function Home() {
       <div className="absolute top-4 left-4 right-4 z-30">
         <SearchContainer
           places={searchPlaces}
+          onKeywordChange={(v) => {
+            setKeyword(v);
+
+            // 입력 중 서버 콜 과다 방지(300ms)
+            if (searchDebounceRef.current) {
+              window.clearTimeout(searchDebounceRef.current);
+            }
+            searchDebounceRef.current = window.setTimeout(() => {
+              void refetchWithCurrentFilters({ keyword: v });
+            }, 300);
+          }}
           onSelectPlace={(place) => {
             // 프로그램 이동에서는 "현 지도에서 검색" 버튼 뜨지 않게
             suppressMapMovedRef.current = true;
@@ -461,7 +499,15 @@ export default function Home() {
 
       {/* 카테고리 칩 */}
       <div className="absolute top-[72px] mt-[10px] left-0 right-0 z-20">
-        <CategoryChipBar />
+        <CategoryChipBar
+          value={typeCode}
+          onChange={(next) => {
+            setTypeCode(next);
+
+            // ✅ 타입 바뀌면 즉시 서버 갱신
+            void refetchWithCurrentFilters({ type: next ?? undefined });
+          }}
+        />
       </div>
 
       {/* Bottom Sheet */}
