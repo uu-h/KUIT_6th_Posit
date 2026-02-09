@@ -28,8 +28,9 @@ export default function OwnerLoginPage() {
         password,
       });
 
-      const { accessToken, refreshToken } = res.data.data.tokens;
-      const { role } = res.data.data.user;
+      const { accessToken, refreshToken } = res.data.tokens;
+      const { role } = res.data.user;
+
 
       // 토큰 저장
       localStorage.setItem("accessToken", accessToken);

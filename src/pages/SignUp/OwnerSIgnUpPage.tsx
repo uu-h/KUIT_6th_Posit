@@ -339,7 +339,7 @@ export default function OwnerSignUpPage() {
         />
         <button
           type="button"
-          disabled={phone.replace(/[^0-9]/g, "").length !== 11}
+          disabled={phone.replace(/[^0-9]/g, "").length !== 11 || isRequestingAuth}
           onClick={handleRequestAuthCode}
           className={`
             absolute right-[12px] top-1/2 -translate-y-1/2
