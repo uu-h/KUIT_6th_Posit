@@ -17,16 +17,27 @@ export type StoreMarker = {
   lng: number;
 };
 
-export const mapApi = {
-  // 마커 조회
-  getMarkers: () =>
-    http.get<ApiResponse<{ stores: StoreMarker[] }>>("/map/stores/markers"),
+// ✅ 마커 조회 쿼리 타입
+export type MarkerQuery = {
+  swLat: number;
+  swLng: number;
+  neLat: number;
+  neLng: number;
+  keyword?: string;
+  type?: string; // 1차 필터 코드, "DESSERT" 같은 값
+  limit?: number; //기본 20
+};
 
-  // 상세 조회 (필요할 때)
+export const mapApi = {
+  // ✅ 마커 조회: bounds 필수이므로 params를 받도록 변경
+  getMarkers: (params: MarkerQuery) =>
+    http.get<ApiResponse<{ stores: StoreMarker[] }>>("/map/stores/markers", {
+      params: { ...params, limit: params.limit ?? 20 },
+    }),
+
   getStoreDetail: (storeId: number) =>
     http.get<ApiResponse<unknown>>(`/map/stores/${storeId}`),
 
-  // 리스트 조회 (bounds/myLatLng/cursor 등 필요)
   getStores: (params: Record<string, unknown>) =>
     http.get("/map/stores", { params }),
 };

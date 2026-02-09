@@ -133,26 +133,76 @@ export default function Home() {
 
   const [showSearchHere, setShowSearchHere] = useState(false);
 
+  const toMarkerQueryFromBounds = useCallback(
+    (
+      b: { minLat: number; minLng: number; maxLat: number; maxLng: number },
+      opt?: { keyword?: string; type?: string; limit?: number },
+    ) => {
+      // 혹시 min/max가 뒤집힐 가능성까지 방어
+      const swLat = Math.min(b.minLat, b.maxLat);
+      const neLat = Math.max(b.minLat, b.maxLat);
+      const swLng = Math.min(b.minLng, b.maxLng);
+      const neLng = Math.max(b.minLng, b.maxLng);
+
+      return {
+        swLat,
+        swLng,
+        neLat,
+        neLng,
+        keyword: opt?.keyword,
+        type: opt?.type,
+        limit: opt?.limit ?? 20,
+      };
+    },
+    [],
+  );
+
+  const fetchMarkersByCurrentBounds = useCallback(
+    async (opt?: { keyword?: string; type?: string; limit?: number }) => {
+      const bounds = mapHandleRef.current?.getBounds();
+      if (!bounds) return;
+
+      // 서버 호출
+      const params = toMarkerQueryFromBounds(bounds, opt);
+      const res = await mapApi.getMarkers(params);
+      const serverMarkers = res.data.data.stores ?? [];
+
+      setAllMarkers(serverMarkers);
+      setMarkers(serverMarkers);
+    },
+    [toMarkerQueryFromBounds],
+  );
+
   useEffect(() => {
     if (!ENABLE_SERVER) return;
 
+    let cancelled = false;
+
     const run = async () => {
       try {
-        const res = await mapApi.getMarkers();
-        const serverMarkers = res.data.data.stores ?? [];
-        const base = serverMarkers.length > 0 ? serverMarkers : mockMarkers;
+        // 지도 준비될 때까지 아주 짧게 재시도
+        for (let i = 0; i < 10; i++) {
+          if (cancelled) return;
+          const b = mapHandleRef.current?.getBounds();
+          if (b) break;
+          await new Promise((r) => setTimeout(r, 150));
+        }
+        if (cancelled) return;
 
-        setAllMarkers(base);
-        setMarkers(base);
+        await fetchMarkersByCurrentBounds();
       } catch (e) {
         console.error(e);
+        // 서버 실패 시 fallback
         setAllMarkers(mockMarkers);
         setMarkers(mockMarkers);
       }
     };
 
     void run();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchMarkersByCurrentBounds]);
 
   const filterByBounds = useCallback(
     (
@@ -168,14 +218,27 @@ export default function Home() {
     [],
   );
 
-  const onSearchHere = useCallback(() => {
+  const onSearchHere = useCallback(async () => {
     const bounds = mapHandleRef.current?.getBounds();
     if (!bounds) return;
 
+    // 서버 모드: 서버에 bounds로 요청
+    if (ENABLE_SERVER) {
+      try {
+        await fetchMarkersByCurrentBounds();
+        setShowSearchHere(false);
+        return;
+      } catch (e) {
+        console.error(e);
+        // 서버 실패 시 프론트 필터 fallback
+      }
+    }
+
+    // 목업/실패 fallback: 프론트 필터
     const filtered = filterByBounds(allMarkers, bounds);
     setMarkers(filtered);
     setShowSearchHere(false);
-  }, [allMarkers, filterByBounds]);
+  }, [ENABLE_SERVER, fetchMarkersByCurrentBounds, filterByBounds, allMarkers]);
 
   const [selectedStore, setSelectedStore] = useState<StoreDetail | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
