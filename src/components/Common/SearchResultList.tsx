@@ -58,15 +58,14 @@ export default function SearchResultList({ places, onClickPlace }: Props) {
           </button>
 
           {/* 구분선 (마지막은 빼고 싶으면 조건 추가 가능) */}
-          <div className="flex justify-center">
-            <div
-              className="h-0"
-              style={{
-                width: "317px",
-                borderTop: "0.5px solid #A8A8A8",
-              }}
-            />
-          </div>
+          {index !== places.length - 1 && (
+            <div className="flex justify-center">
+              <div
+                className="h-0"
+                style={{ width: "317px", borderTop: "0.5px solid #A8A8A8" }}
+              />
+            </div>
+          )}
         </div>
       ))}
     </div>

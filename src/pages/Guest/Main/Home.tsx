@@ -56,6 +56,13 @@ export type SearchPlace = {
   lng?: number;
 };
 
+/** 거리 포맷 함수 */
+function formatDistance(km?: number) {
+  if (km == null || Number.isNaN(km)) return "";
+  if (km < 1) return `${Math.round(km * 1000)}m`;
+  return `${km.toFixed(1)}km`;
+}
+
 /** 거리 계산 + 내 위치 */
 type LatLng = { lat: number; lng: number };
 
@@ -108,6 +115,8 @@ export default function Home() {
 
   const [allMarkers, setAllMarkers] = useState<StoreMarker[]>([]);
   const [markers, setMarkers] = useState<StoreMarker[]>([]);
+  const [searchMarkers, setSearchMarkers] = useState<StoreMarker[]>([]);
+  const [pinnedMarker, setPinnedMarker] = useState<StoreMarker | null>(null);
 
   const [showSearchHere, setShowSearchHere] = useState(false);
 
@@ -352,6 +361,42 @@ export default function Home() {
     [toMarkerQueryFromBounds, buildPopularTop3, buildDistanceSortedPlaceList],
   );
 
+  /** 범위 없이 전역 검색 */
+  const fetchSearchMarkersGlobal = useCallback(
+    async (qRaw: string) => {
+      const q = qRaw.trim();
+      if (!q) {
+        setSearchMarkers([]);
+        return;
+      }
+
+      // 내 위치(거리 계산용) 1회 확보
+      let loc = myLoc;
+      if (!loc) {
+        loc = await getMyLocationOnce();
+        setMyLoc(loc);
+      }
+
+      // 전세계 bounds - 전역 검색
+      const res = await mapApi.getMarkers({
+        swLat: -90,
+        swLng: -180,
+        neLat: 90,
+        neLng: 180,
+        keyword: q,
+        type: typeCode ?? undefined, // 카테고리도 함께 필터링 원하면 유지
+        limit: 50, // 검색 결과는 넉넉히
+      });
+
+      if (!res.data.isSuccess)
+        throw new Error("search markers isSuccess=false");
+
+      const serverMarkers = res.data.data.stores ?? [];
+      setSearchMarkers(serverMarkers);
+    },
+    [myLoc, typeCode],
+  );
+
   /** 초기 마커 fetch */
   useEffect(() => {
     let cancelled = false;
@@ -386,6 +431,7 @@ export default function Home() {
   /** "현 지도에서 검색" */
   const onSearchHere = useCallback(async () => {
     try {
+      setPinnedMarker(null);
       await fetchMarkersByCurrentBounds({
         keyword: keyword.trim() || undefined,
         type: typeCode ?? undefined,
@@ -551,14 +597,23 @@ export default function Home() {
 
   /** SearchContainer에 넣을 데이터(주소 없음) */
   const searchPlaces: SearchPlace[] = useMemo(() => {
-    return allMarkers.map((m) => ({
-      id: m.storeId,
-      name: m.name,
-      address: "",
-      lat: m.lat,
-      lng: m.lng,
-    }));
-  }, [allMarkers]);
+    const base = searchMarkers;
+
+    return base.map((m) => {
+      const km = myLoc
+        ? haversineKm(myLoc, { lat: m.lat, lng: m.lng })
+        : undefined;
+
+      return {
+        id: m.storeId,
+        name: m.name,
+        address: "", // 서버가 marker에 주소 안 주니까 일단 유지
+        lat: m.lat,
+        lng: m.lng,
+        distance: formatDistance(km), // 거리 표시
+      };
+    });
+  }, [searchMarkers, myLoc]);
 
   const searchDebounceRef = useRef<number | null>(null);
 
@@ -573,13 +628,20 @@ export default function Home() {
     [fetchMarkersByCurrentBounds, keyword, typeCode],
   );
 
+  const markersForMap = useMemo(() => {
+    if (!pinnedMarker) return markers;
+
+    const exists = markers.some((m) => m.storeId === pinnedMarker.storeId);
+    return exists ? markers : [...markers, pinnedMarker];
+  }, [markers, pinnedMarker]);
+
   return (
     <GuestLayout>
       {/* 지도 영역 */}
       <div className="absolute inset-0">
         <NaverMap
           ref={mapHandleRef}
-          markers={markers}
+          markers={markersForMap}
           selectedStoreId={selectedStoreNumericId}
           openInfoStoreId={openInfoStoreId}
           onMarkerClick={(id) => void fetchAndSelectStore(id)}
@@ -635,11 +697,19 @@ export default function Home() {
             if (searchDebounceRef.current)
               window.clearTimeout(searchDebounceRef.current);
             searchDebounceRef.current = window.setTimeout(() => {
-              void refetchWithCurrentFilters({ keyword: v });
-            }, 300);
+              void fetchSearchMarkersGlobal(v);
+            }, 250);
           }}
           onSelectPlace={(place) => {
             suppressMapMovedRef.current = true;
+
+            // 검색으로 선택된 가게를 마커로 "고정" (bounds 밖이어도 보이게)
+            setPinnedMarker({
+              storeId: place.id,
+              name: place.name,
+              lat: place.lat ?? 0,
+              lng: place.lng ?? 0,
+            });
 
             if (place.lat && place.lng) {
               mapHandleRef.current?.panToWithOffset({
