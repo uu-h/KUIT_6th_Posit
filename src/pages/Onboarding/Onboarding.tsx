@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import LogoIcon from "../../assets/Guest/Onboarding/logo.svg";
+import LogoIcon from "../../assets/Common/Logo.svg";
+
 
 export default function Onboarding() {
   const navigate = useNavigate();
