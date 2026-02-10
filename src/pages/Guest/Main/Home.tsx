@@ -3,16 +3,22 @@ import BottomSheet, {
 } from "../../../components/Guest/Main/BottomSheet";
 import PopularPlaces from "../../../components/Guest/Main/PopularPlaces";
 import PlaceList from "../../../components/Guest/Main/PlaceList";
-import type { Place } from "../../../types/place";
 import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
-import CategoryChipBar from "../../../components/Guest/Main/CategoryChipBar";
+import CategoryChipBar, {
+  type CategoryTypeCode,
+} from "../../../components/Guest/Main/CategoryChipBar";
 import NaverMap, {
   type NaverMapHandle,
   type MapCamera,
 } from "../../../components/Map/NaverMap";
 import SearchContainer from "../../../components/Common/SearchContainer";
 import GuestLayout from "../../../layouts/GuestLayout";
-import { mapApi, type StoreMarker } from "../../../api/map";
+import {
+  mapApi,
+  mapStoreDetailDtoToStoreDetail,
+  type StoreDetailDto,
+  type StoreMarker,
+} from "../../../api/map";
 import {
   startTransition,
   useCallback,
@@ -22,83 +28,17 @@ import {
   useState,
 } from "react";
 import type { StoreDetail } from "../../../types/store";
-import { storeDetailMocks } from "../Store/store.mock";
-import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
+import type { Place } from "../../../types/place";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchArrowIcon from "../../../assets/Guest/Main/SearchArrow.svg";
+import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
 
-const mockPlaces: Place[] = [
-  {
-    id: 1,
-    name: "더이퀼리브리엄커피",
-    description: "숲속 감성 담은 루프탑 커피 공간",
-    status: "영업 중",
-    address: "서울 광진구 자양동 7-30",
-    images: [
-      "/images/cafe1.jpg",
-      "/images/cafe2.jpg",
-      "/images/cafe3.jpg",
-      "/images/cafe4.jpg",
-    ],
-  },
-  {
-    id: 2,
-    name: "카페 레이지아워",
-    description: "반지하 감성 속 따뜻한 디저트 향기",
-    status: "영업 중",
-    address: "서울 광진구 화양동 3-75",
-    images: [
-      "/images/cafe5.jpg",
-      "/images/cafe6.jpg",
-      "/images/cafe7.jpg",
-      "/images/cafe8.jpg",
-    ],
-  },
-  {
-    id: 3,
-    name: "카페 언필드",
-    description: "차분한 2층 감성, 브륄레 치즈케이크",
-    status: "영업 중",
-    address: "서울 광진구 화양동 49-15",
-    images: [
-      "/images/cafe9.jpg",
-      "/images/cafe10.jpg",
-      "/images/cafe11.jpg",
-      "/images/cafe12.jpg",
-    ],
-  },
-  {
-    id: 4,
-    name: "도우터",
-    description: "유럽 감성 가득한 여유로운 브런치 공간",
-    status: "영업 중",
-    address: "서울 광진구 화양동 11-17",
-    images: [
-      "/images/cafe13.jpg",
-      "/images/cafe14.jpg",
-      "/images/cafe15.jpg",
-      "/images/cafe16.jpg",
-    ],
-  },
-];
-
-const mockMarkers: StoreMarker[] = [
-  { storeId: 1, name: "카페 레이지아워", lat: 37.54312, lng: 127.071253 },
-  { storeId: 2, name: "마이 디어 버터하우스", lat: 37.544966, lng: 127.069126 },
-  { storeId: 3, name: "도우터", lat: 37.542712, lng: 127.070158 },
-  { storeId: 4, name: "cafe 462", lat: 37.543181, lng: 127.06788 },
-  { storeId: 5, name: "카페 언필드", lat: 37.542093, lng: 127.06594 },
-  { storeId: 6, name: "test", lat: 37.538513, lng: 127.133774 },
-];
-
-const ENABLE_SERVER = true;
-
+/** restore state */
 type HomeRestoreState = {
   selectedStoreId?: number | null;
   sheetOpen?: boolean;
   sheetState?: SheetState;
   mapCamera?: MapCamera;
-  // (선택) 필터 결과 유지하고 싶으면 사용
   filteredStoreIds?: number[];
   showSearchHere?: boolean;
   openInfoStoreId?: number | null;
@@ -116,78 +56,400 @@ export type SearchPlace = {
   lng?: number;
 };
 
+/** 거리 포맷 함수 */
+function formatDistance(km?: number) {
+  if (km == null || Number.isNaN(km)) return "";
+  if (km < 1) return `${Math.round(km * 1000)}m`;
+  return `${km.toFixed(1)}km`;
+}
+
+/** 거리 계산 + 내 위치 */
+type LatLng = { lat: number; lng: number };
+
+function haversineKm(a: LatLng, b: LatLng) {
+  const R = 6371;
+  const toRad = (x: number) => (x * Math.PI) / 180;
+
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+
+function getMyLocationOnce(): Promise<LatLng | null> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) return resolve(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 60_000 },
+    );
+  });
+}
+
+type PopularItem = {
+  storeId: number;
+  name: string;
+  lat: number;
+  lng: number;
+  distanceKm?: number;
+  imageUrl?: string | null;
+};
+
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
-  const suppressMapMovedRef = useRef(false);
 
+  const suppressMapMovedRef = useRef(false);
   const mapHandleRef = useRef<NaverMapHandle | null>(null);
 
-  const [allMarkers, setAllMarkers] = useState<StoreMarker[]>(
-    ENABLE_SERVER ? [] : mockMarkers,
-  );
+  const [keyword, setKeyword] = useState("");
+  const [typeCode, setTypeCode] = useState<CategoryTypeCode | null>(null);
 
-  const [markers, setMarkers] = useState<StoreMarker[]>(
-    ENABLE_SERVER ? [] : mockMarkers,
-  );
+  const [allMarkers, setAllMarkers] = useState<StoreMarker[]>([]);
+  const [markers, setMarkers] = useState<StoreMarker[]>([]);
+  const [searchMarkers, setSearchMarkers] = useState<StoreMarker[]>([]);
+  const [pinnedMarker, setPinnedMarker] = useState<StoreMarker | null>(null);
 
   const [showSearchHere, setShowSearchHere] = useState(false);
 
-  useEffect(() => {
-    if (!ENABLE_SERVER) return;
+  const [selectedStore, setSelectedStore] = useState<StoreDetail | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [openInfoStoreId, setOpenInfoStoreId] = useState<number | null>(null);
 
-    const run = async () => {
-      try {
-        const res = await mapApi.getMarkers();
-        const serverMarkers = res.data.data.stores ?? [];
-        const base = serverMarkers.length > 0 ? serverMarkers : mockMarkers;
+  const isDetailMode = selectedStore !== null;
 
-        setAllMarkers(base);
-        setMarkers(base);
-      } catch (e) {
-        console.error(e);
-        setAllMarkers(mockMarkers);
-        setMarkers(mockMarkers);
-      }
-    };
+  const [currentSheetState, setCurrentSheetState] = useState<SheetState>(
+    sheetOpen ? "half" : "collapsed",
+  );
 
-    void run();
-  }, []);
+  const [myLoc, setMyLoc] = useState<LatLng | null>(null);
 
-  const filterByBounds = useCallback(
+  /** 인기 Top3 */
+  const [popularTop3, setPopularTop3] = useState<PopularItem[]>([]);
+
+  /** expanded 리스트(거리순) */
+  const [placesForList, setPlacesForList] = useState<Place[]>([]);
+
+  /** 상세 캐시: Top3 이미지 채우기용 */
+  const detailCacheRef = useRef<
+    Map<number, { imageUrl: string | null; name?: string }>
+  >(new Map());
+
+  /** PlaceList 캐시: 상세 반복 호출 방지 */
+  const placeCacheRef = useRef<Map<number, Place>>(new Map());
+
+  /** Top3 비동기 경쟁 방지 */
+  const popularReqIdRef = useRef(0);
+
+  /** PlaceList 비동기 경쟁 방지 */
+  const listReqIdRef = useRef(0);
+
+  /** bounds -> marker query */
+  const toMarkerQueryFromBounds = useCallback(
     (
-      list: StoreMarker[],
       b: { minLat: number; minLng: number; maxLat: number; maxLng: number },
+      opt?: { keyword?: string; type?: string; limit?: number },
     ) => {
-      return list.filter((m) => {
-        const inLat = m.lat >= b.minLat && m.lat <= b.maxLat;
-        const inLng = m.lng >= b.minLng && m.lng <= b.maxLng;
-        return inLat && inLng;
-      });
+      const swLat = Math.min(b.minLat, b.maxLat);
+      const neLat = Math.max(b.minLat, b.maxLat);
+      const swLng = Math.min(b.minLng, b.maxLng);
+      const neLng = Math.max(b.minLng, b.maxLng);
+
+      return {
+        swLat,
+        swLng,
+        neLat,
+        neLng,
+        keyword: opt?.keyword,
+        type: opt?.type,
+        limit: opt?.limit ?? 20,
+      };
     },
     [],
   );
 
-  const onSearchHere = useCallback(() => {
-    const bounds = mapHandleRef.current?.getBounds();
-    if (!bounds) return;
+  /** statusCode -> "영업 중/영업 종료" (서버 enum 확정되면 여기만 바꾸면 됨) */
+  const statusTextFromStatusCode = useCallback(
+    (statusCode?: string | null): Place["status"] => {
+      if (!statusCode) return "영업 중";
+      if (statusCode === "CLOSE" || statusCode === "CLOSED") return "영업 종료";
+      // UNKNOWN 포함 기본은 영업 중으로 처리
+      return "영업 중";
+    },
+    [],
+  );
 
-    const filtered = filterByBounds(allMarkers, bounds);
-    setMarkers(filtered);
-    setShowSearchHere(false);
-  }, [allMarkers, filterByBounds]);
+  /** detail dto -> PlaceHeader용 Place로 변환 */
+  const mapDetailDtoToPlace = useCallback(
+    (dto: StoreDetailDto): Place => {
+      const images: string[] = Array.isArray(dto.images)
+        ? dto.images
+            .slice()
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+            .map((img) => img.thumbnailUrl ?? img.imageUrl)
+            .filter((v): v is string => Boolean(v))
+        : [];
 
-  const [selectedStore, setSelectedStore] = useState<StoreDetail | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
+      const road = dto.address?.road ?? "";
+      const lot = dto.address?.lot ?? "";
+      const address = road || lot || "";
 
-  const isDetailMode = selectedStore !== null;
-  const [openInfoStoreId, setOpenInfoStoreId] = useState<number | null>(null);
+      return {
+        id: dto.storeId,
+        name: dto.name ?? "",
+        description: dto.description ?? "",
+        status: statusTextFromStatusCode(dto.statusCode),
+        address,
+        images,
+      };
+    },
+    [statusTextFromStatusCode],
+  );
 
-  const handleMarkerClick = useCallback((storeId: number) => {
-    const store =
-      storeDetailMocks.find(
-        (s) => Number(s.id.replace("store_", "")) === storeId,
-      ) ?? null;
+  /** 인기 Top3 계산 + (상세 3개 병렬 호출로) 이미지 채우기 */
+  const buildPopularTop3 = useCallback(
+    async (serverMarkers: StoreMarker[]) => {
+      const reqId = ++popularReqIdRef.current;
+
+      // 1) 내 위치 확보(없으면 1번만 시도)
+      let loc = myLoc;
+      if (!loc) {
+        loc = await getMyLocationOnce();
+        setMyLoc(loc);
+      }
+
+      // 2) Top3 선정
+      const baseTop3: PopularItem[] = loc
+        ? serverMarkers
+            .map((m) => ({
+              storeId: m.storeId,
+              name: m.name,
+              lat: m.lat,
+              lng: m.lng,
+              distanceKm: haversineKm(loc!, { lat: m.lat, lng: m.lng }),
+            }))
+            .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0))
+            .slice(0, 3)
+        : serverMarkers
+            .slice()
+            .sort((a, b) => a.storeId - b.storeId)
+            .slice(0, 3)
+            .map((m) => ({
+              storeId: m.storeId,
+              name: m.name,
+              lat: m.lat,
+              lng: m.lng,
+            }));
+
+      setPopularTop3(baseTop3);
+
+      // 3) 상세 3개 병렬 호출해서 imageUrl 채우기 (캐시 활용)
+      const enriched = await Promise.all(
+        baseTop3.map(async (it) => {
+          const cached = detailCacheRef.current.get(it.storeId);
+          if (cached) {
+            return {
+              ...it,
+              imageUrl: cached.imageUrl,
+              name: cached.name ?? it.name,
+            };
+          }
+
+          try {
+            const res = await mapApi.getStoreDetail(it.storeId);
+            if (!res.data.isSuccess) throw new Error("detail isSuccess=false");
+
+            const dto = res.data.data;
+            const store = mapStoreDetailDtoToStoreDetail(dto);
+            const imageUrl = store.images?.[0] ?? null;
+
+            detailCacheRef.current.set(it.storeId, {
+              imageUrl,
+              name: store.name,
+            });
+            return { ...it, imageUrl, name: store.name };
+          } catch (e) {
+            console.error("[popular detail fetch failed]", it.storeId, e);
+            detailCacheRef.current.set(it.storeId, { imageUrl: null });
+            return { ...it, imageUrl: null };
+          }
+        }),
+      );
+
+      if (popularReqIdRef.current !== reqId) return;
+      setPopularTop3(enriched);
+    },
+    [myLoc],
+  );
+
+  /** expanded 리스트(거리순) 만들기: markers -> (상세 n개) -> Place[] */
+  const buildDistanceSortedPlaceList = useCallback(
+    async (serverMarkers: StoreMarker[], limit = 20) => {
+      const reqId = ++listReqIdRef.current;
+
+      let loc = myLoc;
+      if (!loc) {
+        loc = await getMyLocationOnce();
+        setMyLoc(loc);
+      }
+
+      const sorted = loc
+        ? serverMarkers
+            .map((m) => ({
+              ...m,
+              dist: haversineKm(loc!, { lat: m.lat, lng: m.lng }),
+            }))
+            .sort((a, b) => (a.dist ?? 0) - (b.dist ?? 0))
+        : serverMarkers.slice().sort((a, b) => a.storeId - b.storeId);
+
+      const targets = sorted.slice(0, limit);
+
+      // 캐시된 것만이라도 먼저 보여주기(UX)
+      const cached = targets
+        .map((m) => placeCacheRef.current.get(m.storeId))
+        .filter(Boolean) as Place[];
+      if (cached.length > 0) setPlacesForList(cached);
+
+      const results = await Promise.all(
+        targets.map(async (m) => {
+          const cachedPlace = placeCacheRef.current.get(m.storeId);
+          if (cachedPlace) return cachedPlace;
+
+          const res = await mapApi.getStoreDetail(m.storeId);
+          if (!res.data.isSuccess) throw new Error("detail isSuccess=false");
+
+          const dto = res.data.data as StoreDetailDto;
+          const place = mapDetailDtoToPlace(dto);
+          placeCacheRef.current.set(m.storeId, place);
+          return place;
+        }),
+      );
+
+      if (listReqIdRef.current !== reqId) return;
+      setPlacesForList(results);
+    },
+    [myLoc, mapDetailDtoToPlace],
+  );
+
+  /** 현재 bounds 기준 마커 fetch (+ Top3 + expanded 리스트 갱신) */
+  const fetchMarkersByCurrentBounds = useCallback(
+    async (opt?: { keyword?: string; type?: string; limit?: number }) => {
+      const bounds = mapHandleRef.current?.getBounds();
+      if (!bounds) return;
+
+      const params = toMarkerQueryFromBounds(bounds, opt);
+      const res = await mapApi.getMarkers(params);
+      if (!res.data.isSuccess) throw new Error("markers isSuccess=false");
+
+      const serverMarkers = res.data.data.stores ?? [];
+
+      setAllMarkers(serverMarkers);
+      setMarkers(serverMarkers);
+
+      // ✅ 같은 bounds 결과로 Top3 + expanded 리스트 둘 다 갱신
+      void buildPopularTop3(serverMarkers);
+      void buildDistanceSortedPlaceList(serverMarkers, 20);
+    },
+    [toMarkerQueryFromBounds, buildPopularTop3, buildDistanceSortedPlaceList],
+  );
+
+  /** 범위 없이 전역 검색 */
+  const fetchSearchMarkersGlobal = useCallback(
+    async (qRaw: string) => {
+      const q = qRaw.trim();
+      if (!q) {
+        setSearchMarkers([]);
+        return;
+      }
+
+      // 내 위치(거리 계산용) 1회 확보
+      let loc = myLoc;
+      if (!loc) {
+        loc = await getMyLocationOnce();
+        setMyLoc(loc);
+      }
+
+      // 전세계 bounds - 전역 검색
+      const res = await mapApi.getMarkers({
+        swLat: -90,
+        swLng: -180,
+        neLat: 90,
+        neLng: 180,
+        keyword: q,
+        type: typeCode ?? undefined, // 카테고리도 함께 필터링 원하면 유지
+        limit: 50, // 검색 결과는 넉넉히
+      });
+
+      if (!res.data.isSuccess)
+        throw new Error("search markers isSuccess=false");
+
+      const serverMarkers = res.data.data.stores ?? [];
+      setSearchMarkers(serverMarkers);
+    },
+    [myLoc, typeCode],
+  );
+
+  /** 초기 마커 fetch */
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        // 지도 준비될 때까지 잠깐 대기
+        for (let i = 0; i < 10; i++) {
+          if (cancelled) return;
+          const b = mapHandleRef.current?.getBounds();
+          if (b) break;
+          await new Promise((r) => setTimeout(r, 150));
+        }
+        if (cancelled) return;
+
+        await fetchMarkersByCurrentBounds();
+      } catch (e) {
+        console.error(e);
+        setAllMarkers([]);
+        setMarkers([]);
+        setPopularTop3([]);
+        setPlacesForList([]);
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchMarkersByCurrentBounds]);
+
+  /** "현 지도에서 검색" */
+  const onSearchHere = useCallback(async () => {
+    try {
+      setPinnedMarker(null);
+      await fetchMarkersByCurrentBounds({
+        keyword: keyword.trim() || undefined,
+        type: typeCode ?? undefined,
+        limit: 20,
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShowSearchHere(false);
+    }
+  }, [fetchMarkersByCurrentBounds, keyword, typeCode]);
+
+  /** 서버 상세 조회 + 선택 상태 세팅 */
+  const fetchAndSelectStore = useCallback(async (storeId: number) => {
+    const res = await mapApi.getStoreDetail(storeId);
+    if (!res.data.isSuccess) throw new Error("detail isSuccess=false");
+
+    const store = mapStoreDetailDtoToStoreDetail(res.data.data);
 
     setSelectedStore(store);
     setSheetOpen(true);
@@ -199,17 +461,57 @@ export default function Home() {
     return Number(selectedStore.id.replace("store_", ""));
   }, [selectedStore]);
 
+  /** Top3 클릭 핸들러 */
+  const onClickPopular = useCallback(
+    async (storeId: number) => {
+      suppressMapMovedRef.current = true;
+
+      const it = popularTop3.find((p) => p.storeId === storeId);
+
+      if (it?.lat && it?.lng) {
+        mapHandleRef.current?.panToWithOffset({
+          lat: it.lat,
+          lng: it.lng,
+          zoom: 16,
+        });
+      }
+
+      await fetchAndSelectStore(storeId);
+    },
+    [popularTop3, fetchAndSelectStore],
+  );
+
+  /** 가게 리스트 클릭 핸들러 */
+  const onClickStoreFromList = useCallback(
+    async (storeId: number) => {
+      suppressMapMovedRef.current = true;
+
+      // 1) markers에서 좌표 찾기 (현재 bounds 결과 리스트 기준)
+      const m = markers.find((x) => x.storeId === storeId);
+
+      // 2) 좌표가 있으면 중앙으로 이동
+      if (m) {
+        mapHandleRef.current?.panToWithOffset({
+          lat: m.lat,
+          lng: m.lng,
+          zoom: 16,
+        });
+      }
+
+      // 3) 상세 조회 + half 열기 + 선택 마커/인포윈도우
+      await fetchAndSelectStore(storeId);
+    },
+    [markers, fetchAndSelectStore],
+  );
+
+  /** 바텀시트 높이 기반 오프셋 */
   const getCenterOffsetPx = useCallback(() => {
     const vh = isDetailMode ? 53 : 38;
     const sheetPx = (window.innerHeight * vh) / 100;
     return sheetPx / 2;
   }, [isDetailMode]);
 
-  const [currentSheetState, setCurrentSheetState] = useState<SheetState>(
-    sheetOpen ? "half" : "collapsed",
-  );
-
-  // ✅ 상세로 이동할 때 restore를 만들어서 전달
+  /** 상세로 이동 (restore 전달) */
   const onGoDetail = useCallback(() => {
     if (!selectedStoreNumericId) return;
 
@@ -221,15 +523,12 @@ export default function Home() {
       sheetOpen: true,
       sheetState: currentSheetState,
       mapCamera: cam,
-      filteredStoreIds: markers.map((m) => m.storeId), // 필터 유지용
+      filteredStoreIds: markers.map((m) => m.storeId),
       showSearchHere,
     };
 
     navigate(`/stores/${selectedStoreNumericId}`, {
-      state: {
-        from: "home",
-        restore,
-      },
+      state: { from: "home", restore },
     });
   }, [
     selectedStoreNumericId,
@@ -239,7 +538,7 @@ export default function Home() {
     navigate,
   ]);
 
-  // ✅ 상세에서 home으로 돌아왔을 때 복원
+  /** 상세에서 home으로 돌아왔을 때 복원 */
   const didRestoreRef = useRef(false);
 
   useEffect(() => {
@@ -258,7 +557,7 @@ export default function Home() {
       }, 0);
     }
 
-    // 2) 마커 필터 복원(원하면 유지, 아니면 이 블록 삭제)
+    // 2) 마커/시트 UI 복원
     startTransition(() => {
       if (restore.filteredStoreIds && restore.filteredStoreIds.length > 0) {
         setMarkers(
@@ -268,52 +567,102 @@ export default function Home() {
         );
       }
 
-      // 3) 선택 가게/시트 복원
-      if (typeof restore.selectedStoreId === "number") {
-        const store =
-          storeDetailMocks.find(
-            (s) =>
-              Number(s.id.replace("store_", "")) === restore.selectedStoreId,
-          ) ?? null;
-        setSelectedStore(store);
-      } else {
-        setSelectedStore(null);
-      }
-
       const nextOpen = !!restore.sheetOpen;
       setSheetOpen(nextOpen);
       setCurrentSheetState(
         restore.sheetState ?? (nextOpen ? "half" : "collapsed"),
       );
       setShowSearchHere(!!restore.showSearchHere);
-
       setOpenInfoStoreId(restore.openInfoStoreId ?? null);
     });
 
-    // 4) 복원 끝 -> state 제거(중복 복원 방지)
+    // 3) 선택 가게 복원은 서버 재조회
+    if (typeof restore.selectedStoreId === "number") {
+      void fetchAndSelectStore(restore.selectedStoreId);
+    } else {
+      setSelectedStore(null);
+    }
+
+    // 4) state 제거
     setTimeout(() => {
       navigate(location.pathname, { replace: true, state: null });
     }, 0);
-  }, [location.state, location.pathname, navigate, allMarkers]);
+  }, [
+    location.state,
+    location.pathname,
+    navigate,
+    allMarkers,
+    fetchAndSelectStore,
+  ]);
 
+  /** SearchContainer에 넣을 데이터(주소 없음) */
   const searchPlaces: SearchPlace[] = useMemo(() => {
-    // 1) 마커 기반 (서버든 목업이든 allMarkers가 source)
-    // 2) address는 상세 mock에서 붙임(지금 단계에서)
-    return allMarkers.map((m) => {
-      const detail =
-        storeDetailMocks.find(
-          (s) => Number(s.id.replace("store_", "")) === m.storeId,
-        ) ?? null;
+    const base = searchMarkers;
+
+    return base.map((m) => {
+      const km = myLoc
+        ? haversineKm(myLoc, { lat: m.lat, lng: m.lng })
+        : undefined;
 
       return {
         id: m.storeId,
         name: m.name,
-        address: detail?.fullAddress ?? detail?.shortAddress ?? "",
+        address: "", // 서버가 marker에 주소 안 주니까 일단 유지
         lat: m.lat,
         lng: m.lng,
+        distance: formatDistance(km), // 거리 표시
       };
     });
-  }, [allMarkers]);
+  }, [searchMarkers, myLoc]);
+
+  const searchDebounceRef = useRef<number | null>(null);
+
+  const refetchWithCurrentFilters = useCallback(
+    async (opt?: {
+      keyword?: string | null;
+      type?: CategoryTypeCode | null;
+    }) => {
+      const nextKeyword =
+        opt && "keyword" in opt ? (opt.keyword ?? "") : keyword.trim();
+
+      const nextType = opt && "type" in opt ? opt.type : typeCode;
+
+      await fetchMarkersByCurrentBounds({
+        keyword: nextKeyword.trim() || undefined,
+        type: nextType ?? undefined,
+        limit: 20,
+      });
+    },
+    [fetchMarkersByCurrentBounds, keyword, typeCode],
+  );
+
+  const markersForMap = useMemo(() => {
+    if (!pinnedMarker) return markers;
+
+    const exists = markers.some((m) => m.storeId === pinnedMarker.storeId);
+    return exists ? markers : [...markers, pinnedMarker];
+  }, [markers, pinnedMarker]);
+
+  /** 선택/상세/고정마커/검색 here 버튼 초기화 */
+  const resetSelectionUI = useCallback(() => {
+    setSelectedStore(null);
+    setSheetOpen(false);
+    setOpenInfoStoreId(null);
+
+    // 검색으로 범위 밖 눌렀을 때 마커 pin 해두는 거 썼다면
+    setPinnedMarker?.(null); // pinnedMarker 쓰고 있을 때만
+
+    setShowSearchHere(false);
+  }, []);
+
+  /** 검색 관련 초기화 */
+  const [searchUiKey, setSearchUiKey] = useState(0);
+
+  const resetSearchUI = useCallback(() => {
+    setKeyword(""); // Home의 keyword 상태
+    setSearchMarkers([]); // 전역 검색 결과
+    setSearchUiKey((k) => k + 1); // ✅ SearchContainer 리셋(내부 keyword도 초기화)
+  }, []);
 
   return (
     <GuestLayout>
@@ -321,10 +670,10 @@ export default function Home() {
       <div className="absolute inset-0">
         <NaverMap
           ref={mapHandleRef}
-          markers={markers}
-          selectedStoreId={selectedStoreNumericId} // ✅ 선택 마커 zIndex만 위로
+          markers={markersForMap}
+          selectedStoreId={selectedStoreNumericId}
           openInfoStoreId={openInfoStoreId}
-          onMarkerClick={handleMarkerClick}
+          onMarkerClick={(id) => void fetchAndSelectStore(id)}
           onMapClick={() => {
             setSelectedStore(null);
             setSheetOpen(false);
@@ -333,7 +682,7 @@ export default function Home() {
           getCenterOffsetPx={getCenterOffsetPx}
           onMapMoved={() => {
             if (suppressMapMovedRef.current) {
-              suppressMapMovedRef.current = false; // 1번만 무시
+              suppressMapMovedRef.current = false;
               return;
             }
             setShowSearchHere(true);
@@ -343,7 +692,7 @@ export default function Home() {
         {showSearchHere && (
           <button
             type="button"
-            onClick={onSearchHere}
+            onClick={() => void onSearchHere()}
             className="
               absolute left-1/2 -translate-x-1/2
               bottom-[150px] z-40 h-[40px] px-[15px]
@@ -353,52 +702,79 @@ export default function Home() {
             "
           >
             <img src={SearchArrowIcon} alt="재검색" className="h-[20px]" />
-            <p className="typo-14-semibold text-primary-01">
-              {" "}
-              현 지도에서 검색
-            </p>
+            <p className="typo-14-semibold text-primary-01">현 지도에서 검색</p>
           </button>
         )}
       </div>
 
-      {/* 페이드 오버레이*/}
+      {/* 페이드 오버레이 */}
       <div className="pointer-events-none absolute inset-0 z-10">
-        {/* 상단 페이드 */}
         <div
           className="absolute top-0 left-0 right-0 h-[120px]
-                        bg-gradient-to-b from-white/80 via-white/20 to-transparent
-                        backdrop-blur-[1px]"
+          bg-gradient-to-b from-white/80 via-white/20 to-transparent
+          backdrop-blur-[1px]"
         />
       </div>
 
       {/* 상단 검색 바 */}
       <div className="absolute top-4 left-4 right-4 z-30">
         <SearchContainer
+          key={searchUiKey}
           places={searchPlaces}
+          onKeywordChange={(v) => {
+            setKeyword(v);
+
+            // ✅ 선택/상세는 닫아도 됨(충돌 방지)
+            resetSelectionUI();
+
+            // ❌ 여기서 resetSearchUI() 하면 전역 검색이 매번 깨짐
+
+            if (searchDebounceRef.current)
+              window.clearTimeout(searchDebounceRef.current);
+            searchDebounceRef.current = window.setTimeout(() => {
+              void fetchSearchMarkersGlobal(v); // ✅ 전역 검색
+            }, 250);
+          }}
           onSelectPlace={(place) => {
-            // 프로그램 이동에서는 "현 지도에서 검색" 버튼 뜨지 않게
             suppressMapMovedRef.current = true;
-            // 1) 지도 이동
+
+            // ✅ 범위 밖 가게도 마커 뜨게 “핀” 다시 세팅 (이거 빠지면 전역검색 클릭이 허무해짐)
             if (place.lat && place.lng) {
+              setPinnedMarker({
+                storeId: place.id,
+                name: place.name,
+                lat: place.lat,
+                lng: place.lng,
+              });
+
               mapHandleRef.current?.panToWithOffset({
                 lat: place.lat,
                 lng: place.lng,
                 zoom: 16,
-                // offsetYPx를 안 넣으면 NaverMap 내부에서 getCenterOffsetPxRef로 계산해서 사용
-                // 확실히 하고 싶으면 아래처럼 넣어도 됨:
-                // offsetYPx: getCenterOffsetPx(),
               });
             }
 
-            // 2) 마커 클릭과 동일하게 시트 열기
-            handleMarkerClick(place.id);
+            void fetchAndSelectStore(place.id);
           }}
-        />{" "}
+        />
       </div>
 
       {/* 카테고리 칩 */}
       <div className="absolute top-[72px] mt-[10px] left-0 right-0 z-20">
-        <CategoryChipBar />
+        <CategoryChipBar
+          value={typeCode}
+          onChange={(next) => {
+            // 1) 선택/상세/핀/버튼 UI 초기화
+            resetSelectionUI(); // selectedStore, sheetOpen, openInfoStoreId, pinnedMarker, showSearchHere 등
+
+            // 2) 검색 컨텍스트 초기화 (칩 클릭에서만!)
+            resetSearchUI(); // keyword "", searchMarkers [], SearchContainer reset(key 증가)
+
+            // 3) 타입 적용 + 현재 bounds로 마커 재조회
+            setTypeCode(next);
+            void refetchWithCurrentFilters({ keyword: "", type: next });
+          }}
+        />
       </div>
 
       {/* Bottom Sheet */}
@@ -408,10 +784,7 @@ export default function Home() {
         disableScrollOnHalf={isDetailMode}
         onStateChange={(state) => {
           setCurrentSheetState(state);
-
-          if (state === "collapsed") {
-            setSheetOpen(false);
-          }
+          if (state === "collapsed") setSheetOpen(false);
         }}
         showSortBar={!isDetailMode}
         disableExpanded={isDetailMode}
@@ -431,12 +804,21 @@ export default function Home() {
               />
             </div>
           ) : (
-            <PopularPlaces />
+            <PopularPlaces
+              items={popularTop3}
+              onClickItem={(storeId) => void onClickPopular(storeId)}
+              showDistance={false}
+            />
           )
         }
         expandedContent={
           <>
-            <PlaceList places={mockPlaces} />
+            <PlaceList
+              places={placesForList}
+              onSelect={(storeId) => {
+                void onClickStoreFromList(storeId);
+              }}
+            />
             <BottomSheetFooter />
           </>
         }

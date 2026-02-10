@@ -1,13 +1,15 @@
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+
 import AppBar from "../../../components/Common/AppBar";
-import type { StoreDetail } from "../../../types/store";
-import { storeDetailMocks } from "./store.mock";
 import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
 import GuestLayout from "../../../layouts/GuestLayout";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useMemo } from "react";
+
+import type { StoreDetail } from "../../../types/store";
+import { mapApi, mapStoreDetailDtoToStoreDetail } from "../../../api/map";
 
 type GuestStoreDetailLocationState = {
-  restore?: unknown; // 복원 데이터의 구체 타입을 알면 더 좁혀도 좋아요
+  restore?: unknown;
   from?: "home" | "posit" | "coupon" | "my" | string;
 };
 
@@ -30,16 +32,74 @@ export default function GuestStoreDetailPage() {
     navigate(-1);
   };
 
-  const store: StoreDetail | null = useMemo(() => {
-    const idNum = Number(storeId);
-    if (!Number.isFinite(idNum)) return null;
+  const idNum = useMemo(() => Number(storeId), [storeId]);
 
+  const [store, setStore] = useState<StoreDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!Number.isFinite(idNum)) {
+      setStore(null);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const run = async () => {
+      setLoading(true);
+      try {
+        const res = await mapApi.getStoreDetail(idNum);
+
+        if (!res.data.isSuccess) {
+          throw new Error("API returned isSuccess=false");
+        }
+
+        const mapped = mapStoreDetailDtoToStoreDetail(res.data.data);
+
+        if (!cancelled) setStore(mapped);
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) setStore(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [idNum]);
+
+  if (!Number.isFinite(idNum)) {
     return (
-      storeDetailMocks.find(
-        (s) => Number(s.id.replace("store_", "")) === idNum,
-      ) ?? null
+      <GuestLayout active="home">
+        <AppBar
+          title="가게 정보 없음"
+          layout="left"
+          leftType="left"
+          onBack={goBackToHomeWithRestore}
+        />
+        <div className="p-4">잘못된 가게 ID 입니다.</div>
+      </GuestLayout>
     );
-  }, [storeId]);
+  }
+
+  if (loading) {
+    return (
+      <GuestLayout active="home">
+        <AppBar
+          title="가게 상세"
+          layout="left"
+          leftType="left"
+          onBack={goBackToHomeWithRestore}
+        />
+        <div className="p-4">불러오는 중...</div>
+      </GuestLayout>
+    );
+  }
 
   if (!store) {
     return (
@@ -48,9 +108,9 @@ export default function GuestStoreDetailPage() {
           title="가게 정보 없음"
           layout="left"
           leftType="left"
-          rightType="close"
+          onBack={goBackToHomeWithRestore}
         />
-        <div className="p-4">존재하지 않는 가게입니다.</div>
+        <div className="p-4">가게 정보를 불러오지 못했어요.</div>
       </GuestLayout>
     );
   }

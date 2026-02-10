@@ -14,11 +14,18 @@ export type SearchPlace = {
 type Props = {
   places: SearchPlace[];
   onSelectPlace?: (place: SearchPlace) => void;
+
+  // 추가: 입력 키워드가 바뀔 때 바깥으로 알림(서버 검색 트리거용)
+  onKeywordChange?: (keyword: string) => void;
 };
 
 const PAGE_SIZE = 4;
 
-export default function SearchContainer({ places, onSelectPlace }: Props) {
+export default function SearchContainer({
+  places,
+  onSelectPlace,
+  onKeywordChange,
+}: Props) {
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(0);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -47,8 +54,13 @@ export default function SearchContainer({ places, onSelectPlace }: Props) {
           setKeyword(v);
           setPage(0); // 검색어 바뀌면 첫 페이지로
           if (scrollRef.current) scrollRef.current.scrollTo({ left: 0 });
+
+          onKeywordChange?.(v);
         }}
-        onBack={() => setKeyword("")}
+        onBack={() => {
+          setKeyword("");
+          onKeywordChange?.("");
+        }}
       />
 
       {keyword && filteredPlaces.length > 0 && (

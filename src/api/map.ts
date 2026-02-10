@@ -1,5 +1,12 @@
+import type { StoreDetail, StoreInfoRow } from "../types/store";
+import { categoryCodeText } from "../utils/category";
+import { mapMyPosit, mapOwnerPosit } from "../utils/posit";
+import { statusCodeToText } from "../utils/status";
 import { http } from "./http";
 
+/** =========================
+ *  Common API Envelope
+ *  ========================= */
 export type ApiResponse<T> = {
   isSuccess: boolean;
   data: T;
@@ -10,6 +17,9 @@ export type ApiResponse<T> = {
   };
 };
 
+/** =========================
+ *  Marker API
+ *  ========================= */
 export type StoreMarker = {
   storeId: number;
   name: string;
@@ -17,16 +27,130 @@ export type StoreMarker = {
   lng: number;
 };
 
-export const mapApi = {
-  // 마커 조회
-  getMarkers: () =>
-    http.get<ApiResponse<{ stores: StoreMarker[] }>>("/map/stores/markers"),
-
-  // 상세 조회 (필요할 때)
-  getStoreDetail: (storeId: number) =>
-    http.get<ApiResponse<unknown>>(`/map/stores/${storeId}`),
-
-  // 리스트 조회 (bounds/myLatLng/cursor 등 필요)
-  getStores: (params: Record<string, unknown>) =>
-    http.get("/map/stores", { params }),
+export type MarkerQuery = {
+  swLat: number;
+  swLng: number;
+  neLat: number;
+  neLng: number;
+  keyword?: string;
+  type?: string; // e.g. "DESSERT"
+  limit?: number; // default 20
 };
+
+/** =========================
+ *  Store Detail DTO (Server)
+ *  - 서버 응답 기준으로 하나만 유지!
+ *  ========================= */
+export type StoreImageDto = {
+  imageId: number;
+  imageUrl: string | null;
+  thumbnailUrl: string | null;
+  order: number | null;
+};
+
+export type StoreAddressDto = {
+  road: string | null;
+  lot: string | null;
+};
+
+export type StoreLocationDto = {
+  lat: number;
+  /** 서버가 "Lng"로 주는 케이스가 있어서 그대로 받되, 바뀔 가능성 대비 */
+  Lng?: number | null;
+  lng?: number | null;
+};
+
+export type PositPreviewDto = {
+  concern: unknown | null;
+  memos: unknown[];
+};
+
+export type StoreDetailDto = {
+  storeId: number;
+  name: string;
+  category: string; // "CAFE" | ...
+  typeCode: string | null;
+  description: string | null;
+  statusCode: string | null;
+  openTime: string | null;
+  notOpen: string | null;
+  address: StoreAddressDto;
+  location: StoreLocationDto;
+  snsLink: string | null;
+  convince: unknown[];
+  images: StoreImageDto[];
+  menu: unknown[];
+  positPreview: PositPreviewDto;
+};
+
+/** =========================
+ *  API functions
+ *  ========================= */
+export const mapApi = {
+  getMarkers: (params: MarkerQuery) =>
+    http.get<ApiResponse<{ stores: StoreMarker[] }>>("/map/stores/markers", {
+      params: { ...params, limit: params.limit ?? 20 },
+    }),
+
+  getStoreDetail: (storeId: number) =>
+    http.get<ApiResponse<StoreDetailDto>>(`/map/stores/${storeId}`),
+
+  getStores: (params: Record<string, unknown>) =>
+    http.get<ApiResponse<unknown>>("/map/stores", { params }),
+};
+
+/** =========================
+ *  Mapper: DTO -> Domain(StoreDetail)
+ *  ========================= */
+export function mapStoreDetailDtoToStoreDetail(
+  dto: StoreDetailDto,
+): StoreDetail {
+  const road = dto.address?.road ?? "";
+  const lot = dto.address?.lot ?? "";
+
+  const images = Array.isArray(dto.images)
+    ? dto.images
+        .slice() // ✅ sort가 원본 mutate하니까 복사 후 정렬
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((img) => img.thumbnailUrl ?? img.imageUrl)
+        .filter((v): v is string => Boolean(v))
+    : [];
+
+  const lng = dto.location?.Lng ?? dto.location?.lng ?? 0;
+
+  const infoRows: StoreInfoRow[] = [
+    {
+      key: "address",
+      label: "주소",
+      value: road || lot || "-",
+    },
+    {
+      key: "hours",
+      label: "영업시간",
+      value: dto.openTime ?? "정보 없음",
+    },
+  ];
+
+  return {
+    id: `store_${dto.storeId}`,
+    name: dto.name,
+
+    categoryText: categoryCodeText(dto.category),
+    statusText: statusCodeToText(dto.statusCode ?? "UNKNOWN"),
+
+    shortAddress: lot,
+    fullAddress: road || lot,
+
+    images,
+
+    lat: dto.location?.lat ?? 0,
+    lng,
+
+    infoRows,
+
+    ownerPosit: mapOwnerPosit(dto.positPreview),
+    myPosit: mapMyPosit(dto.positPreview),
+
+    menus: [], // menu 스펙 확정되면 여기서 변환
+  };
+}

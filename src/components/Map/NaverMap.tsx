@@ -172,7 +172,7 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
     const first = markers[0];
     const center = first
       ? new window.naver.maps.LatLng(first.lat, first.lng)
-      : new window.naver.maps.LatLng(37.5665, 126.978);
+      : new window.naver.maps.LatLng(37.5433, 127.0712); // 건대근처 초기
 
     const map = new window.naver.maps.Map(containerRef.current, {
       center,

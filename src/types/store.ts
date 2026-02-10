@@ -23,11 +23,11 @@ export type StorePositPreview = {
 export type StoreDetail = {
   id: string;
   name: string;
-  categoryText: string; // "카페, 디저트"
-  statusText: string; // "영업중"
-  shortAddress: string; // "서울 광진구 화양동 3-75"
+  categoryText: string;
+  statusText: string;
+  shortAddress: string;
   fullAddress: string;
-  images: string[]; // 가게 이미지들
+  images: string[];
 
   lat: number;
   lng: number;
