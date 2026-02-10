@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import LogoIcon from "../../assets/Guest/Onboarding/Logo.svg"
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function Onboarding() {
     <div className="h-screen flex flex-col items-center justify-center">
       <div className="animate-fade-in">
         <img
-          src="/src/assets/Guest/Onboarding/Logo.svg"
+          src={LogoIcon}
           alt="로고 이미지"
         />
       </div>

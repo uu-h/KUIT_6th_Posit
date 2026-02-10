@@ -6,7 +6,7 @@ export default function UserTypeSelect() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen w-full pt-[105px] flex flex-col items-center gap-[97px]">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center gap-[73px]">
       
       <span className="typo-title text-center">
         안녕하세요, POSiT! 입니다.
