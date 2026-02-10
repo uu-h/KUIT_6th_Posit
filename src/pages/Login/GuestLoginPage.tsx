@@ -6,8 +6,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../api/auth";
 
+import EyeOnIcon from "../../assets/Login/eye_on.svg";
+import EyeOffIcon from "../../assets/Login/eye_off.svg";
+
 export default function GuestLoginPage() {
   const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
@@ -93,19 +98,35 @@ export default function GuestLoginPage() {
           />
         </div>
 
-        <div className="flex flex-col">
-          <label className="mb-[8px] typo-16-regular text-neutrals-09">
-            비밀번호
-          </label>
+      <div className="flex flex-col">
+        <label className="mb-[8px] typo-16-regular text-neutrals-09">
+          비밀번호
+        </label>
+
+        <div className="relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border-b border-neutrals-09 outline-none typo-16-medium"
+            className="w-full border-b border-neutrals-09 outline-none typo-16-medium pr-[32px]"
           />
+
+          {/* 눈 아이콘 */}
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-0 top-1/2 -translate-y-1/2"
+          >
+            <img
+              src={showPassword ? EyeOnIcon : EyeOffIcon}
+              alt={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+              className="w-[20px] h-[20px]"
+            />
+          </button>
         </div>
       </div>
-
+    </div>
+      
       <div className="mt-[20px] flex items-center justify-between">
         <button
           type="button"

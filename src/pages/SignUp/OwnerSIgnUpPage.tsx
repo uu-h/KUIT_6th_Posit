@@ -3,6 +3,9 @@ import Button from "../../components/Button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import EyeOnIcon from "../../assets/Login/eye_on.svg";
+import EyeOffIcon from "../../assets/Login/eye_off.svg";
+
 import {
   requestPhoneVerification,
   confirmPhoneVerification,
@@ -22,6 +25,9 @@ export default function OwnerSignUpPage() {
   const passwordRegex =
     /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{8,15}$/;
   const [password, setPassword] = useState("");
+
+  //비밀번호 보이기/숨기기 
+  const [showPassword, setShowPassword] = useState(false);
 
   // 이름
   const nameRegex = /^[가-힣a-zA-Z]{2,20}$/;
@@ -227,10 +233,29 @@ export default function OwnerSignUpPage() {
     focus:outline-none
   `;
 
-  const guideTextClass = (isValid: boolean) =>
-    `absolute right-[12px] top-1/2 -translate-y-1/2 typo-13-regular ${
-      isValid ? "text-natural-05" : "text-corals-200"
-    }`;
+    // ================= 아이디, 비밀번호 입력칸  =================
+    const authInputClass = (
+    value: string,
+    isValid: boolean,
+    hasRightArea = false
+  ) => `
+    w-full
+    h-[56px]
+    rounded-[8px]
+    border
+    px-[16px]
+    ${hasRightArea ? "pr-[200px]" : "pr-[48px]"}
+    ${value === "" ? "pt-[28px] leading-[normal]" : "leading-[56px]"}
+    typo-16-regular
+    focus:outline-none
+    ${
+      value === ""
+        ? "border-neutrals-04"
+        : isValid
+        ? "border-neutrals-04"
+        : "border-[#F00]"
+    }
+  `;
 
   return (
     <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px] flex flex-col">
@@ -248,62 +273,92 @@ export default function OwnerSignUpPage() {
         </h1>
       </div>
 
-      {/* 아이디 */}
-      <div className="mt-[27px] relative w-full">
-        {username === "" && (
-          <span className="absolute top-[10px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-            아이디 [4~15자, 영문, 숫자]
-          </span>
-        )}
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => {
-            setUsername(e.target.value);
-            setIsUsernameAvailable(null); // 아이디 바꾸면 다시 체크
-          }}
-          className={inputClass(username, true)}
-        />
-        {username !== "" && (
-          <span
-            className={guideTextClass(
+      {/* ================= 아이디 ================= */}
+      <div
+        className={`w-full ${
+          username !== "" &&
+          (!usernameRegex.test(username) || isUsernameAvailable === false)
+            ? "mt-[14px] mb-[7px]"
+            : "mt-[14px]"
+        }`}
+      >
+        <div className="relative w-full">
+          {username === "" && (
+            <span className="absolute top-[14px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
+              아이디 [4~15자, 영문, 숫자]
+            </span>
+          )}
+
+          <input
+            type="text"
+            value={username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              setIsUsernameAvailable(null);
+            }}
+            className={authInputClass(
+              username,
               usernameRegex.test(username) && isUsernameAvailable !== false
             )}
+          />
+        </div>
+
+        {/* 안내 문구 */}
+        {username !== "" &&
+          (!usernameRegex.test(username) || isUsernameAvailable === false) && (
+            <p className="mt-[6px] typo-12-regular text-[#F00]">
+              {!usernameRegex.test(username)
+                ? "아이디를 다시 설정해주세요."
+                : "이미 사용 중인 아이디입니다."}
+            </p>
+          )}
+      </div>
+
+
+      {/* ================= 비밀번호 ================= */}
+      <div
+        className={`w-full ${
+          password !== "" && !passwordRegex.test(password)
+            ? "mt-[14px] mb-[7px]"
+            : "mt-[14px]"
+        }`}
+      >
+        <div className="relative w-full">
+          {password === "" && (
+            <span className="absolute top-[14px] left-[16px] right-[48px] typo-13-regular text-neutrals-07 pointer-events-none">
+              비밀번호 [8~15자의 영문/숫자 또는 특수문자 조합]
+            </span>
+          )}
+
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={authInputClass(password, passwordRegex.test(password))}
+          />
+
+          {/* 눈 아이콘 */}
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute top-1/2 right-[16px] -translate-y-1/2"
           >
-            {!usernameRegex.test(username)
-              ? "아이디를 다시 설정해주세요."
-              : isUsernameAvailable === false
-              ? "이미 사용 중인 아이디입니다."
-              : isUsernameAvailable === true
-              ? "사용 가능한 아이디입니다."
-              : ""}
-          </span>
-        )}
+            <img
+              src={showPassword ? EyeOnIcon : EyeOffIcon}
+              alt="비밀번호 토글"
+              className="w-[20px] h-[20px]"
+            />
+          </button>
+        </div>
 
-
-      </div>
-
-      {/* 비밀번호 */}
-      <div className="mt-[14px] relative w-full">
-        {password === "" && (
-          <span className="absolute top-[10px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-            비밀번호 [8~15자의 영문/숫자 또는 특수문자 조합]
-          </span>
-        )}
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={inputClass(password, true)}
-        />
-        {password !== "" && (
-          <span className={guideTextClass(passwordRegex.test(password))}>
-            {passwordRegex.test(password)
-              ? "사용 가능한 비밀번호입니다."
-              : "비밀번호를 다시 설정해주세요."}
-          </span>
+        {/* 안내 문구 */}
+        {password !== "" && !passwordRegex.test(password) && (
+          <p className="mt-[6px] typo-12-regular text-[#F00]">
+            비밀번호를 다시 설정해주세요.
+          </p>
         )}
       </div>
+
 
       {/* 이름 */}
       <div className="mt-[14px] relative w-full">

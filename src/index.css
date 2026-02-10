@@ -2,6 +2,10 @@
 @import "./styles/scrollbar.css";
 
 
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
 
 
 @theme {
