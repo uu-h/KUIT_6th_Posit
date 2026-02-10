@@ -14,7 +14,11 @@ import NaverMap, {
 } from "../../../components/Map/NaverMap";
 import SearchContainer from "../../../components/Common/SearchContainer";
 import GuestLayout from "../../../layouts/GuestLayout";
-import { mapApi, type StoreMarker } from "../../../api/map";
+import {
+  mapApi,
+  mapStoreDetailDtoToStoreDetail,
+  type StoreMarker,
+} from "../../../api/map";
 import {
   startTransition,
   useCallback,
@@ -169,7 +173,15 @@ export default function Home() {
 
       // 서버 호출
       const params = toMarkerQueryFromBounds(bounds, opt);
+      console.log("[markers params]", params);
+
       const res = await mapApi.getMarkers(params);
+      console.log(
+        "[markers count]",
+        res.data.data.stores?.length,
+        res.data.data.stores,
+      );
+
       const serverMarkers = res.data.data.stores ?? [];
 
       setAllMarkers(serverMarkers);
@@ -259,15 +271,42 @@ export default function Home() {
   const isDetailMode = selectedStore !== null;
   const [openInfoStoreId, setOpenInfoStoreId] = useState<number | null>(null);
 
-  const handleMarkerClick = useCallback((storeId: number) => {
-    const store =
-      storeDetailMocks.find(
-        (s) => Number(s.id.replace("store_", "")) === storeId,
-      ) ?? null;
+  const handleMarkerClick = useCallback(async (storeId: number) => {
+    try {
+      if (ENABLE_SERVER) {
+        const res = await mapApi.getStoreDetail(storeId);
 
-    setSelectedStore(store);
-    setSheetOpen(true);
-    setOpenInfoStoreId(storeId);
+        const dto = res.data.data;
+        const store = mapStoreDetailDtoToStoreDetail(dto);
+
+        setSelectedStore(store);
+        setSheetOpen(true);
+        setOpenInfoStoreId(storeId);
+        return;
+      }
+
+      // fallback: mock
+      const store =
+        storeDetailMocks.find(
+          (s) => Number(s.id.replace("store_", "")) === storeId,
+        ) ?? null;
+
+      setSelectedStore(store);
+      setSheetOpen(true);
+      setOpenInfoStoreId(storeId);
+    } catch (e) {
+      console.error(e);
+
+      // 서버 실패 시 mock fallback
+      const store =
+        storeDetailMocks.find(
+          (s) => Number(s.id.replace("store_", "")) === storeId,
+        ) ?? null;
+
+      setSelectedStore(store);
+      setSheetOpen(true);
+      setOpenInfoStoreId(storeId);
+    }
   }, []);
 
   const selectedStoreNumericId = useMemo(() => {
@@ -404,6 +443,10 @@ export default function Home() {
     },
     [fetchMarkersByCurrentBounds, keyword, typeCode],
   );
+
+  useEffect(() => {
+    console.log("[selectedStore changed]", selectedStore);
+  }, [selectedStore]);
 
   return (
     <GuestLayout>
