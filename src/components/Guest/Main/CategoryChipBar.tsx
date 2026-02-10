@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import CategoryChip from "./CategoryChip";
 
 export type CategoryTypeCode =
@@ -13,7 +13,7 @@ export type CategoryTypeCode =
 
 type ChipItem = {
   label: string;
-  type?: CategoryTypeCode; // undefined면 "주변" 같은 의미
+  type?: CategoryTypeCode; // undefined면 "주변"
 };
 
 type Props = {
@@ -26,11 +26,9 @@ const CHIPS: ChipItem[] = [
   { label: "스터디 카페", type: "STUDY_CAFE" },
   { label: "브런치 카페", type: "BRUNCH" },
   { label: "디저트 카페", type: "DESSERT" },
-  // 필요하면 계속 추가
 ];
 
 export default function CategoryChipBar({ value = null, onChange }: Props) {
-  const [active, setActive] = useState<CategoryTypeCode | null>(value);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isDown = useRef(false);
@@ -43,26 +41,15 @@ export default function CategoryChipBar({ value = null, onChange }: Props) {
     scrollLeft.current = containerRef.current!.scrollLeft;
   };
 
-  const onMouseLeave = () => {
-    isDown.current = false;
-  };
-
-  const onMouseUp = () => {
-    isDown.current = false;
-  };
+  const onMouseLeave = () => (isDown.current = false);
+  const onMouseUp = () => (isDown.current = false);
 
   const onMouseMove = (e: React.MouseEvent) => {
     if (!isDown.current) return;
     e.preventDefault();
-
     const x = e.pageX;
     const walk = x - startX.current;
     containerRef.current!.scrollLeft = scrollLeft.current - walk;
-  };
-
-  const setNext = (next: CategoryTypeCode | null) => {
-    setActive(next);
-    onChange?.(next);
   };
 
   return (
@@ -81,8 +68,8 @@ export default function CategoryChipBar({ value = null, onChange }: Props) {
             <CategoryChip
               key={c.label}
               label={c.label}
-              selected={active === code}
-              onClick={() => setNext(code)}
+              selected={value === code}
+              onClick={() => onChange?.(code)}
             />
           );
         })}

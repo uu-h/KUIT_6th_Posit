@@ -618,10 +618,18 @@ export default function Home() {
   const searchDebounceRef = useRef<number | null>(null);
 
   const refetchWithCurrentFilters = useCallback(
-    async (opt?: { keyword?: string; type?: CategoryTypeCode }) => {
+    async (opt?: {
+      keyword?: string | null;
+      type?: CategoryTypeCode | null;
+    }) => {
+      const nextKeyword =
+        opt && "keyword" in opt ? (opt.keyword ?? "") : keyword.trim();
+
+      const nextType = opt && "type" in opt ? opt.type : typeCode;
+
       await fetchMarkersByCurrentBounds({
-        keyword: (opt?.keyword ?? keyword.trim()) || undefined,
-        type: opt?.type ?? typeCode ?? undefined,
+        keyword: nextKeyword.trim() || undefined,
+        type: nextType ?? undefined,
         limit: 20,
       });
     },
@@ -730,7 +738,7 @@ export default function Home() {
           value={typeCode}
           onChange={(next) => {
             setTypeCode(next);
-            void refetchWithCurrentFilters({ type: next ?? undefined });
+            void refetchWithCurrentFilters({ type: next }); // 항상 호출
           }}
         />
       </div>
