@@ -6,11 +6,15 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { login } from "../../api/auth";
 
+import EyeOnIcon from "../../assets/Login/eye_on.svg";
+import EyeOffIcon from "../../assets/Login/eye_off.svg";
+
 export default function OwnerLoginPage() {
   const navigate = useNavigate();
 
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [autoLogin, setAutoLogin] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +34,6 @@ export default function OwnerLoginPage() {
 
       const { accessToken, refreshToken } = res.data.tokens;
       const { role } = res.data.user;
-
 
       // 토큰 저장
       localStorage.setItem("accessToken", accessToken);
@@ -81,6 +84,7 @@ export default function OwnerLoginPage() {
 
       {/* 입력 폼 */}
       <div className="flex flex-col gap-[24px]">
+        {/* 아이디 */}
         <div className="flex flex-col">
           <label className="mb-[8px] typo-16-regular text-neutrals-09">
             아이디
@@ -93,19 +97,37 @@ export default function OwnerLoginPage() {
           />
         </div>
 
+        {/* 비밀번호 */}
         <div className="flex flex-col">
           <label className="mb-[8px] typo-16-regular text-neutrals-09">
             비밀번호
           </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border-b border-neutrals-09 outline-none typo-16-medium"
-          />
+
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border-b border-neutrals-09 outline-none typo-16-medium pr-[32px]"
+            />
+
+            {/* 눈 아이콘 */}
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-0 top-1/2 -translate-y-1/2"
+            >
+              <img
+                src={showPassword ? EyeOnIcon : EyeOffIcon}
+                alt={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="w-[20px] h-[20px]"
+              />
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* 자동 로그인 / 찾기 */}
       <div className="mt-[20px] flex items-center justify-between">
         <button
           type="button"
@@ -136,6 +158,7 @@ export default function OwnerLoginPage() {
         {loading ? "로그인 중..." : "로그인"}
       </Button>
 
+      {/* 회원가입 */}
       <div className="mt-[24px] flex items-center justify-center gap-[26px]">
         <span className="typo-16-medium text-neutrals-06">
           아직 회원이 아니신가요?
