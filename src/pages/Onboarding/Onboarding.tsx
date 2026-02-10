@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import LogoIcon from "../../assets/Guest/Onboarding/Logo.svg?url";
+import LogoIcon from "../../assets/Guest/Onboarding/logo.svg";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function Onboarding() {
         <img
           src={LogoIcon}
           alt="로고 이미지"
-          className="block w-[139px] h-[139px]"
+          className="w-[139px] h-[139px]"
           decoding="async"
           loading="eager"
         />
