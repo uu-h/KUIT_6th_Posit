@@ -3,7 +3,6 @@ import BottomSheet, {
 } from "../../../components/Guest/Main/BottomSheet";
 import PopularPlaces from "../../../components/Guest/Main/PopularPlaces";
 import PlaceList from "../../../components/Guest/Main/PlaceList";
-import type { Place } from "../../../types/place";
 import BottomSheetFooter from "../../../components/Guest/Main/BottomSheetFooter";
 import CategoryChipBar, {
   type CategoryTypeCode,
@@ -28,83 +27,16 @@ import {
   useState,
 } from "react";
 import type { StoreDetail } from "../../../types/store";
-import { storeDetailMocks } from "../Store/store.mock";
-import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
+import type { Place } from "../../../types/place";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchArrowIcon from "../../../assets/Guest/Main/SearchArrow.svg";
-
-const mockPlaces: Place[] = [
-  {
-    id: 1,
-    name: "더이퀼리브리엄커피",
-    description: "숲속 감성 담은 루프탑 커피 공간",
-    status: "영업 중",
-    address: "서울 광진구 자양동 7-30",
-    images: [
-      "/images/cafe1.jpg",
-      "/images/cafe2.jpg",
-      "/images/cafe3.jpg",
-      "/images/cafe4.jpg",
-    ],
-  },
-  {
-    id: 2,
-    name: "카페 레이지아워",
-    description: "반지하 감성 속 따뜻한 디저트 향기",
-    status: "영업 중",
-    address: "서울 광진구 화양동 3-75",
-    images: [
-      "/images/cafe5.jpg",
-      "/images/cafe6.jpg",
-      "/images/cafe7.jpg",
-      "/images/cafe8.jpg",
-    ],
-  },
-  {
-    id: 3,
-    name: "카페 언필드",
-    description: "차분한 2층 감성, 브륄레 치즈케이크",
-    status: "영업 중",
-    address: "서울 광진구 화양동 49-15",
-    images: [
-      "/images/cafe9.jpg",
-      "/images/cafe10.jpg",
-      "/images/cafe11.jpg",
-      "/images/cafe12.jpg",
-    ],
-  },
-  {
-    id: 4,
-    name: "도우터",
-    description: "유럽 감성 가득한 여유로운 브런치 공간",
-    status: "영업 중",
-    address: "서울 광진구 화양동 11-17",
-    images: [
-      "/images/cafe13.jpg",
-      "/images/cafe14.jpg",
-      "/images/cafe15.jpg",
-      "/images/cafe16.jpg",
-    ],
-  },
-];
-
-const mockMarkers: StoreMarker[] = [
-  { storeId: 1, name: "카페 레이지아워", lat: 37.54312, lng: 127.071253 },
-  { storeId: 2, name: "마이 디어 버터하우스", lat: 37.544966, lng: 127.069126 },
-  { storeId: 3, name: "도우터", lat: 37.542712, lng: 127.070158 },
-  { storeId: 4, name: "cafe 462", lat: 37.543181, lng: 127.06788 },
-  { storeId: 5, name: "카페 언필드", lat: 37.542093, lng: 127.06594 },
-  { storeId: 6, name: "test", lat: 37.538513, lng: 127.133774 },
-];
-
-const ENABLE_SERVER = true;
+import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
 
 type HomeRestoreState = {
   selectedStoreId?: number | null;
   sheetOpen?: boolean;
   sheetState?: SheetState;
   mapCamera?: MapCamera;
-  // (선택) 필터 결과 유지하고 싶으면 사용
   filteredStoreIds?: number[];
   showSearchHere?: boolean;
   openInfoStoreId?: number | null;
@@ -125,29 +57,34 @@ export type SearchPlace = {
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
-  const suppressMapMovedRef = useRef(false);
 
+  const suppressMapMovedRef = useRef(false);
   const mapHandleRef = useRef<NaverMapHandle | null>(null);
 
   const [keyword, setKeyword] = useState("");
   const [typeCode, setTypeCode] = useState<CategoryTypeCode | null>(null);
 
-  const [allMarkers, setAllMarkers] = useState<StoreMarker[]>(
-    ENABLE_SERVER ? [] : mockMarkers,
-  );
-
-  const [markers, setMarkers] = useState<StoreMarker[]>(
-    ENABLE_SERVER ? [] : mockMarkers,
-  );
+  const [allMarkers, setAllMarkers] = useState<StoreMarker[]>([]);
+  const [markers, setMarkers] = useState<StoreMarker[]>([]);
 
   const [showSearchHere, setShowSearchHere] = useState(false);
 
+  const [selectedStore, setSelectedStore] = useState<StoreDetail | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [openInfoStoreId, setOpenInfoStoreId] = useState<number | null>(null);
+
+  const isDetailMode = selectedStore !== null;
+
+  const [currentSheetState, setCurrentSheetState] = useState<SheetState>(
+    sheetOpen ? "half" : "collapsed",
+  );
+
+  // bounds -> marker query
   const toMarkerQueryFromBounds = useCallback(
     (
       b: { minLat: number; minLng: number; maxLat: number; maxLng: number },
       opt?: { keyword?: string; type?: string; limit?: number },
     ) => {
-      // 혹시 min/max가 뒤집힐 가능성까지 방어
       const swLat = Math.min(b.minLat, b.maxLat);
       const neLat = Math.max(b.minLat, b.maxLat);
       const swLng = Math.min(b.minLng, b.maxLng);
@@ -171,33 +108,25 @@ export default function Home() {
       const bounds = mapHandleRef.current?.getBounds();
       if (!bounds) return;
 
-      // 서버 호출
       const params = toMarkerQueryFromBounds(bounds, opt);
-      console.log("[markers params]", params);
 
       const res = await mapApi.getMarkers(params);
-      console.log(
-        "[markers count]",
-        res.data.data.stores?.length,
-        res.data.data.stores,
-      );
+      if (!res.data.isSuccess) throw new Error("markers isSuccess=false");
 
       const serverMarkers = res.data.data.stores ?? [];
-
       setAllMarkers(serverMarkers);
       setMarkers(serverMarkers);
     },
     [toMarkerQueryFromBounds],
   );
 
+  // 초기 마커 fetch
   useEffect(() => {
-    if (!ENABLE_SERVER) return;
-
     let cancelled = false;
 
     const run = async () => {
       try {
-        // 지도 준비될 때까지 아주 짧게 재시도
+        // 지도 준비될 때까지 잠깐 대기
         for (let i = 0; i < 10; i++) {
           if (cancelled) return;
           const b = mapHandleRef.current?.getBounds();
@@ -209,9 +138,9 @@ export default function Home() {
         await fetchMarkersByCurrentBounds();
       } catch (e) {
         console.error(e);
-        // 서버 실패 시 fallback
-        setAllMarkers(mockMarkers);
-        setMarkers(mockMarkers);
+        // 서버만 쓰기로 했으니 실패하면 빈 상태 유지
+        setAllMarkers([]);
+        setMarkers([]);
       }
     };
 
@@ -221,92 +150,31 @@ export default function Home() {
     };
   }, [fetchMarkersByCurrentBounds]);
 
-  const filterByBounds = useCallback(
-    (
-      list: StoreMarker[],
-      b: { minLat: number; minLng: number; maxLat: number; maxLng: number },
-    ) => {
-      return list.filter((m) => {
-        const inLat = m.lat >= b.minLat && m.lat <= b.maxLat;
-        const inLng = m.lng >= b.minLng && m.lng <= b.maxLng;
-        return inLat && inLng;
-      });
-    },
-    [],
-  );
-
+  // "현 지도에서 검색"
   const onSearchHere = useCallback(async () => {
-    const bounds = mapHandleRef.current?.getBounds();
-    if (!bounds) return;
-
-    if (ENABLE_SERVER) {
-      try {
-        await fetchMarkersByCurrentBounds({
-          keyword: keyword.trim() || undefined,
-          type: typeCode ?? undefined,
-          limit: 20,
-        });
-        setShowSearchHere(false);
-        return;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    const filtered = filterByBounds(allMarkers, bounds);
-    setMarkers(filtered);
-    setShowSearchHere(false);
-  }, [
-    ENABLE_SERVER,
-    fetchMarkersByCurrentBounds,
-    keyword,
-    typeCode,
-    filterByBounds,
-    allMarkers,
-  ]);
-
-  const [selectedStore, setSelectedStore] = useState<StoreDetail | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
-
-  const isDetailMode = selectedStore !== null;
-  const [openInfoStoreId, setOpenInfoStoreId] = useState<number | null>(null);
-
-  const handleMarkerClick = useCallback(async (storeId: number) => {
     try {
-      if (ENABLE_SERVER) {
-        const res = await mapApi.getStoreDetail(storeId);
-
-        const dto = res.data.data;
-        const store = mapStoreDetailDtoToStoreDetail(dto);
-
-        setSelectedStore(store);
-        setSheetOpen(true);
-        setOpenInfoStoreId(storeId);
-        return;
-      }
-
-      // fallback: mock
-      const store =
-        storeDetailMocks.find(
-          (s) => Number(s.id.replace("store_", "")) === storeId,
-        ) ?? null;
-
-      setSelectedStore(store);
-      setSheetOpen(true);
-      setOpenInfoStoreId(storeId);
+      await fetchMarkersByCurrentBounds({
+        keyword: keyword.trim() || undefined,
+        type: typeCode ?? undefined,
+        limit: 20,
+      });
     } catch (e) {
       console.error(e);
-
-      // 서버 실패 시 mock fallback
-      const store =
-        storeDetailMocks.find(
-          (s) => Number(s.id.replace("store_", "")) === storeId,
-        ) ?? null;
-
-      setSelectedStore(store);
-      setSheetOpen(true);
-      setOpenInfoStoreId(storeId);
+    } finally {
+      setShowSearchHere(false);
     }
+  }, [fetchMarkersByCurrentBounds, keyword, typeCode]);
+
+  // ✅ 서버 상세 조회 + 선택 상태 세팅
+  const fetchAndSelectStore = useCallback(async (storeId: number) => {
+    const res = await mapApi.getStoreDetail(storeId);
+    if (!res.data.isSuccess) throw new Error("detail isSuccess=false");
+
+    const store = mapStoreDetailDtoToStoreDetail(res.data.data);
+
+    setSelectedStore(store);
+    setSheetOpen(true);
+    setOpenInfoStoreId(storeId);
   }, []);
 
   const selectedStoreNumericId = useMemo(() => {
@@ -314,17 +182,14 @@ export default function Home() {
     return Number(selectedStore.id.replace("store_", ""));
   }, [selectedStore]);
 
+  // 바텀시트 높이 기반 오프셋
   const getCenterOffsetPx = useCallback(() => {
     const vh = isDetailMode ? 53 : 38;
     const sheetPx = (window.innerHeight * vh) / 100;
     return sheetPx / 2;
   }, [isDetailMode]);
 
-  const [currentSheetState, setCurrentSheetState] = useState<SheetState>(
-    sheetOpen ? "half" : "collapsed",
-  );
-
-  // 상세로 이동할 때 restore를 만들어서 전달
+  // 상세로 이동 (restore 전달)
   const onGoDetail = useCallback(() => {
     if (!selectedStoreNumericId) return;
 
@@ -336,7 +201,7 @@ export default function Home() {
       sheetOpen: true,
       sheetState: currentSheetState,
       mapCamera: cam,
-      filteredStoreIds: markers.map((m) => m.storeId), // 필터 유지용
+      filteredStoreIds: markers.map((m) => m.storeId),
       showSearchHere,
     };
 
@@ -373,8 +238,8 @@ export default function Home() {
       }, 0);
     }
 
-    // 2) 마커 필터 복원(원하면 유지, 아니면 이 블록 삭제)
     startTransition(() => {
+      // 2) 마커 필터 복원
       if (restore.filteredStoreIds && restore.filteredStoreIds.length > 0) {
         setMarkers(
           allMarkers.filter((m) =>
@@ -383,58 +248,50 @@ export default function Home() {
         );
       }
 
-      // 3) 선택 가게/시트 복원
-      if (typeof restore.selectedStoreId === "number") {
-        const store =
-          storeDetailMocks.find(
-            (s) =>
-              Number(s.id.replace("store_", "")) === restore.selectedStoreId,
-          ) ?? null;
-        setSelectedStore(store);
-      } else {
-        setSelectedStore(null);
-      }
-
+      // 3) 시트/버튼 상태 복원
       const nextOpen = !!restore.sheetOpen;
       setSheetOpen(nextOpen);
       setCurrentSheetState(
         restore.sheetState ?? (nextOpen ? "half" : "collapsed"),
       );
       setShowSearchHere(!!restore.showSearchHere);
-
       setOpenInfoStoreId(restore.openInfoStoreId ?? null);
     });
 
-    // 4) 복원 끝 -> state 제거(중복 복원 방지)
+    // 4) 선택 가게 복원은 "서버 재조회"로
+    if (typeof restore.selectedStoreId === "number") {
+      void fetchAndSelectStore(restore.selectedStoreId);
+    } else {
+      setSelectedStore(null);
+    }
+
+    // state 제거
     setTimeout(() => {
       navigate(location.pathname, { replace: true, state: null });
     }, 0);
-  }, [location.state, location.pathname, navigate, allMarkers]);
+  }, [
+    location.state,
+    location.pathname,
+    navigate,
+    allMarkers,
+    fetchAndSelectStore,
+  ]);
 
+  // SearchContainer에 넣을 데이터(주소 없음)
   const searchPlaces: SearchPlace[] = useMemo(() => {
-    // 1) 마커 기반 (서버든 목업이든 allMarkers가 source)
-    // 2) address는 상세 mock에서 붙임(지금 단계에서)
-    return allMarkers.map((m) => {
-      const detail =
-        storeDetailMocks.find(
-          (s) => Number(s.id.replace("store_", "")) === m.storeId,
-        ) ?? null;
-
-      return {
-        id: m.storeId,
-        name: m.name,
-        address: detail?.fullAddress ?? detail?.shortAddress ?? "",
-        lat: m.lat,
-        lng: m.lng,
-      };
-    });
+    return allMarkers.map((m) => ({
+      id: m.storeId,
+      name: m.name,
+      address: "", // markers API에 주소가 없어서 빈값
+      lat: m.lat,
+      lng: m.lng,
+    }));
   }, [allMarkers]);
 
   const searchDebounceRef = useRef<number | null>(null);
 
   const refetchWithCurrentFilters = useCallback(
     async (opt?: { keyword?: string; type?: CategoryTypeCode }) => {
-      // 서버 호출
       await fetchMarkersByCurrentBounds({
         keyword: (opt?.keyword ?? keyword.trim()) || undefined,
         type: opt?.type ?? typeCode ?? undefined,
@@ -444,9 +301,17 @@ export default function Home() {
     [fetchMarkersByCurrentBounds, keyword, typeCode],
   );
 
-  useEffect(() => {
-    console.log("[selectedStore changed]", selectedStore);
-  }, [selectedStore]);
+  // PlaceList에 넣을 데이터(서버에서 없는 값은 기본값)
+  const placesForList: Place[] = useMemo(() => {
+    return markers.map((m) => ({
+      id: m.storeId,
+      name: m.name,
+      description: "", // 서버에 없으면 빈값
+      status: "영업 중", // 임시 기본값 (서버 statusCode 연동되면 변환)
+      address: "", // 서버에 없으면 빈값
+      images: [], // 서버에 없으면 빈 배열 (PlaceHeader가 안전처리 필요할 수 있음)
+    }));
+  }, [markers]);
 
   return (
     <GuestLayout>
@@ -455,9 +320,11 @@ export default function Home() {
         <NaverMap
           ref={mapHandleRef}
           markers={markers}
-          selectedStoreId={selectedStoreNumericId} // ✅ 선택 마커 zIndex만 위로
+          selectedStoreId={selectedStoreNumericId}
           openInfoStoreId={openInfoStoreId}
-          onMarkerClick={handleMarkerClick}
+          onMarkerClick={(id) => {
+            void fetchAndSelectStore(id);
+          }}
           onMapClick={() => {
             setSelectedStore(null);
             setSheetOpen(false);
@@ -466,7 +333,7 @@ export default function Home() {
           getCenterOffsetPx={getCenterOffsetPx}
           onMapMoved={() => {
             if (suppressMapMovedRef.current) {
-              suppressMapMovedRef.current = false; // 1번만 무시
+              suppressMapMovedRef.current = false;
               return;
             }
             setShowSearchHere(true);
@@ -476,7 +343,7 @@ export default function Home() {
         {showSearchHere && (
           <button
             type="button"
-            onClick={onSearchHere}
+            onClick={() => void onSearchHere()}
             className="
               absolute left-1/2 -translate-x-1/2
               bottom-[150px] z-40 h-[40px] px-[15px]
@@ -486,21 +353,17 @@ export default function Home() {
             "
           >
             <img src={SearchArrowIcon} alt="재검색" className="h-[20px]" />
-            <p className="typo-14-semibold text-primary-01">
-              {" "}
-              현 지도에서 검색
-            </p>
+            <p className="typo-14-semibold text-primary-01">현 지도에서 검색</p>
           </button>
         )}
       </div>
 
-      {/* 페이드 오버레이*/}
+      {/* 페이드 오버레이 */}
       <div className="pointer-events-none absolute inset-0 z-10">
-        {/* 상단 페이드 */}
         <div
           className="absolute top-0 left-0 right-0 h-[120px]
-                        bg-gradient-to-b from-white/80 via-white/20 to-transparent
-                        backdrop-blur-[1px]"
+          bg-gradient-to-b from-white/80 via-white/20 to-transparent
+          backdrop-blur-[1px]"
         />
       </div>
 
@@ -511,33 +374,26 @@ export default function Home() {
           onKeywordChange={(v) => {
             setKeyword(v);
 
-            // 입력 중 서버 콜 과다 방지(300ms)
-            if (searchDebounceRef.current) {
+            if (searchDebounceRef.current)
               window.clearTimeout(searchDebounceRef.current);
-            }
             searchDebounceRef.current = window.setTimeout(() => {
               void refetchWithCurrentFilters({ keyword: v });
             }, 300);
           }}
           onSelectPlace={(place) => {
-            // 프로그램 이동에서는 "현 지도에서 검색" 버튼 뜨지 않게
             suppressMapMovedRef.current = true;
-            // 1) 지도 이동
+
             if (place.lat && place.lng) {
               mapHandleRef.current?.panToWithOffset({
                 lat: place.lat,
                 lng: place.lng,
                 zoom: 16,
-                // offsetYPx를 안 넣으면 NaverMap 내부에서 getCenterOffsetPxRef로 계산해서 사용
-                // 확실히 하고 싶으면 아래처럼 넣어도 됨:
-                // offsetYPx: getCenterOffsetPx(),
               });
             }
 
-            // 2) 마커 클릭과 동일하게 시트 열기
-            handleMarkerClick(place.id);
+            void fetchAndSelectStore(place.id);
           }}
-        />{" "}
+        />
       </div>
 
       {/* 카테고리 칩 */}
@@ -546,8 +402,6 @@ export default function Home() {
           value={typeCode}
           onChange={(next) => {
             setTypeCode(next);
-
-            // ✅ 타입 바뀌면 즉시 서버 갱신
             void refetchWithCurrentFilters({ type: next ?? undefined });
           }}
         />
@@ -560,10 +414,7 @@ export default function Home() {
         disableScrollOnHalf={isDetailMode}
         onStateChange={(state) => {
           setCurrentSheetState(state);
-
-          if (state === "collapsed") {
-            setSheetOpen(false);
-          }
+          if (state === "collapsed") setSheetOpen(false);
         }}
         showSortBar={!isDetailMode}
         disableExpanded={isDetailMode}
@@ -588,7 +439,7 @@ export default function Home() {
         }
         expandedContent={
           <>
-            <PlaceList places={mockPlaces} />
+            <PlaceList places={placesForList} />
             <BottomSheetFooter />
           </>
         }
