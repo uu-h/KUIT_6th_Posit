@@ -51,8 +51,7 @@ export default function GuestPositSelectedAnswer() {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [cursorId, setCursorId] = useState<number | null>(null);
-  const [hasNext, setHasNext] = useState<boolean>(false);
+
 
   const formatKoreanDate = (iso: string) => {
     const d = new Date(iso);
@@ -92,10 +91,6 @@ export default function GuestPositSelectedAnswer() {
 
         setAnswers(fetched);
 
-        if (res.data.data.meta) {
-          setCursorId(res.data.data.meta.nextCursorId ?? null);
-          setHasNext(!!res.data.data.meta.hasNext);
-        }
       }
     } catch (err) {
       console.error("API LOAD FAIL", err);
