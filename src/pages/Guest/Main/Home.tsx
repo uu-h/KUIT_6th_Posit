@@ -643,6 +643,27 @@ export default function Home() {
     return exists ? markers : [...markers, pinnedMarker];
   }, [markers, pinnedMarker]);
 
+  /** 선택/상세/고정마커/검색 here 버튼 초기화 */
+  const resetSelectionUI = useCallback(() => {
+    setSelectedStore(null);
+    setSheetOpen(false);
+    setOpenInfoStoreId(null);
+
+    // 검색으로 범위 밖 눌렀을 때 마커 pin 해두는 거 썼다면
+    setPinnedMarker?.(null); // pinnedMarker 쓰고 있을 때만
+
+    setShowSearchHere(false);
+  }, []);
+
+  /** 검색 관련 초기화 */
+  const [searchUiKey, setSearchUiKey] = useState(0);
+
+  const resetSearchUI = useCallback(() => {
+    setKeyword(""); // Home의 keyword 상태
+    setSearchMarkers([]); // 전역 검색 결과
+    setSearchUiKey((k) => k + 1); // ✅ SearchContainer 리셋(내부 keyword도 초기화)
+  }, []);
+
   return (
     <GuestLayout>
       {/* 지도 영역 */}
@@ -698,28 +719,34 @@ export default function Home() {
       {/* 상단 검색 바 */}
       <div className="absolute top-4 left-4 right-4 z-30">
         <SearchContainer
+          key={searchUiKey}
           places={searchPlaces}
           onKeywordChange={(v) => {
             setKeyword(v);
 
+            // ✅ 선택/상세는 닫아도 됨(충돌 방지)
+            resetSelectionUI();
+
+            // ❌ 여기서 resetSearchUI() 하면 전역 검색이 매번 깨짐
+
             if (searchDebounceRef.current)
               window.clearTimeout(searchDebounceRef.current);
             searchDebounceRef.current = window.setTimeout(() => {
-              void fetchSearchMarkersGlobal(v);
+              void fetchSearchMarkersGlobal(v); // ✅ 전역 검색
             }, 250);
           }}
           onSelectPlace={(place) => {
             suppressMapMovedRef.current = true;
 
-            // 검색으로 선택된 가게를 마커로 "고정" (bounds 밖이어도 보이게)
-            setPinnedMarker({
-              storeId: place.id,
-              name: place.name,
-              lat: place.lat ?? 0,
-              lng: place.lng ?? 0,
-            });
-
+            // ✅ 범위 밖 가게도 마커 뜨게 “핀” 다시 세팅 (이거 빠지면 전역검색 클릭이 허무해짐)
             if (place.lat && place.lng) {
+              setPinnedMarker({
+                storeId: place.id,
+                name: place.name,
+                lat: place.lat,
+                lng: place.lng,
+              });
+
               mapHandleRef.current?.panToWithOffset({
                 lat: place.lat,
                 lng: place.lng,
@@ -737,8 +764,15 @@ export default function Home() {
         <CategoryChipBar
           value={typeCode}
           onChange={(next) => {
+            // 1) 선택/상세/핀/버튼 UI 초기화
+            resetSelectionUI(); // selectedStore, sheetOpen, openInfoStoreId, pinnedMarker, showSearchHere 등
+
+            // 2) 검색 컨텍스트 초기화 (칩 클릭에서만!)
+            resetSearchUI(); // keyword "", searchMarkers [], SearchContainer reset(key 증가)
+
+            // 3) 타입 적용 + 현재 bounds로 마커 재조회
             setTypeCode(next);
-            void refetchWithCurrentFilters({ type: next }); // 항상 호출
+            void refetchWithCurrentFilters({ keyword: "", type: next });
           }}
         />
       </div>
