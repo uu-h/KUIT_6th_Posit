@@ -257,11 +257,6 @@ export default function OwnerSignUpPage() {
     }
   `;
 
-  const guideTextClass = (isValid: boolean) =>
-    `absolute right-[12px] top-1/2 -translate-y-1/2 typo-13-regular ${
-      isValid ? "text-natural-05" : "text-corals-200"
-    }`;
-
   return (
     <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px] flex flex-col">
       {/* 헤더 */}
