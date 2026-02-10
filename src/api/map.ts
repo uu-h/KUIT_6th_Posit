@@ -1,10 +1,12 @@
-import type { StoreDetail } from "../types/store";
+import type { StoreDetail, StoreInfoRow } from "../types/store";
 import { categoryCodeText } from "../utils/category";
 import { mapMyPosit, mapOwnerPosit } from "../utils/posit";
 import { statusCodeToText } from "../utils/status";
-
 import { http } from "./http";
 
+/** =========================
+ *  Common API Envelope
+ *  ========================= */
 export type ApiResponse<T> = {
   isSuccess: boolean;
   data: T;
@@ -15,6 +17,9 @@ export type ApiResponse<T> = {
   };
 };
 
+/** =========================
+ *  Marker API
+ *  ========================= */
 export type StoreMarker = {
   storeId: number;
   name: string;
@@ -22,45 +27,66 @@ export type StoreMarker = {
   lng: number;
 };
 
-// ✅ 마커 조회 쿼리 타입
 export type MarkerQuery = {
   swLat: number;
   swLng: number;
   neLat: number;
   neLng: number;
   keyword?: string;
-  type?: string; // 1차 필터 코드, "DESSERT" 같은 값
-  limit?: number; //기본 20
+  type?: string; // e.g. "DESSERT"
+  limit?: number; // default 20
+};
+
+/** =========================
+ *  Store Detail DTO (Server)
+ *  - 서버 응답 기준으로 하나만 유지!
+ *  ========================= */
+export type StoreImageDto = {
+  imageId: number;
+  imageUrl: string | null;
+  thumbnailUrl: string | null;
+  order: number | null;
+};
+
+export type StoreAddressDto = {
+  road: string | null;
+  lot: string | null;
+};
+
+export type StoreLocationDto = {
+  lat: number;
+  /** 서버가 "Lng"로 주는 케이스가 있어서 그대로 받되, 바뀔 가능성 대비 */
+  Lng?: number | null;
+  lng?: number | null;
+};
+
+export type PositPreviewDto = {
+  concern: unknown | null;
+  memos: unknown[];
 };
 
 export type StoreDetailDto = {
   storeId: number;
   name: string;
-  category: "CAFE" | "RESTAURANT" | string;
-  statusCode: string;
-  openTime: string | null; // "매일 10:00 - 24:00"
-  address: {
-    road: string | null;
-    lot: string | null;
-  };
-  location: {
-    lat: number;
-    Lng?: number; // ⚠️ 서버가 Lng로 내려줌 (대문자 L)
-    lng?: number; // 혹시 서버가 바뀔 가능성도 대비
-  };
-  images: {
-    imageUrl: string;
-    order: number;
-  }[];
+  category: string; // "CAFE" | ...
+  typeCode: string | null;
+  description: string | null;
+  statusCode: string | null;
+  openTime: string | null;
+  notOpen: string | null;
+  address: StoreAddressDto;
+  location: StoreLocationDto;
+  snsLink: string | null;
+  convince: unknown[];
+  images: StoreImageDto[];
   menu: unknown[];
-  positPreview: {
-    concern: unknown | null;
-    memos: unknown[];
-  };
+  positPreview: PositPreviewDto;
 };
 
+/** =========================
+ *  API functions
+ *  ========================= */
 export const mapApi = {
-  // ✅ 마커 조회: bounds 필수이므로 params를 받도록 변경
   getMarkers: (params: MarkerQuery) =>
     http.get<ApiResponse<{ stores: StoreMarker[] }>>("/map/stores/markers", {
       params: { ...params, limit: params.limit ?? 20 },
@@ -70,48 +96,61 @@ export const mapApi = {
     http.get<ApiResponse<StoreDetailDto>>(`/map/stores/${storeId}`),
 
   getStores: (params: Record<string, unknown>) =>
-    http.get("/map/stores", { params }),
+    http.get<ApiResponse<unknown>>("/map/stores", { params }),
 };
 
+/** =========================
+ *  Mapper: DTO -> Domain(StoreDetail)
+ *  ========================= */
 export function mapStoreDetailDtoToStoreDetail(
   dto: StoreDetailDto,
 ): StoreDetail {
+  const road = dto.address?.road ?? "";
+  const lot = dto.address?.lot ?? "";
+
+  const images = Array.isArray(dto.images)
+    ? dto.images
+        .slice() // ✅ sort가 원본 mutate하니까 복사 후 정렬
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((img) => img.thumbnailUrl ?? img.imageUrl)
+        .filter((v): v is string => Boolean(v))
+    : [];
+
+  const lng = dto.location?.Lng ?? dto.location?.lng ?? 0;
+
+  const infoRows: StoreInfoRow[] = [
+    {
+      key: "address",
+      label: "주소",
+      value: road || lot || "-",
+    },
+    {
+      key: "hours",
+      label: "영업시간",
+      value: dto.openTime ?? "정보 없음",
+    },
+  ];
+
   return {
     id: `store_${dto.storeId}`,
     name: dto.name,
 
     categoryText: categoryCodeText(dto.category),
-    statusText: statusCodeToText(dto.statusCode),
+    statusText: statusCodeToText(dto.statusCode ?? "UNKNOWN"),
 
-    shortAddress: dto.address.lot ?? "",
-    fullAddress: dto.address.road ?? dto.address.lot ?? "",
+    shortAddress: lot,
+    fullAddress: road || lot,
 
-    images: dto.images.sort((a, b) => a.order - b.order).map((i) => i.imageUrl),
+    images,
 
-    lat: dto.location.lat,
-    lng: dto.location.Lng ?? 0,
+    lat: dto.location?.lat ?? 0,
+    lng,
 
-    infoRows: [
-      {
-        key: "address",
-        label: "주소",
-        value: dto.address.road ?? "-",
-      },
-      {
-        key: "hours",
-        label: "영업시간",
-        value: dto.openTime ?? "정보 없음",
-      },
-    ],
+    infoRows,
 
     ownerPosit: mapOwnerPosit(dto.positPreview),
-    //     ownerPosit: {
-    //   ...mapOwnerPosit(dto.positPreview),
-    //   onClick: () => navigate(`/stores/${dto.storeId}/posit/owner`)
-    // }
-
     myPosit: mapMyPosit(dto.positPreview),
 
-    menus: [], // menu API 붙으면 여기서 변환
+    menus: [], // menu 스펙 확정되면 여기서 변환
   };
 }
