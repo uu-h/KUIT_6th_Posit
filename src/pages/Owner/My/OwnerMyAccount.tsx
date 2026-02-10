@@ -1,5 +1,10 @@
 import MyAccountContent from "../../../components/Common/MyAccountContent";
+import OwnerLayout from "../../../layouts/OwnerLayout";
 
 export default function OwnerMyAccount() {
-  return <MyAccountContent />;
+  return (
+    <OwnerLayout active="my">
+      <MyAccountContent />
+    </OwnerLayout>
+  );
 }

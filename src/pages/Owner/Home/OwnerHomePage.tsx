@@ -5,9 +5,11 @@ import QuickActions from "../../../components/Owner/Home/QuickActions";
 import SectionHeader from "../../../components/Owner/Home/SectionHeader";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
 import OwnerLayout from "../../../layouts/OwnerLayout";
+import { useNavigate } from "react-router-dom";
 
 export default function OwnerHomePage() {
   const { stats, concerns } = ownerHomeMock;
+  const navigate = useNavigate();
 
   return (
     <OwnerLayout active="home">
@@ -17,8 +19,8 @@ export default function OwnerHomePage() {
 
         <div className="mt-[32px]">
           <QuickActions
-            left={{ label: "고민 올리기", onClick: () => {} }}
-            right={{ label: "쿠폰 관리", onClick: () => {} }}
+            left={{ label: "고민 올리기", onClick: () => navigate("/owner/home/post-concern") }}
+            right={{ label: "쿠폰 관리", onClick: () => navigate("/owner/home/coupon-manage") }}
           />
         </div>
 
@@ -26,7 +28,7 @@ export default function OwnerHomePage() {
           <SectionHeader
             title="내가 올린 고민"
             actionText="전체 고민 보기"
-            onActionClick={() => {}}
+            onActionClick={() => navigate("/owner/home/concern") }
           />
           <ConcernList items={concerns} />
         </div>

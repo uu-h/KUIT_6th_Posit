@@ -8,6 +8,7 @@ type Concern = {
   commentCount: number;
 };
 
+//TODO : 클릭시 연결
 type Props = {
   items?: Concern[]; // 나중에 API 연동 시 외부에서 주입 가능
   onItemClick?: (id: Concern["id"]) => void;

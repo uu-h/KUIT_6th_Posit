@@ -34,6 +34,10 @@ import StoreRegisterHours from "../pages/Owner/Registration/StoreRegisterHours";
 import StoreRegisterAmenities from "../pages/Owner/Registration/StoreRegisterAmenities";
 import GuestStoreDetailPage from "../pages/Guest/Store/GuestStoreDetailPage";
 
+import OwnerPositMyConcernPage from "../pages/Owner/Posit/OwnerPositMyConcernPage";
+import OwnerCouponPage from "../pages/Owner/Coupon/OwnerCouponPage";
+import OwnerMyConcernsPage from "../pages/Owner/Home/OwnerMyConcernsPage";
+
 export default function Router() {
   return (
     <Routes>
@@ -96,7 +100,10 @@ export default function Router() {
       <Route path="/owner/my/store" element={<OwnerMyStore />} />
 
       {/*Owner - Home*/}
-        <Route path="/owner/home" element={<OwnerHomePage />} />
+      <Route path="/owner/home" element={<OwnerHomePage />} />
+      <Route path="/owner/home/post-concern" element={<OwnerPositMyConcernPage/>}/>
+      <Route path="/owner/home/coupon-manage" element={<OwnerCouponPage/>}/>
+      <Route path="/owner/home/concern" element={<OwnerMyConcernsPage/>}/>
 
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />
