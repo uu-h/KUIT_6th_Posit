@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
@@ -8,6 +8,10 @@ import PhotoPlusIcon from "../../../assets/Owner/Registration/PhotoPlus.svg";
 
 export default function StoreRegisterPhoto() {
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const saved = location.state;
+
 
   // 최대 5장
   const [photos, setPhotos] = useState<(string | null)[]>([
@@ -108,7 +112,15 @@ export default function StoreRegisterPhoto() {
         <Button
           height="h-[48px]"
           disabled={!isValid}
-          onClick={() => navigate("/owner/store/register/hours")}
+          onClick={() =>
+            navigate("/owner/store/register/hours", {
+              state: {
+                ...saved,
+                photos,
+              },
+            })
+          }
+
         >
           완료
         </Button>

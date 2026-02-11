@@ -9,6 +9,7 @@ import CameraIcon from "../../../assets/Owner/Registration/Camera.svg";
 import GalleryIcon from "../../../assets/Owner/Registration/Gallery.svg";
 import CloseIcon from "../../../assets/Common/Close.svg";
 
+
 export default function StoreRegistration() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,35 +62,67 @@ export default function StoreRegistration() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
-  /* ---------- 전화번호 포맷 ---------- */
-  const formatPhoneNumber = (value: string) => {
-    const rawNumbers = value.replace(/\D/g, "");
+  const handleSubmit = () => {
+    navigate("/owner/store/register/photo", {
+      state: {
+        storeName,
+        phoneNumber,
+        address,
+        detailAddress,
+        selectedType,
+        intro,
+        menuNames,
+        menuPrices,
+        menuImages,
+      },
+    });
+  };
 
-    if (rawNumbers.startsWith("02")) {
-      const numbersOnly = rawNumbers.slice(0, 10);
-      if (numbersOnly.length <= 2) return numbersOnly;
-      if (numbersOnly.length <= 5)
-        return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2)}`;
-      if (numbersOnly.length <= 9)
-        return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(
-          2,
-          5
-        )}-${numbersOnly.slice(5)}`;
-      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(
-        2,
-        6
-      )}-${numbersOnly.slice(6)}`;
-    }
 
-    const numbersOnly = rawNumbers.slice(0, 11);
-    if (numbersOnly.length <= 3) return numbersOnly;
-    if (numbersOnly.length <= 7)
-      return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3)}`;
+
+/* ---------- 전화번호 포맷 ---------- */
+const formatPhoneNumber = (value: string) => {
+  const rawNumbers = value.replace(/\D/g, "");
+
+  // 02 (서울)
+  if (rawNumbers.startsWith("02")) {
+    const numbersOnly = rawNumbers.slice(0, 10);
+
+    if (numbersOnly.length <= 2) return numbersOnly;
+    if (numbersOnly.length <= 5)
+      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2)}`;
+    if (numbersOnly.length <= 9)
+      return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2, 5)}-${numbersOnly.slice(5)}`;
+
+    return `${numbersOnly.slice(0, 2)}-${numbersOnly.slice(2, 6)}-${numbersOnly.slice(6)}`;
+  }
+
+  // 3자리 지역번호 또는 휴대폰
+  const numbersOnly = rawNumbers.slice(0, 11);
+
+  if (numbersOnly.length <= 3) return numbersOnly;
+
+  // 10자리 (지역번호 등)
+  if (numbersOnly.length === 10) {
+    return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(
+      3,
+      6
+    )}-${numbersOnly.slice(6)}`;
+  }
+
+  // 11자리 (휴대폰)
+  if (numbersOnly.length > 7) {
     return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(
       3,
       7
     )}-${numbersOnly.slice(7)}`;
-  };
+  }
+
+  return `${numbersOnly.slice(0, 3)}-${numbersOnly.slice(3)}`;
+};
+
+
+
 
   /* ---------- 사진 선택 ---------- */
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,7 +334,7 @@ export default function StoreRegistration() {
         <Button
           height="h-[48px]"
           disabled={!isFormValid}
-          onClick={() => navigate("/owner/store/register/photo")}
+          onClick={handleSubmit}
         >
           완료
         </Button>
