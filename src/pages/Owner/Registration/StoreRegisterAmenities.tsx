@@ -1,23 +1,127 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { createStore } from "../../../api/store";
+import type { CreateStoreRequest } from "../../../api/store";
 
 import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
+
+/* ---------- 요일 매핑 ---------- */
+const dayMap: Record<string, string> = {
+  월: "MON",
+  화: "TUE",
+  수: "WED",
+  목: "THU",
+  금: "FRI",
+  토: "SAT",
+  일: "SUN",
+};
+
+// /* ---------- 카테고리 매핑 ---------- */
+// const categoryMap: Record<string, "STUDY" | "BRUNCH" | "DESSERT"> = {
+//   "스터디 카페": "STUDY",
+//   "브런치 카페": "BRUNCH",
+//   "디저트 카페": "DESSERT",
+// };
+
+/* ---------- 편의시설 매핑 ---------- */
+const convenienceMap: Record<string, string> = {
+  "포장 가능": "TAKEOUT",
+  "배달 가능": "DELIVERY",
+  "예약 가능": "RESERVATION",
+  "간편결제": "EASY_PAY",
+  "24시간 영업": "OPEN_24H",
+  "주차 가능": "PARKING",
+  "발렛 파킹": "VALET_PARKING",
+  "장애인 편의시설": "ACCESSIBLE",
+  "반려동물 동반 가능": "PET_FRIENDLY",
+  "노키즈존": "NO_KIDS",
+  "와이파이 있음": "WIFI",
+  "단체석 있음": "GROUP_SEAT",
+  "룸 있음": "PRIVATE_ROOM",
+  "흡연실 있음": "SMOKING_ROOM",
+  "야외 좌석": "OUTDOOR_SEAT",
+};
 
 /* ---------- 옵션 정의 ---------- */
 const AMENITIES = {
   convenience: ["포장 가능", "배달 가능", "예약 가능", "24시간 영업"],
   access: ["주차 가능", "발렛 파킹", "장애인 편의시설"],
   restriction: ["반려동물 동반 가능", "노키즈존"],
-  environment: ["와이파이 있음", "단체석 있음", "룸 있음", "흡연실 있음", "야외 좌석"],
+  environment: [
+    "와이파이 있음",
+    "단체석 있음",
+    "룸 있음",
+    "흡연실 있음",
+    "야외 좌석",
+  ],
 };
 
 export default function StoreRegisterAmenities() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const saved = location.state;
 
   const [selected, setSelected] = useState<string[]>([]);
 
-  /* ---------- 토글 ---------- */
+  const handleSubmit = async () => {
+    try {
+
+      const requestBody: CreateStoreRequest = {
+        name: saved?.storeName ?? "",
+        address: {
+          roadAddress: saved?.address ?? "",
+          detailAddress: saved?.detailAddress ?? "",
+        },
+
+        type: "CAFE",
+        phone: saved?.phoneNumber ?? "",
+        snsUrl: "",
+        description: saved?.intro ?? "",
+        couponPin: "1234",
+
+        imageUrls: saved?.imageUrls ?? [],
+
+        operation: {
+          regularHolidays: (saved?.closedDays ?? []).map(
+            (d: string) => dayMap[d]
+          ),
+          openDay: (saved?.openDays ?? []).map(
+            (d: string) => dayMap[d]
+          ),
+          openTime: `${(saved?.startHour ?? "00").padStart(2, "0")}:${(
+            saved?.startMinute ?? "00"
+          ).padStart(2, "0")}`,
+          closeTime: `${(saved?.endHour ?? "00").padStart(2, "0")}:${(
+            saved?.endMinute ?? "00"
+          ).padStart(2, "0")}`,
+        },
+
+        convinces: selected.map(
+          (item) => convenienceMap[item]
+        ),
+
+        menus: (saved?.menuNames ?? []).map(
+          (name: string, i: number) => ({
+            name,
+            price: Number(saved?.menuPrices?.[i] ?? 0),
+            imageUrl: "",
+          })
+        ),
+      };
+
+      console.log("imageUrls:", requestBody.imageUrls);
+      console.log("전체 body:", requestBody);
+
+      await createStore(requestBody);
+      navigate("/owner");
+
+    } catch (error) {
+      console.error("가게 등록 실패", error);
+    }
+  };
+
+
   const toggleItem = (item: string) => {
     setSelected((prev) =>
       prev.includes(item)
@@ -26,19 +130,16 @@ export default function StoreRegisterAmenities() {
     );
   };
 
-  /* ---------- 버튼 활성화 ---------- */
   const isValid = selected.length > 0;
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* AppBar */}
       <AppBar
         layout="center"
         leftType="left"
         onBack={() => navigate(-1)}
       />
 
-      {/* Title + Step */}
       <div className="px-6 pt-2 pb-6">
         <div className="flex items-center justify-between">
           <h1 className="typo-sub-title">
@@ -54,9 +155,7 @@ export default function StoreRegisterAmenities() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 px-6 space-y-6">
-        {/* 이용 편의 */}
         <Section title="이용 편의">
           {AMENITIES.convenience.map((item) => (
             <AmenityButton
@@ -68,7 +167,6 @@ export default function StoreRegisterAmenities() {
           ))}
         </Section>
 
-        {/* 접근/시설 */}
         <Section title="접근/시설">
           {AMENITIES.access.map((item) => (
             <AmenityButton
@@ -80,7 +178,6 @@ export default function StoreRegisterAmenities() {
           ))}
         </Section>
 
-        {/* 제한 */}
         <Section title="제한">
           {AMENITIES.restriction.map((item) => (
             <AmenityButton
@@ -92,7 +189,6 @@ export default function StoreRegisterAmenities() {
           ))}
         </Section>
 
-        {/* 매장 환경 */}
         <Section title="매장 환경">
           {AMENITIES.environment.map((item) => (
             <AmenityButton
@@ -105,11 +201,11 @@ export default function StoreRegisterAmenities() {
         </Section>
       </div>
 
-      {/* Bottom Button */}
       <div className="px-6 py-4">
         <Button
           height="h-[48px]"
           disabled={!isValid}
+          onClick={handleSubmit}
         >
           완료
         </Button>
@@ -118,7 +214,7 @@ export default function StoreRegisterAmenities() {
   );
 }
 
-/* ---------- 섹션 컴포넌트 ---------- */
+/* ---------- 섹션 ---------- */
 function Section({
   title,
   children,
@@ -134,7 +230,7 @@ function Section({
   );
 }
 
-/* ---------- 버튼 컴포넌트 ---------- */
+/* ---------- 버튼 ---------- */
 function AmenityButton({
   label,
   selected,
