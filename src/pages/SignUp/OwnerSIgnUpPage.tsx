@@ -178,7 +178,7 @@ export default function OwnerSignUpPage() {
         localStorage.setItem("refreshToken", refreshToken);
 
         alert("사장님 회원가입이 완료되었습니다.");
-        navigate("/");
+        navigate("/owner/store/register");
       }
       }catch (error: any) {
           const errorCode = error?.response?.data?.errorCode;
