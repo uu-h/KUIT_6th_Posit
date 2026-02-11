@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://posit-dev.p-e.kr"
+      "destination": "https://posit-dev.p-e.kr/:path*"
     },
     {
       "source": "/(.*)",
