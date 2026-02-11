@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
@@ -8,6 +8,10 @@ const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
 export default function StoreRegisterHours() {
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const saved = location.state;
+
 
   /* ---------- 영업 요일 ---------- */
   const [openDays, setOpenDays] = useState<string[]>([]);
@@ -159,7 +163,20 @@ export default function StoreRegisterHours() {
         <Button
           height="h-[48px]"
           disabled={!isValid}
-          onClick={() => navigate("/owner/store/register/amenities")}
+          onClick={() =>
+            navigate("/owner/store/register/amenities", {
+              state: {
+                ...saved,
+                openDays,
+                closedDays,
+                startHour,
+                startMinute,
+                endHour,
+                endMinute,
+              },
+            })
+          }
+
         >
           완료
         </Button>
