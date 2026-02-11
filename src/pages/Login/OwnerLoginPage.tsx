@@ -115,7 +115,7 @@ export default function OwnerLoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-0 top-1/2 -translate-y-1/2"
+              className="absolute right-0 top-1/2 -translate-y-[60%]"
             >
               <img
                 src={showPassword ? EyeOnIcon : EyeOffIcon}
