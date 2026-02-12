@@ -58,10 +58,12 @@ const AMENITIES = {
   ],
 };
 
+
 export default function StoreRegisterAmenities() {
   const navigate = useNavigate();
   const location = useLocation();
-  const saved = location.state;
+  const saved = location.state ?? {};
+
 
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -79,8 +81,8 @@ export default function StoreRegisterAmenities() {
         phone: saved?.phoneNumber ?? "",
         snsUrl: "",
         description: saved?.intro ?? "",
-        couponPin: "1234",
-
+        couponPin: saved.couponPin,
+        
         imageUrls: saved?.imageUrls ?? [],
 
         operation: {

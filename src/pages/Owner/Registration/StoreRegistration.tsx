@@ -14,6 +14,7 @@ export default function StoreRegistration() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const couponPin = location.state?.couponPin;
   const saved = location.state;
 
   /* ---------- 필수 state ---------- */
@@ -65,6 +66,7 @@ export default function StoreRegistration() {
   const handleSubmit = () => {
     navigate("/owner/store/register/photo", {
       state: {
+        couponPin,
         storeName,
         phoneNumber,
         address,
@@ -215,6 +217,7 @@ const formatPhoneNumber = (value: string) => {
               onClick={() =>
                 navigate("/owner/store/address-search", {
                   state: {
+                    couponPin,
                     storeName,
                     phoneNumber,
                     detailAddress,
