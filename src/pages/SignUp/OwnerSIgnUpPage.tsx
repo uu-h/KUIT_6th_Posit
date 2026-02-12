@@ -116,6 +116,9 @@ export default function OwnerSignUpPage() {
   const businessNumberRegex = /^\d{10}$/;
   const [businessNumber, setBusinessNumber] = useState("");
 
+  const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
+
+
   // 쿠폰 비밀번호 (4자리)
   const couponPasswordRegex = /^\d{4}$/;
   const [couponPassword, setCouponPassword] = useState("");
@@ -470,28 +473,32 @@ export default function OwnerSignUpPage() {
           }}
           className={inputClass(businessNumber, true)}
         />
-        <button
-          type="button"
-          disabled={
-            !businessNumberRegex.test(
+      <button
+        type="button"
+        disabled={
+          !businessNumberRegex.test(
+            businessNumber.replace(/[^0-9]/g, "")
+          )
+        }
+        onClick={() => {
+          setIsBusinessModalOpen(true);
+        }}
+        className={`
+          absolute right-[12px] top-1/2 -translate-y-1/2
+          w-[105px] h-[32px] px-[12px] rounded-[6px]
+          typo-14-medium border
+          ${
+            businessNumberRegex.test(
               businessNumber.replace(/[^0-9]/g, "")
             )
+              ? "bg-primary-01 text-corals-000 cursor-pointer"
+              : "border-primary-01 text-primary-01 cursor-not-allowed"
           }
-          className={`
-            absolute right-[12px] top-1/2 -translate-y-1/2
-            w-[105px] h-[32px] px-[12px] rounded-[6px]
-            typo-14-medium border
-            ${
-              businessNumberRegex.test(
-                businessNumber.replace(/[^0-9]/g, "")
-              )
-                ? "bg-primary-01 text-corals-000 cursor-pointer"
-                : "border-primary-01 text-primary-01 cursor-not-allowed"
-            }
-          `}
-        >
-          확인
-        </button>
+        `}
+      >
+        확인
+      </button>
+
       </div>
 
       {/* 쿠폰 비밀번호 */}
@@ -603,6 +610,27 @@ export default function OwnerSignUpPage() {
         </div>
       </div>
     )}
+
+    {/* ================= 사업자번호 확인 완료 모달 ================= */}
+    {isBusinessModalOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
+          <div className="px-[24px] py-[32px] text-center">
+            <p className="typo-13-regular text-black">
+              사업자 번호가 확인되었습니다.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsBusinessModalOpen(false)}
+            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
+          >
+            확인
+          </button>
+        </div>
+      </div>
+    )}
+
 
 
 
