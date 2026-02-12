@@ -17,12 +17,13 @@ const dayMap: Record<string, string> = {
   일: "SUN",
 };
 
-// /* ---------- 카테고리 매핑 ---------- */
-// const categoryMap: Record<string, "STUDY" | "BRUNCH" | "DESSERT"> = {
-//   "스터디 카페": "STUDY",
-//   "브런치 카페": "BRUNCH",
-//   "디저트 카페": "DESSERT",
-// };
+/* ---------- 카테고리 매핑 ---------- */
+const typeMap: Record<string, "STUDY" | "BRUNCH" | "DESSERT"> = {
+  "스터디 카페": "STUDY",
+  "브런치 카페": "BRUNCH",
+  "디저트 카페": "DESSERT",
+};
+
 
 /* ---------- 편의시설 매핑 ---------- */
 const convenienceMap: Record<string, string> = {
@@ -74,7 +75,7 @@ export default function StoreRegisterAmenities() {
           detailAddress: saved?.detailAddress ?? "",
         },
 
-        type: "CAFE",
+        type: typeMap[saved?.category ?? "스터디 카페"],
         phone: saved?.phoneNumber ?? "",
         snsUrl: "",
         description: saved?.intro ?? "",
@@ -114,7 +115,7 @@ export default function StoreRegisterAmenities() {
       console.log("전체 body:", requestBody);
 
       await createStore(requestBody);
-      navigate("/owner");
+      navigate("/owner/home");
 
     } catch (error) {
       console.error("가게 등록 실패", error);

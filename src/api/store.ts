@@ -1,12 +1,14 @@
 import { http } from "./http";
 
+export type StoreType = "STUDY" | "BRUNCH" | "DESSERT";
+
 export interface CreateStoreRequest {
   name: string;
   address: {
     roadAddress: string;
     detailAddress: string;
   };
-  type: "CAFE";
+  type: StoreType;
   phone: string;
   snsUrl?: string;
   description: string;
