@@ -34,7 +34,7 @@ export default function NumberPad({ onPress, onDelete, onClear }: NumberPadProps
   }, [handleKeyDown]);
 
   return (
-    <div className="w-full mb-[20px] px-[32px] select-none">
+    <div className="w-full px-[32px] select-none">
       <div className="grid grid-cols-3 gap-y-[33px] gap-x-[85px] text-center items-center">
         {rows.flat().map((item) => {
           if (item === "CLEAR") {

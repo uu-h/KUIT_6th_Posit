@@ -5,22 +5,10 @@ import AppBar from "../../../components/Common/AppBar";
 import BottomBar from "../../../components/BottomBar/BottomBar";
 import { http } from "../../../api/http";
 
+// ======================
 // UI에서 쓸 타입
+// ======================
 type AnswerType = "answer" | "memo";
-
-// API 쪽 타입
-type ApiCategory = "ANSWER" | "FREE";
-type ApiStatus = "REVIEWING" | "ADOPTED" | "REJECTED";
-
-interface ApiMemo {
-  memoId: number;
-  storeName: string;
-  category: ApiCategory;
-  content: string;
-  status: ApiStatus;
-  createdAt: string;
-  read: boolean;
-}
 
 interface Answer {
   id: number;
@@ -29,10 +17,37 @@ interface Answer {
   content: string;
   cafeName?: string;
   createdAt: string;
-  isRead: boolean;
+  isRead?: boolean;
 }
 
+// ======================
+// 서버 응답 타입 (실제 응답 기준)
+// ======================
+type ApiCategory = "고민 답변" | "자유 메모";
+type ApiStatus = "REVIEWING" | "ADOPTED" | "REJECTED";
+
+interface ApiMemo {
+  memoId: number;
+  storeName?: string;
+  category: ApiCategory;
+  content: string;
+  status: ApiStatus;
+  createdAt: string;
+  read?: boolean;
+}
+
+interface ApiResponse {
+  isSuccess: boolean;
+  data: {
+    memos: ApiMemo[];
+    nextCursorId: number | null;
+    hasNext: boolean;
+  };
+}
+
+// ======================
 // 날짜 포맷: "10월 22일"
+// ======================
 function formatDate(iso: string) {
   const d = new Date(iso);
   const month = d.getMonth() + 1;
@@ -40,6 +55,9 @@ function formatDate(iso: string) {
   return `${month}월 ${day}일`;
 }
 
+// ======================
+// 컴포넌트
+// ======================
 export default function GuestPositSelectedAnswer() {
   const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState<AnswerType>("answer");
@@ -49,28 +67,31 @@ export default function GuestPositSelectedAnswer() {
   useEffect(() => {
     const fetchAnswers = async () => {
       try {
-        const res = await http.get("/memos/me", {
+        setLoading(true);
+
+        const res = await http.get<ApiResponse>("/memos/me", {
           params: {
-            status: "ADOPTED", 
+            status: "ADOPTED",
             size: 20,
-            cursorId: 0,
           },
         });
 
-        const data = res.data;
+        console.log("API RESPONSE:", res.data); // 🔥 디버깅용
 
-        if (data.isSuccess && data.data.memos) {
-          const mapped: Answer[] = data.data.memos.map((memo: ApiMemo) => ({
+        if (res.data.isSuccess && res.data.data?.memos) {
+          const mapped: Answer[] = res.data.data.memos.map((memo) => ({
             id: memo.memoId,
-            type: memo.category === "ANSWER" ? "answer" : "memo",
-            title: memo.content,
+            type: memo.category === "자유 메모" ? "memo" : "answer",
+            title: memo.content, // 서버에 title 없음
             content: memo.content,
             cafeName: memo.storeName,
             createdAt: formatDate(memo.createdAt),
-            isRead: memo.read,
+            isRead: true,
           }));
 
           setAnswers(mapped);
+        } else {
+          setAnswers([]);
         }
       } catch (error) {
         console.error("채택된 답변 불러오기 실패:", error);
@@ -82,9 +103,7 @@ export default function GuestPositSelectedAnswer() {
     fetchAnswers();
   }, []);
 
-  const filteredAnswers = answers.filter(
-    (a) => a.type === selectedType
-  );
+  const filteredAnswers = answers.filter((a) => a.type === selectedType);
 
   const counts = {
     answer: answers.filter((a) => a.type === "answer").length,
@@ -96,61 +115,53 @@ export default function GuestPositSelectedAnswer() {
   }
 
   return (
-  <div className="flex flex-col h-screen">
-    <AppBar title="채택 된 답변" layout="left" leftType="left" />
+    <div className="flex flex-col h-screen">
+      <AppBar title="채택 된 답변" layout="left" leftType="left" />
 
-    {/* 토글 */}
-    <div className="flex justify-center">
-      {(["answer", "memo"] as AnswerType[]).map((type) => (
-        <button
-          key={type}
-          onClick={() => setSelectedType(type)}
-          className={`typo-14-medium w-[187.5px] pb-[18px] mt-[27px] h-[40px] ${
-            selectedType === type
-              ? "border-b-2"
-              : "text-neutrals-07 border-b border-neutrals-07"
-          }`}
-        >
-          {type === "answer" ? "고민 답변" : "자유 메모함"} {counts[type]}
-        </button>
-      ))}
-    </div>
-
-    {/* 카드 리스트 */}
-    <div className="flex-1 overflow-y-auto flex flex-col no-scrollbar gap-[8px] pt-[20px] pb-[110px] px-[16px]">
-      {loading && (
-        <div className="flex justify-center items-center h-full text-neutrals-07">
-          로딩 중...
-        </div>
-      )}
-
-      {!loading && filteredAnswers.length === 0 && (
-        <div className="flex justify-center items-center h-full text-neutrals-07">
-          아직 채택된 답변이 없어요 🥲
-        </div>
-      )}
-
-      {!loading &&
-        filteredAnswers.length > 0 &&
-        filteredAnswers.map((answer) => (
-          <AnswerCard
-            key={answer.id}
-            type={answer.type}
-            title={answer.title}
-            cafeName={answer.cafeName}
-            createdAt={answer.createdAt}
-            isRead={answer.isRead}
-            onClick={() =>
-              navigate(`/guest/posit/selected/${answer.id}`, {
-                state: answer,
-              })
-            }
-          />
+      {/* 토글 */}
+      <div className="flex justify-center">
+        {(["answer", "memo"] as AnswerType[]).map((type) => (
+          <button
+            key={type}
+            onClick={() => setSelectedType(type)}
+            className={`typo-14-medium w-[187.5px] pb-[18px] mt-[27px] h-[40px] ${
+              selectedType === type
+                ? "border-b-2"
+                : "text-neutrals-07 border-b border-neutrals-07"
+            }`}
+          >
+            {type === "answer" ? "고민 답변" : "자유 메모함"} {counts[type]}
+          </button>
         ))}
+      </div>
+
+      {/* 카드 리스트 */}
+      <div className="flex-1 overflow-y-auto flex flex-col no-scrollbar gap-[8px] pt-[20px] pb-[110px] px-[16px]">
+        {!loading && filteredAnswers.length === 0 && (
+          <div className="flex justify-center items-center h-full text-neutrals-07">
+            아직 채택된 답변이 없어요 🥲
+          </div>
+        )}
+
+        {!loading &&
+          filteredAnswers.map((answer) => (
+            <AnswerCard
+              key={answer.id}
+              type={answer.type}
+              title={answer.title}
+              cafeName={answer.cafeName}
+              createdAt={answer.createdAt}
+              isRead={answer.isRead}
+              onClick={() =>
+                navigate(`/guest/posit/selected/${answer.id}`, {
+                  state: answer,
+                })
+              }
+            />
+          ))}
+      </div>
+
+      <BottomBar active="posit" onChange={() => {}} />
     </div>
-
-    <BottomBar active="posit" onChange={() => {}} />
-  </div>
-);
-
+  );
 }

@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import type { Coupon } from "./couponData"; // 1. 타입 전용 임포트 사용
+import type { Coupon } from "./couponData"; // API로 대체 할거임!!!!
 import CouponVerify from "../../../components/Guest/Coupon/CouponVerify";
 import AppBar from "../../../components/Common/AppBar";
 
@@ -14,7 +14,7 @@ export default function CouponVerifyPage() {
   if (!coupon) return <div className="p-4">잘못된 접근입니다.</div>;
 
   const handleSuccess = () => {
-    // 성공하면 다시 상세 페이지(Page)로 이동하면서 '성공했다'는 표식(usedCouponId)을 남김
+   
     navigate(`/guest/coupon/${couponId}`, {
       state: { 
         usedCouponId: couponId,
@@ -28,8 +28,8 @@ export default function CouponVerifyPage() {
     <div className="w-full min-h-screen flex flex-col">
       <AppBar layout="center" leftType="left" onBack={() => navigate(-1)} />
       
-      <div className="w-full flex-1 flex flex-col px-[16px] mt-[13px]">
-        <div className="flex flex-col gap-[30px] mb-[40px]">
+      <div className="w-full flex-1 flex flex-col pt-[13px] px-[16px]">
+        <div className="flex flex-col gap-[24px] mb-[40px]">
           <h1 className="typo-sub-title h-[48px]">
             사용할 때<br />점원에게 보여주세요.
           </h1>

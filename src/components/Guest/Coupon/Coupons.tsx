@@ -1,10 +1,11 @@
 import CouponIcon from "../../../assets/images/Coffee.png";
 interface Props {
+  title: string; 
   used: boolean;
   onUse: () => void;
 }
 
-export default function Coupon({ used, onUse }: Props) {
+export default function Coupon({ title, used, onUse }: Props) {
   return (
     <div className="w-[343px] h-[370px] flex flex-col rounded-[16px] overflow-hidden shadow-[0_0_5px_0_rgba(0,0,0,0.25)]">
       <div className="h-[225px] bg-gray-100">
@@ -17,7 +18,7 @@ export default function Coupon({ used, onUse }: Props) {
 
       <div className="flex-1 flex flex-col items-center justify-center gap-[14px]">
         <h3 className="text-[16px] font-semibold text-neutrals-09">
-          아메리카노 1잔 무료 쿠폰
+          {title}
         </h3>
 
         <button

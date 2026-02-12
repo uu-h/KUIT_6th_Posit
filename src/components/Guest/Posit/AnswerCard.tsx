@@ -3,7 +3,7 @@ interface AnswerCardProps {
     cafeName?: string;
     type: "answer" | "memo";
     createdAt: string;
-    isRead: boolean;
+    isRead?: boolean;
     onClick: () => void;
 }
 

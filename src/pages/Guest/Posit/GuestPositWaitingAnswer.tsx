@@ -5,11 +5,9 @@ import AppBar from "../../../components/Common/AppBar";
 import BottomBar from "../../../components/BottomBar/BottomBar";
 import { http } from "../../../api/http";
 
-// 서버 쿼리 타입
-type ApiType = "ANSWER" | "FREE";
-type ApiStatus = "REVIEWING" | "ADOPTED" | "REJECTED";
-
+// ======================
 // 프론트에서 쓸 타입
+// ======================
 type AnswerType = "answer" | "memo";
 
 interface Answer {
@@ -22,13 +20,18 @@ interface Answer {
   isRead: boolean;
 }
 
-// 서버 응답 타입 (대충 형태 맞춘 것)
+// ======================
+// 서버 응답 타입 (실제 응답 기준)
+// ======================
+type ApiCategory = "고민 답변" | "자유 메모";
+type ApiStatus = "REVIEWING" | "ADOPTED" | "REJECTED";
+
 interface ApiMemo {
   memoId: number;
-  category: "ANSWER" | "FREE";
-  title?: string;
-  content: string;
   storeName?: string;
+  category: ApiCategory;
+  content: string;
+  status: ApiStatus;
   createdAt: string;
   read: boolean;
 }
@@ -37,13 +40,14 @@ interface ApiResponse {
   isSuccess: boolean;
   data: {
     memos: ApiMemo[];
-    meta?: {
-      nextCursorId?: number;
-      hasNext?: boolean;
-    };
+    nextCursorId: number | null;
+    hasNext: boolean;
   };
 }
 
+// ======================
+// 컴포넌트
+// ======================
 export default function GuestPositSelectedAnswer() {
   const navigate = useNavigate();
 
@@ -51,38 +55,31 @@ export default function GuestPositSelectedAnswer() {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-
-
   const formatKoreanDate = (iso: string) => {
     const d = new Date(iso);
     const month = d.getMonth() + 1;
     const day = d.getDate();
-      return `${month}월 ${day}일`;
-};
+    return `${month}월 ${day}일`;
+  };
 
-  const fetchAnswers = async (
-    type: ApiType,
-    status: ApiStatus,
-    size = 10,
-    cursorId?: number
-  ) => {
+  const fetchAnswers = async () => {
     try {
       setLoading(true);
 
-      const params: Record<string, string | number> = {
-        type,
-        status,
-        size,
-      };
-      if (cursorId) params.cursorId = cursorId;
+      const res = await http.get<ApiResponse>("/memos/me", {
+        params: {
+          status: "REVIEWING", // 필요하면 바꿔
+          size: 20,
+        },
+      });
 
-      const res = await http.get<ApiResponse>("/memos/me", { params });
+      console.log("memos api response:", res.data); // 🔥 디버깅용
 
       if (res.data.isSuccess && res.data.data?.memos) {
         const fetched: Answer[] = res.data.data.memos.map((memo) => ({
           id: memo.memoId,
-          type: memo.category === "FREE" ? "memo" : "answer",
-          title: memo.title ?? memo.content,
+          type: memo.category === "자유 메모" ? "memo" : "answer",
+          title: memo.content, // 서버에 title 없음
           content: memo.content,
           cafeName: memo.storeName,
           createdAt: memo.createdAt,
@@ -90,7 +87,6 @@ export default function GuestPositSelectedAnswer() {
         }));
 
         setAnswers(fetched);
-
       }
     } catch (err) {
       console.error("API LOAD FAIL", err);
@@ -101,12 +97,8 @@ export default function GuestPositSelectedAnswer() {
   };
 
   useEffect(() => {
-    if (selectedType === "answer") {
-      fetchAnswers("ANSWER", "REVIEWING", 10);
-    } else {
-      fetchAnswers("FREE", "REVIEWING", 10);
-    }
-  }, [selectedType]);
+    fetchAnswers();
+  }, []);
 
   const counts = {
     answer: answers.filter((a) => a.type === "answer").length,
@@ -150,13 +142,13 @@ export default function GuestPositSelectedAnswer() {
                 createdAt={formatKoreanDate(answer.createdAt)}
                 isRead={answer.isRead}
                 onClick={() =>
-                  navigate(`/guest/posit/selected/${answer.id}`, {
+                  navigate(`/guest/posit/waiting/${answer.id}`, {
                     state: answer,
                   })
                 }
               />
             ))}
-        {/* 이부분은 확인용임! 지워야함 */}
+
         {!loading && answers.length === 0 && (
           <div className="text-center mt-[300px] text-neutrals-07">
             아직 대기중인 답변이 없어요 🥲
