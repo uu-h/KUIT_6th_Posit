@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getPresignedUrl, uploadToS3 } from "../../../api/image";
 
 import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
@@ -127,21 +128,45 @@ const formatPhoneNumber = (value: string) => {
 
 
   /* ---------- 사진 선택 ---------- */
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file || currentMenuIndex === null) return;
 
-    const previewUrl = URL.createObjectURL(file);
+    try {
+      // presigned 바로 받음
+      const { uploadUrl, fileUrl } = await getPresignedUrl({
+        purpose: "STORE_IMAGE",
+        files: [
+          {
+            fileName: file.name,
+            contentType: file.type,
+            contentLength: file.size,
+          },
+        ],
+      });
 
-    setMenuImages((prev) => {
-      const next = [...prev];
-      next[currentMenuIndex] = previewUrl;
-      return next;
-    });
+      // S3 업로드
+      await uploadToS3(uploadUrl, file);
+
+      // state 저장
+      setMenuImages((prev) => {
+        const next = [...prev];
+        next[currentMenuIndex] = fileUrl;
+        return next;
+      });
+
+    } catch (error) {
+      console.error("메뉴 이미지 업로드 실패", error);
+    }
 
     setIsPhotoModalOpen(false);
     e.target.value = "";
   };
+
+
+
 
   /* ---------- 필수 입력 검증 ---------- */
   const isFormValid =
@@ -376,21 +401,29 @@ const formatPhoneNumber = (value: string) => {
             </div>
 
             <div className="space-y-6">
-              <button
-                onClick={() => cameraInputRef.current?.click()}
-                className="w-full flex items-center gap-4"
-              >
+              <label className="w-full flex items-center gap-4 cursor-pointer">
                 <img src={CameraIcon} className="w-[24px] h-[24px]" />
                 <span>카메라로 촬영하기</span>
-              </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  style={{ display: "none" }}
+                  onChange={handleFileSelect}
+                />
+              </label>
 
-              <button
-                onClick={() => galleryInputRef.current?.click()}
-                className="w-full flex items-center gap-4"
-              >
+              <label className="w-full flex items-center gap-4 cursor-pointer">
                 <img src={GalleryIcon} className="w-[24px] h-[24px]" />
                 <span>앨범에서 선택하기</span>
-              </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={handleFileSelect}
+                />
+              </label>
+
             </div>
           </div>
         </div>

@@ -77,13 +77,15 @@ export default function StoreRegisterAmenities() {
           detailAddress: saved?.detailAddress ?? "",
         },
 
-        type: typeMap[saved?.category ?? "스터디 카페"],
+        type: typeMap[saved?.selectedType ?? "스터디 카페"],
         phone: saved?.phoneNumber ?? "",
         snsUrl: "",
         description: saved?.intro ?? "",
         couponPin: saved.couponPin,
-        
-        imageUrls: saved?.imageUrls ?? [],
+
+        imageUrls: (saved?.photos ?? []).filter(
+          (url: string | null): url is string => Boolean(url)
+        ),
 
         operation: {
           regularHolidays: (saved?.closedDays ?? []).map(
@@ -108,7 +110,7 @@ export default function StoreRegisterAmenities() {
           (name: string, i: number) => ({
             name,
             price: Number(saved?.menuPrices?.[i] ?? 0),
-            imageUrl: "",
+            imageUrl:saved?.menuImages?.[i] ?? "",
           })
         ),
       };

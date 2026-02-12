@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getPresignedUrl, uploadToS3 } from "../../../api/image";
+
 
 import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
@@ -26,21 +28,44 @@ export default function StoreRegisterPhoto() {
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 
   /* ---------------- 사진 선택 ---------------- */
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file || currentIndex === null) return;
 
-    const previewUrl = URL.createObjectURL(file);
+    try {
+      // presigned 바로 받기
+      const { uploadUrl, fileUrl } = await getPresignedUrl({
+        purpose: "STORE_IMAGE",
+        files: [
+          {
+            fileName: file.name,
+            contentType: file.type,
+            contentLength: file.size,
+          },
+        ],
+      });
 
-    setPhotos((prev) => {
-      const next = [...prev];
-      next[currentIndex] = previewUrl;
-      return next;
-    });
+      // S3 업로드
+      await uploadToS3(uploadUrl, file);
+
+      // 실제 접근 URL 저장
+      setPhotos((prev) => {
+        const next = [...prev];
+        next[currentIndex] = fileUrl;
+        return next;
+      });
+
+    } catch (error) {
+      console.error("이미지 업로드 실패", error);
+    }
 
     e.target.value = "";
     setCurrentIndex(null);
   };
+
+
 
   const uploadedCount = photos.filter(Boolean).length;
   const isValid = uploadedCount >= 3;
