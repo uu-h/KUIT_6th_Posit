@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   InfoList,
   MenuList,
@@ -35,6 +35,17 @@ function normalizeQuotes(quotes: unknown, needed: number): string[] {
   );
 }
 
+function hasAnyQuote(quotes: unknown): boolean {
+  return (
+    Array.isArray(quotes) &&
+    quotes.some((q) => typeof q === "string" && q.trim().length > 0)
+  );
+}
+
+function toStoreIdNum(id: string): number {
+  return Number(String(id).replace("store_", ""));
+}
+
 export default function StoreDetailBody({
   store,
   headerOffset = APPBAR_H_DEFAULT,
@@ -43,7 +54,6 @@ export default function StoreDetailBody({
   px = 16,
 }: Props) {
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState<StoreSectionKey>("home");
 
   const homeRef = useRef<HTMLDivElement | null>(null);
@@ -70,53 +80,39 @@ export default function StoreDetailBody({
     });
   };
 
-  const storeIdNum = useMemo(
-    () => Number(String(store.id).replace("store_", "")),
-    [store.id],
-  );
+  const storeIdNum = toStoreIdNum(store.id);
 
   /** "사장님 포짓" 미작성 시 문구: 사장님 고민이 아직 없어요! */
-  const ownerPositData: StorePositPreview = useMemo(() => {
-    const base = (store.ownerPosit ?? {}) as Partial<StorePositPreview>;
+  const ownerBase = (store.ownerPosit ?? {}) as Partial<StorePositPreview>;
+  const ownerHasQuote = hasAnyQuote(ownerBase.quotes);
 
-    const hasAnyQuote =
-      Array.isArray(base.quotes) &&
-      base.quotes.some((q) => typeof q === "string" && q.trim().length > 0);
-
-    return {
-      title: "사장님 고민 POSiT! 하러가기",
-      subtitle: hasAnyQuote
-        ? (base.subtitle ?? "")
-        : "사장님 고민이 아직 없어요!",
-      quotes: normalizeQuotes(base.quotes, 1),
-      onClick: () => {
-        // 필요하면 사장님 포짓 상세/리스트 라우팅으로 교체 가능
-        scrollToSection("posit");
-      },
-    };
-  }, [store.ownerPosit]);
+  const ownerPositData: StorePositPreview = {
+    title: "사장님 고민 POSiT! 하러가기",
+    subtitle: ownerHasQuote
+      ? (ownerBase.subtitle ?? "")
+      : "사장님 고민이 아직 없어요!",
+    quotes: normalizeQuotes(ownerBase.quotes, 1),
+    onClick: () => {
+      scrollToSection("posit");
+    },
+  };
 
   /** "내 포짓" 미작성 시 문구: 당신의 아이디어를 보내주세요! */
-  const myPositData: StorePositPreview = useMemo(() => {
-    const base = (store.myPosit ?? {}) as Partial<StorePositPreview>;
+  const myBase = (store.myPosit ?? {}) as Partial<StorePositPreview>;
+  const myHasQuote = hasAnyQuote(myBase.quotes);
 
-    const hasAnyQuote =
-      Array.isArray(base.quotes) &&
-      base.quotes.some((q) => typeof q === "string" && q.trim().length > 0);
-
-    return {
-      title: "내 의견 POSiT! 하러가기",
-      subtitle: hasAnyQuote
-        ? (base.subtitle ?? "")
-        : "당신의 아이디어를 보내주세요!",
-      quotes: normalizeQuotes(base.quotes, 2),
-      onClick: () => {
-        navigate(`/stores/${storeIdNum}/posit/new`, {
-          state: { storeName: store.name },
-        });
-      },
-    };
-  }, [store.myPosit, navigate, storeIdNum, store.name]);
+  const myPositData: StorePositPreview = {
+    title: "내 의견 POSiT! 하러가기",
+    subtitle: myHasQuote
+      ? (myBase.subtitle ?? "")
+      : "당신의 아이디어를 보내주세요!",
+    quotes: normalizeQuotes(myBase.quotes, 2),
+    onClick: () => {
+      navigate(`/stores/${storeIdNum}/posit/new`, {
+        state: { storeName: store.name },
+      });
+    },
+  };
 
   return (
     <main style={{ paddingLeft: px, paddingRight: px }} className="pt-[7px]">
