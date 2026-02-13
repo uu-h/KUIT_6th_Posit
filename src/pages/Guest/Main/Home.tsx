@@ -724,10 +724,10 @@ export default function Home() {
           onKeywordChange={(v) => {
             setKeyword(v);
 
-            // ✅ 선택/상세는 닫아도 됨(충돌 방지)
+            // 선택/상세는 닫아도 됨(충돌 방지)
             resetSelectionUI();
 
-            // ❌ 여기서 resetSearchUI() 하면 전역 검색이 매번 깨짐
+            // 여기서 resetSearchUI() 하면 전역 검색이 매번 깨짐
 
             if (searchDebounceRef.current)
               window.clearTimeout(searchDebounceRef.current);
@@ -738,7 +738,7 @@ export default function Home() {
           onSelectPlace={(place) => {
             suppressMapMovedRef.current = true;
 
-            // ✅ 범위 밖 가게도 마커 뜨게 “핀” 다시 세팅 (이거 빠지면 전역검색 클릭이 허무해짐)
+            // 범위 밖 가게도 마커 뜨게 “핀” 다시 세팅 (이거 빠지면 전역검색 클릭이 허무해짐)
             if (place.lat && place.lng) {
               setPinnedMarker({
                 storeId: place.id,

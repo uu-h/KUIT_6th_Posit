@@ -1,5 +1,5 @@
 import type { StoreDetail, StoreInfoRow, StoreMenuItem } from "../types/store";
-import { categoryCodeText } from "../utils/category";
+import { categoryCodeText, typeCodeText } from "../utils/category";
 import { dayCodeToKr } from "../utils/date";
 import { mapMyPosit, mapOwnerPosit } from "../utils/posit";
 import { statusCodeToText } from "../utils/status";
@@ -67,7 +67,6 @@ export type StoreConvinceDto = {
 
 export type StoreMenuDto = {
   imageUrl: string | null;
-  type: "MAIN" | "SIDE" | "DRINK" | string; // 서버 확정되면 좁히기
   name: string | null;
   price: number | null;
   order: number | null;
@@ -92,7 +91,7 @@ export type StoreDetailDto = {
   storeId: number;
   name: string;
   category: string;
-  typeCode: string | null;
+  typeCode: string;
   description: string | null;
   statusCode: string | null;
   openTime: string | null;
@@ -199,7 +198,6 @@ export function mapStoreDetailDtoToStoreDetail(
       name: m.name ?? "-",
       price: m.price ?? 0,
       imageUrl: m.imageUrl ?? undefined,
-      category: m.type ?? undefined, // ✅ 서버 type -> UI category로
     }));
 
   return {
@@ -207,6 +205,7 @@ export function mapStoreDetailDtoToStoreDetail(
     name: dto.name,
 
     categoryText: categoryCodeText(dto.category),
+    typeCode: typeCodeText(dto.typeCode),
     statusText: statusCodeToText(dto.statusCode ?? "UNKNOWN"),
 
     shortAddress: lot,

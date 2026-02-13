@@ -24,6 +24,7 @@ export type StoreDetail = {
   id: string;
   name: string;
   categoryText: string;
+  typeCode: string;
   statusText: string;
 
   shortAddress: string;
