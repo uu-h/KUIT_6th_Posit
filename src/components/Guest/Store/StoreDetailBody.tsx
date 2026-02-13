@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   InfoList,
   MenuList,
@@ -9,20 +9,31 @@ import {
 import StoreSectionNav, {
   type StoreSectionKey,
 } from "../../../components/Guest/Store/StoreSectionNav";
-import type { StoreDetail } from "../../../types/store";
+import type { StoreDetail, StorePositPreview } from "../../../types/store";
 import { useFixedOnScroll } from "../../../hooks/Guest/useFixedOnScroll";
 import BottomSheetFooter from "../Main/BottomSheetFooter";
 
 type Props = {
   store: StoreDetail;
-  headerOffset?: number; // 바텀시트/페이지에 따라 top offset 다르게
-  onClose?: () => void; // 바텀시트에서 닫기 연결용
+  headerOffset?: number;
+  onClose?: () => void;
   hideSectionNav?: boolean;
   px?: number;
 };
 
 const APPBAR_H_DEFAULT = 64;
 const NAV_H = 60;
+
+/** quotes 길이를 UI가 기대하는 만큼 보장 (my=2칸, owner=1칸) */
+function normalizeQuotes(quotes: unknown, needed: number): string[] {
+  const arr = Array.isArray(quotes)
+    ? quotes.filter((v) => typeof v === "string")
+    : [];
+  return [...arr, ...Array(Math.max(0, needed - arr.length)).fill("")].slice(
+    0,
+    needed,
+  );
+}
 
 export default function StoreDetailBody({
   store,
@@ -59,8 +70,56 @@ export default function StoreDetailBody({
     });
   };
 
+  const storeIdNum = useMemo(
+    () => Number(String(store.id).replace("store_", "")),
+    [store.id],
+  );
+
+  /** "사장님 포짓" 미작성 시 문구: 사장님 고민이 아직 없어요! */
+  const ownerPositData: StorePositPreview = useMemo(() => {
+    const base = (store.ownerPosit ?? {}) as Partial<StorePositPreview>;
+
+    const hasAnyQuote =
+      Array.isArray(base.quotes) &&
+      base.quotes.some((q) => typeof q === "string" && q.trim().length > 0);
+
+    return {
+      title: "사장님 고민 POSiT! 하러가기",
+      subtitle: hasAnyQuote
+        ? (base.subtitle ?? "")
+        : "사장님 고민이 아직 없어요!",
+      quotes: normalizeQuotes(base.quotes, 1),
+      onClick: () => {
+        // 필요하면 사장님 포짓 상세/리스트 라우팅으로 교체 가능
+        scrollToSection("posit");
+      },
+    };
+  }, [store.ownerPosit]);
+
+  /** "내 포짓" 미작성 시 문구: 당신의 아이디어를 보내주세요! */
+  const myPositData: StorePositPreview = useMemo(() => {
+    const base = (store.myPosit ?? {}) as Partial<StorePositPreview>;
+
+    const hasAnyQuote =
+      Array.isArray(base.quotes) &&
+      base.quotes.some((q) => typeof q === "string" && q.trim().length > 0);
+
+    return {
+      title: "내 의견 POSiT! 하러가기",
+      subtitle: hasAnyQuote
+        ? (base.subtitle ?? "")
+        : "당신의 아이디어를 보내주세요!",
+      quotes: normalizeQuotes(base.quotes, 2),
+      onClick: () => {
+        navigate(`/stores/${storeIdNum}/posit/new`, {
+          state: { storeName: store.name },
+        });
+      },
+    };
+  }, [store.myPosit, navigate, storeIdNum, store.name]);
+
   return (
-    <main style={{ paddingLeft: px, paddingRight: px }} className=" pt-[7px]">
+    <main style={{ paddingLeft: px, paddingRight: px }} className="pt-[7px]">
       <StoreHeaderCard
         store={store}
         onClose={onClose}
@@ -93,7 +152,6 @@ export default function StoreDetailBody({
         <InfoList
           rows={store.infoRows}
           onClickMap={() => {
-            const storeIdNum = Number(store.id.replace("store_", ""));
             navigate(`/stores/${storeIdNum}/map`, {
               state: { lat: store.lat, lng: store.lng, name: store.name },
             });
@@ -102,11 +160,11 @@ export default function StoreDetailBody({
       </div>
 
       <div ref={positRef} className="scroll-mt-[144px]">
-        <PositSection variant="owner" data={store.ownerPosit} />
-        <PositSection variant="my" data={store.myPosit} />
+        <PositSection variant="owner" data={ownerPositData} />
+        <PositSection variant="my" data={myPositData} />
       </div>
 
-      <div ref={menuRef} className="mt-[52px] scroll-mt-[144px] ">
+      <div ref={menuRef} className="mt-[52px] scroll-mt-[144px]">
         <MenuList menus={store.menus} />
       </div>
 

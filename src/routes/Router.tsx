@@ -38,6 +38,7 @@ import OwnerPositMyConcernPage from "../pages/Owner/Posit/OwnerPositMyConcernPag
 import OwnerCouponPage from "../pages/Owner/Coupon/OwnerCouponPage";
 import OwnerMyConcernsPage from "../pages/Owner/Home/OwnerMyConcernsPage";
 import GuestStoreMapPage from "../pages/Guest/Store/GuestStoreMapPage";
+import GuestPositCreatePage from "../pages/Guest/Posit/GuestPositCreatePage";
 
 export default function Router() {
   return (
@@ -60,6 +61,12 @@ export default function Router() {
       <Route path="/stores/:storeId/map" element={<GuestStoreMapPage />} />
 
       {/* Guest - POSiT */}
+      {/* 가게별 내 포짓 작성 */}
+      <Route
+        path="/stores/:storeId/posit/new"
+        element={<GuestPositCreatePage />}
+      />
+
       <Route path="/guest/posit" element={<GuestPositMainPage />} />
       <Route
         path="/guest/posit/waiting"

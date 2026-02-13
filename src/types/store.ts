@@ -37,8 +37,8 @@ export type StoreDetail = {
 
   infoRows: StoreInfoRow[];
 
-  ownerPosit: unknown;
-  myPosit: unknown;
+  ownerPosit: StorePositPreview;
+  myPosit: StorePositPreview;
 
   menus: StoreMenuItem[];
 
