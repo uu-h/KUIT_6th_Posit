@@ -25,7 +25,7 @@ import OwnerMyPolicy from "../pages/Owner/My/OwnerMyPolicy";
 import OwnerMyAccount from "../pages/Owner/My/OwnerMyAccount";
 import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
 import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
-import OwnerHomePage from "../pages/Owner/Home/OwnerHomePage"
+import OwnerHomePage from "../pages/Owner/Home/OwnerHomePage";
 
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
@@ -37,6 +37,7 @@ import GuestStoreDetailPage from "../pages/Guest/Store/GuestStoreDetailPage";
 import OwnerPositMyConcernPage from "../pages/Owner/Posit/OwnerPositMyConcernPage";
 import OwnerCouponPage from "../pages/Owner/Coupon/OwnerCouponPage";
 import OwnerMyConcernsPage from "../pages/Owner/Home/OwnerMyConcernsPage";
+import GuestStoreMapPage from "../pages/Guest/Store/GuestStoreMapPage";
 
 export default function Router() {
   return (
@@ -54,9 +55,9 @@ export default function Router() {
       {/* Guest - home */}
       <Route path="/guest/home" element={<Home />} />
 
-      {/* TODO : 가게 별로 다르게 표시해야함  */}
       {/* Guest - store */}
       <Route path="/stores/:storeId" element={<GuestStoreDetailPage />} />
+      <Route path="/stores/:storeId/map" element={<GuestStoreMapPage />} />
 
       {/* Guest - POSiT */}
       <Route path="/guest/posit" element={<GuestPositMainPage />} />
@@ -101,9 +102,12 @@ export default function Router() {
 
       {/*Owner - Home*/}
       <Route path="/owner/home" element={<OwnerHomePage />} />
-      <Route path="/owner/home/post-concern" element={<OwnerPositMyConcernPage/>}/>
-      <Route path="/owner/home/coupon-manage" element={<OwnerCouponPage/>}/>
-      <Route path="/owner/home/concern" element={<OwnerMyConcernsPage/>}/>
+      <Route
+        path="/owner/home/post-concern"
+        element={<OwnerPositMyConcernPage />}
+      />
+      <Route path="/owner/home/coupon-manage" element={<OwnerCouponPage />} />
+      <Route path="/owner/home/concern" element={<OwnerMyConcernsPage />} />
 
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />

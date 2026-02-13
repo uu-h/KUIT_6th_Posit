@@ -1,13 +1,13 @@
 export type StoreMenuItem = {
   id: string;
-  category?: string; // [카페, 디저트] 같은 표기용
   name: string;
-  price: number; // 4800
+  price: number;
   imageUrl?: string;
+  category?: string;
 };
 
 export type StoreInfoRow = {
-  key: "address" | "hours" | "phone" | "link" | "amenities";
+  key: "address" | "hours" | "phone" | "snslink" | "convince";
   label: string;
   value: string;
   extra?: string;
@@ -25,8 +25,10 @@ export type StoreDetail = {
   name: string;
   categoryText: string;
   statusText: string;
+
   shortAddress: string;
   fullAddress: string;
+
   images: string[];
 
   lat: number;
@@ -34,8 +36,12 @@ export type StoreDetail = {
 
   infoRows: StoreInfoRow[];
 
-  ownerPosit: StorePositPreview;
-  myPosit: StorePositPreview;
+  ownerPosit: unknown;
+  myPosit: unknown;
 
   menus: StoreMenuItem[];
+
+  description?: string;
+  convinces?: string[]; // “포장 가능/예약 가능 …”
+  snsLink?: string | null;
 };

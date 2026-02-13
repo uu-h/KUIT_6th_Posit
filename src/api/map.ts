@@ -1,5 +1,6 @@
-import type { StoreDetail, StoreInfoRow } from "../types/store";
+import type { StoreDetail, StoreInfoRow, StoreMenuItem } from "../types/store";
 import { categoryCodeText } from "../utils/category";
+import { dayCodeToKr } from "../utils/date";
 import { mapMyPosit, mapOwnerPosit } from "../utils/posit";
 import { statusCodeToText } from "../utils/status";
 import { http } from "./http";
@@ -60,15 +61,37 @@ export type StoreLocationDto = {
   lng?: number | null;
 };
 
+export type StoreConvinceDto = {
+  displayName: string | null;
+};
+
+export type StoreMenuDto = {
+  imageUrl: string | null;
+  type: "MAIN" | "SIDE" | "DRINK" | string; // 서버 확정되면 좁히기
+  name: string | null;
+  price: number | null;
+  order: number | null;
+};
+
+export type PositConcernDto = {
+  concernId: number;
+  content: string | null;
+};
+
+export type PositMemoDto = {
+  memoId: number;
+  content: string | null;
+};
+
 export type PositPreviewDto = {
-  concern: unknown | null;
-  memos: unknown[];
+  concern: PositConcernDto | null;
+  memos: PositMemoDto[];
 };
 
 export type StoreDetailDto = {
   storeId: number;
   name: string;
-  category: string; // "CAFE" | ...
+  category: string;
   typeCode: string | null;
   description: string | null;
   statusCode: string | null;
@@ -77,9 +100,9 @@ export type StoreDetailDto = {
   address: StoreAddressDto;
   location: StoreLocationDto;
   snsLink: string | null;
-  convince: unknown[];
+  convince: StoreConvinceDto[];
   images: StoreImageDto[];
-  menu: unknown[];
+  menu: StoreMenuDto[];
   positPreview: PositPreviewDto;
 };
 
@@ -110,7 +133,7 @@ export function mapStoreDetailDtoToStoreDetail(
 
   const images = Array.isArray(dto.images)
     ? dto.images
-        .slice() // ✅ sort가 원본 mutate하니까 복사 후 정렬
+        .slice()
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((img) => img.thumbnailUrl ?? img.imageUrl)
         .filter((v): v is string => Boolean(v))
@@ -118,18 +141,66 @@ export function mapStoreDetailDtoToStoreDetail(
 
   const lng = dto.location?.Lng ?? dto.location?.lng ?? 0;
 
+  const convinces = Array.isArray(dto.convince)
+    ? dto.convince
+        .map((c) => c.displayName)
+        .filter((v): v is string => Boolean(v))
+    : [];
+
+  const openTimeText = dto.openTime ?? "정보 없음";
+  const notOpenKr = dayCodeToKr(dto.notOpen);
+  const hoursValue = notOpenKr
+    ? `${openTimeText}, ${notOpenKr} 휴무`
+    : openTimeText;
+
   const infoRows: StoreInfoRow[] = [
     {
       key: "address",
       label: "주소",
-      value: road || lot || "-",
+      value: road,
+      extra: road,
     },
     {
       key: "hours",
       label: "영업시간",
-      value: dto.openTime ?? "정보 없음",
+      value: hoursValue,
+      extra: dto.openTime ?? undefined,
     },
+    // phone은 현재 응답에 없으니 빼거나, "정보 없음"으로 노출할지 결정
+    // { key:"phone", label:"전화", value:"정보 없음" },
+
+    ...(dto.snsLink
+      ? ([
+          {
+            key: "snslink",
+            label: "링크",
+            value: dto.snsLink,
+          },
+        ] as StoreInfoRow[])
+      : []),
+
+    ...(convinces.length
+      ? ([
+          {
+            key: "convince",
+            label: "편의",
+            value: convinces.join(", "),
+            extra: convinces.map((v) => `• ${v}`).join("\n"),
+          },
+        ] as StoreInfoRow[])
+      : []),
   ];
+
+  const menus: StoreMenuItem[] = (dto.menu ?? [])
+    .slice()
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((m, idx) => ({
+      id: `menu_${dto.storeId}_${m.order ?? idx}`, // ✅ key용
+      name: m.name ?? "-",
+      price: m.price ?? 0,
+      imageUrl: m.imageUrl ?? undefined,
+      category: m.type ?? undefined, // ✅ 서버 type -> UI category로
+    }));
 
   return {
     id: `store_${dto.storeId}`,
@@ -142,7 +213,6 @@ export function mapStoreDetailDtoToStoreDetail(
     fullAddress: road || lot,
 
     images,
-
     lat: dto.location?.lat ?? 0,
     lng,
 
@@ -151,6 +221,11 @@ export function mapStoreDetailDtoToStoreDetail(
     ownerPosit: mapOwnerPosit(dto.positPreview),
     myPosit: mapMyPosit(dto.positPreview),
 
-    menus: [], // menu 스펙 확정되면 여기서 변환
+    menus,
+
+    // 있으면 UI 확장용
+    description: dto.description ?? undefined,
+    convinces,
+    snsLink: dto.snsLink,
   };
 }

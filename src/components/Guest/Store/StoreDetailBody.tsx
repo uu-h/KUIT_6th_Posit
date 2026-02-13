@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import {
   InfoList,
@@ -30,6 +31,8 @@ export default function StoreDetailBody({
   hideSectionNav = false,
   px = 16,
 }: Props) {
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState<StoreSectionKey>("home");
 
   const homeRef = useRef<HTMLDivElement | null>(null);
@@ -87,7 +90,15 @@ export default function StoreDetailBody({
       </div>
 
       <div ref={homeRef} className="mt-[33px] scroll-mt-[144px]">
-        <InfoList rows={store.infoRows} />
+        <InfoList
+          rows={store.infoRows}
+          onClickMap={() => {
+            const storeIdNum = Number(store.id.replace("store_", ""));
+            navigate(`/stores/${storeIdNum}/map`, {
+              state: { lat: store.lat, lng: store.lng, name: store.name },
+            });
+          }}
+        />
       </div>
 
       <div ref={positRef} className="scroll-mt-[144px]">
