@@ -200,7 +200,7 @@ export default function Home() {
 
       const road = dto.address?.road ?? "";
       const lot = dto.address?.lot ?? "";
-      const address = road || lot || "";
+      const address = lot || road || "";
 
       return {
         id: dto.storeId,
