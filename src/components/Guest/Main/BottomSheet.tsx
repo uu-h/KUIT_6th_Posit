@@ -1,6 +1,5 @@
 import { motion, useDragControls } from "framer-motion";
 import { useEffect, useState } from "react";
-import downArrow from "../../../assets/Guest/Main/DownArrow.svg";
 
 export type SheetState = "collapsed" | "half" | "expanded"; //수정!!
 
@@ -150,7 +149,6 @@ export default function BottomSheet({
       {sheetState === "expanded" && showSortBar && (
         <div className="flex items-center gap-1 px-4 pb-2 mb-1">
           <span className="typo-12-light text-black">거리순 정렬</span>
-          <img src={downArrow} alt="정렬 옵션" className="w-5 h-5" />
         </div>
       )}
 

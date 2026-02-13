@@ -15,6 +15,8 @@ export default function PositSection({
   const isOwner = variant === "owner";
   const quotes = data.quotes ?? [];
 
+  const handleClick = () => data.onClick?.();
+
   return (
     <section className="mt-[47px]">
       {/* 제목 */}
@@ -23,7 +25,10 @@ export default function PositSection({
         <button
           type="button"
           className="w-[24px] h-[24px] flex items-center justify-center"
-          onClick={data.onClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClick();
+          }}
           aria-label="바로가기"
         >
           <img src={RightIcon} alt="" className="w-[16px] h-[16px]" />
@@ -31,7 +36,15 @@ export default function PositSection({
       </div>
 
       {/* coral card */}
-      <div className="mt-[12px] rounded-[14px] bg-primary-01 p-[16px]">
+      <div
+        className="mt-[12px] rounded-[14px] bg-primary-01 p-[16px] cursor-pointer"
+        onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleClick();
+        }}
+      >
         {/* quotes area */}
         {isOwner ? (
           <OwnerQuoteCard text={quotes[0] ?? ""} />
@@ -63,9 +76,7 @@ export default function PositSection({
 function OwnerQuoteCard({ text }: { text: string }) {
   return (
     <div className="grid gird-rows-2 rounded-[8px] bg-white p-[20px] h-[86px]">
-      {/* quote icon */}
       <img src={QuoteIcon} alt="" className="h-[13px]" />
-      {/* text */}
       <p className="typo-14-regular text-neutrals-09 text-center break-words truncate">
         {text}
       </p>
@@ -76,9 +87,7 @@ function OwnerQuoteCard({ text }: { text: string }) {
 function MyQuoteCard({ text }: { text: string }) {
   return (
     <div className="grid gird-rows-2 items-center rounded-[8px] bg-white pr-[50px] p-[20px] h-[147px]">
-      {/* quote icon */}
       <img src={QuoteIcon} alt="" className="h-[13px]" />
-      {/* text */}
       <p className="typo-14-regular text-neutrals-09 break-words line-clamp-3">
         {text}
       </p>

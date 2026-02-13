@@ -23,7 +23,7 @@ export default function StoreHeaderCard({
         <div className="min-w-0 w-full">
           <h2 className="typo-sub-title">{store.name}</h2>
           <p className="mt-[27px] typo-13-regular text-neutrals-07">
-            {store.categoryText}
+            {store.categoryText}, {store.typeCode}
           </p>
 
           <div className="mt-[6px] flex items-center gap-[6px]">

@@ -12,18 +12,24 @@ const ICON_MAP: Partial<Record<StoreInfoRow["key"], string>> = {
   address: LocationIcon,
   hours: TimeIcon,
   phone: PhoneIcon,
-  link: LinkIcon,
-  amenities: InfoIcon,
+  snslink: LinkIcon,
+  convince: InfoIcon,
 };
 
 const TOGGLE_KEYS: StoreInfoRow["key"][] = [
   "address",
   "hours",
   "phone",
-  "amenities",
+  "convince",
 ];
 
-export default function InfoList({ rows }: { rows: StoreInfoRow[] }) {
+export default function InfoList({
+  rows,
+  onClickMap,
+}: {
+  rows: StoreInfoRow[];
+  onClickMap?: () => void;
+}) {
   // 여러 개 열기: 열린 key들을 Set으로 관리
   const [openKeys, setOpenKeys] = useState<Set<StoreInfoRow["key"]>>(
     () => new Set(),
@@ -58,7 +64,7 @@ export default function InfoList({ rows }: { rows: StoreInfoRow[] }) {
               </div>
 
               <div className="flex-1 min-w-0">
-                {row.key === "link" ? (
+                {row.key === "snslink" ? (
                   <a
                     href={row.value}
                     target="_blank"
@@ -75,7 +81,7 @@ export default function InfoList({ rows }: { rows: StoreInfoRow[] }) {
                 {row.key === "address" && (
                   <button
                     type="button"
-                    onClick={() => {}}
+                    onClick={onClickMap}
                     className="mt-[6px] typo-14-regular text-neutrals-07"
                   >
                     지도
