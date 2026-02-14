@@ -78,7 +78,7 @@ export default function StoreDetailBody({
   // 사장님 POSiT (가게 상세 API의 positPreview 기반)
   const ownerPositData: StorePositPreview = {
     title: "사장님 고민 POSiT! 하러가기",
-    subtitle: "사장님 고민거리를 보고, POSiT을 보내 무료 음료 얻으러 가기",
+    subtitle: "사장님 고민거리를 보고,\nPOSiT을 보내 무료 음료 얻으러 가기",
     quotes: normalizeQuotes(store.ownerPosit?.quotes, 1),
     onClick: () => {
       navigate(`/guest/stores/${storeIdNum}/posit/concerns`, {

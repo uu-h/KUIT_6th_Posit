@@ -1,5 +1,8 @@
+import { useEffect, useMemo, useRef } from "react";
 import AppBar from "../../../components/Common/AppBar";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
+import { useMyConcernsInfinite } from "../../../hooks/useMyConcernsInfinite";
+import { timeAgo } from "../../../utils/timeAgo";
 
 type Concern = {
   id: number | string;
@@ -8,62 +11,90 @@ type Concern = {
   commentCount: number;
 };
 
-//TODO : 클릭시 연결
-type Props = {
-  items?: Concern[]; // 나중에 API 연동 시 외부에서 주입 가능
-  onItemClick?: (id: Concern["id"]) => void;
-};
+export default function GuestPositConcernListPage() {
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useMyConcernsInfinite({ size: 10, onlyUnresolved: true });
 
-const mockConcerns: Concern[] = [
-  {
-    id: 1,
-    title: "매장 조명을 조금 더 밝게 바꿔야 할까요?",
-    createdAt: "2일 전",
-    commentCount: 4,
-  },
-  {
-    id: 2,
-    title: "신메뉴 반응이 너무 안 좋아요...",
-    createdAt: "2일 전",
-    commentCount: 6,
-  },
-  {
-    id: 3,
-    title: "인스타로 홍보 열심히 하는데 효과가 없어요..",
-    createdAt: "9일 전",
-    commentCount: 7,
-  },
-  {
-    id: 4,
-    title: "1인 세트 메뉴를 만들면 괜찮을까요?",
-    createdAt: "9일 전",
-    commentCount: 5,
-  },
-  {
-    id: 5,
-    title: "주문 방식을 QR로 바꾸는 거 너무 불편할까요?",
-    createdAt: "10일 전",
-    commentCount: 4,
-  },
-];
+  // select에서 flat 넣어뒀기 때문에 data?.flat으로 접근 가능
+  const items: Concern[] = useMemo(() => {
+    const list = (data as any)?.flat ?? [];
+    return list.map((c: any) => ({
+      id: c.concernId,
+      title: c.title,
+      createdAt: timeAgo(c.createdAt),
+      commentCount: c.commentCount,
+    }));
+  }, [data]);
 
-export default function GuestPositConcernListPage({
-  items = mockConcerns,
-  onItemClick,
-}: Props) {
+  // IntersectionObserver로 무한스크롤
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (!first?.isIntersecting) return;
+        if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+      },
+      { root: null, threshold: 0.1 },
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   return (
     <div className="min-h-dvh bg-white">
-      {/* 상단바 */}
       <AppBar layout="left" leftType="left" />
 
       <div className="px-[16px]">
-        {/* 제목 */}
-        <h1 className="typo-sub-title">내가 올린 고민</h1>
+        <h1 className="typo-sub-title">사장님 고민 목록</h1>
       </div>
 
-      {/* 리스트 영역 */}
       <main className="px-[16px] pb-[24px]">
-        <ConcernList items={items} onItemClick={onItemClick} />
+        {isLoading && <p className="typo-14-regular">불러오는 중...</p>}
+
+        {isError && (
+          <div className="py-4">
+            <p className="typo-14-regular">목록을 불러오지 못했어요.</p>
+            <button
+              type="button"
+              className="typo-14-semibold"
+              onClick={() => refetch()}
+            >
+              다시 시도
+            </button>
+          </div>
+        )}
+
+        {!isLoading && !isError && <ConcernList items={items} />}
+
+        {/* sentinel */}
+        <div ref={sentinelRef} className="h-[1px]" />
+
+        {isFetchingNextPage && (
+          <p className="typo-12-medium text-center py-3">더 불러오는 중...</p>
+        )}
+
+        {!hasNextPage && !isLoading && items.length > 0 && (
+          <p className="typo-12-medium text-center py-3">마지막이에요</p>
+        )}
+
+        {!isLoading && !isError && items.length === 0 && (
+          <p className="typo-14-regular py-6 text-center">
+            아직 채택 대기중인 고민이 없어요!
+          </p>
+        )}
       </main>
     </div>
   );
