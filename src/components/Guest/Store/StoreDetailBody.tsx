@@ -102,7 +102,11 @@ export default function StoreDetailBody({
         store={store}
         onClose={onClose}
         onOwnerPositClick={() => scrollToSection("posit")}
-        onMyPositClick={() => scrollToSection("posit")}
+        onMyPositClick={() => {
+          navigate(`/stores/${storeIdNum}/posit/new`, {
+            state: { storeName: store.name },
+          });
+        }}
       />
 
       <div className="mt-[15px]">
