@@ -178,7 +178,14 @@ export default function GuestPositCreatePage() {
         onConfirm={() => {
           setSuccessOpen(false);
           // TODO: 확인 누르면 어디로 갈지 (일단은 가게 상세로 구현)
-          navigate(`/stores/${sid}`, { state: { refreshPosit: true } });
+          navigate(`/stores/${sid}`, {
+            replace: true,
+            state: {
+              refreshPosit: true,
+              from: "home",
+              restore: location.state?.restore,
+            },
+          });
         }}
       />
 
