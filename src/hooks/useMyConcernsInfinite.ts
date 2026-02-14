@@ -1,9 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getMyConcerns, type ConcernDto } from "../api/concerns";
+import { getMyConcerns } from "../api/concerns";
 
 type Options = {
   size?: number;
-  onlyUnresolved?: boolean; // 기본 true로 해서 “채택 안된 것만” 화면에 쓰기 좋게
 };
 
 function toCursorId(nextCursor: string | null) {
@@ -13,10 +12,10 @@ function toCursorId(nextCursor: string | null) {
 }
 
 export function useMyConcernsInfinite(options: Options = {}) {
-  const { size = 10, onlyUnresolved = false } = options;
+  const { size = 10 } = options;
 
-  const query = useInfiniteQuery({
-    queryKey: ["concerns", "mine", { size, onlyUnresolved }],
+  return useInfiniteQuery({
+    queryKey: ["concerns", "mine", { size }],
     queryFn: ({ pageParam }) =>
       getMyConcerns({
         cursorId: pageParam as number | undefined,
@@ -28,12 +27,8 @@ export function useMyConcernsInfinite(options: Options = {}) {
       return toCursorId(lastPage.meta.nextCursor);
     },
     select: (data) => {
-      // pages를 그대로 유지하면서, 화면에서 쓰기 쉬운 flat list도 같이 뽑기
-      const all = data.pages.flatMap((p) => p.data.concerns);
-      const filtered = onlyUnresolved ? all.filter((c) => !c.resolved) : all;
-      return { ...data, flat: filtered };
+      const flat = data.pages.flatMap((p) => p.data.concerns);
+      return { ...data, flat };
     },
   });
-
-  return query;
 }

@@ -20,7 +20,7 @@ export default function GuestPositConcernListPage() {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-  } = useMyConcernsInfinite({ size: 10, onlyUnresolved: true });
+  } = useMyConcernsInfinite({ size: 10 });
 
   // select에서 flat 넣어뒀기 때문에 data?.flat으로 접근 가능
   const items: Concern[] = useMemo(() => {

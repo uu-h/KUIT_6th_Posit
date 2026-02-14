@@ -10,6 +10,7 @@ import OwnerLayout from "../../../layouts/OwnerLayout";
 
 import { ownerApi } from "../../../api/owner";
 import type { OwnerHomeData } from "../../../types/ownerHome";
+import { timeAgo } from "../../../utils/timeAgo"; // ✅ 추가
 
 export default function OwnerHomePage() {
   const navigate = useNavigate();
@@ -61,16 +62,22 @@ export default function OwnerHomePage() {
     [home],
   );
 
-  const concerns = useMemo(
-    () =>
-      home?.myConcerns.map((c) => ({
-        id: c.concernId,
-        title: c.content,
-        createdAt: c.createdAt,
-        commentCount: c.commentCount,
-      })) ?? [],
-    [home],
-  );
+  // 최신순 정렬 + "n일 전" 적용
+  const concerns = useMemo(() => {
+    const raw = home?.myConcerns ?? [];
+
+    const sorted = [...raw].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+    return sorted.map((c) => ({
+      id: c.concernId,
+      title: c.content,
+      createdAt: timeAgo(c.createdAt),
+      commentCount: c.commentCount,
+    }));
+  }, [home]);
 
   return (
     <OwnerLayout active="home">
