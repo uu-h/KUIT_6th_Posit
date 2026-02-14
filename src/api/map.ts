@@ -93,6 +93,7 @@ export type StoreDetailDto = {
   category: string;
   typeCode: string;
   description: string | null;
+  phone: string | null;
   statusCode: string | null;
   openTime: string | null;
   notOpen: string | null;
@@ -165,9 +166,15 @@ export function mapStoreDetailDtoToStoreDetail(
       value: hoursValue,
       extra: dto.openTime ?? undefined,
     },
-    // phone은 현재 응답에 없으니 빼거나, "정보 없음"으로 노출할지 결정
-    // { key:"phone", label:"전화", value:"정보 없음" },
-
+    ...(dto.phone
+      ? ([
+          {
+            key: "phone",
+            label: "전화번호",
+            value: dto.phone,
+          },
+        ] as StoreInfoRow[])
+      : []),
     ...(dto.snsLink
       ? ([
           {

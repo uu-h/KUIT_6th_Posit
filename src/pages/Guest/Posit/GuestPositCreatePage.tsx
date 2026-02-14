@@ -8,6 +8,10 @@ import TitleInput from "../../../components/Guest/Posit/TitleInput";
 import SuccessModal from "../../../components/Common/SuccessModal";
 import BottomToast from "../../../components/Guest/Posit/BottomToast";
 import ModalHeader from "../../../components/Guest/Posit/ModalHeader";
+import { useNavigate, useParams } from "react-router-dom";
+import { createStoreMemo } from "../../../api/posit";
+import type { FreeType } from "../../../types/posit";
+import { getPresignedUrlWithKey, uploadToS3 } from "../../../api/image";
 
 const MEMO_TYPES = [
   "운영팁",
@@ -16,60 +20,96 @@ const MEMO_TYPES = [
   "고객관리",
   "트렌드",
 ] as const;
-type MemoType = (typeof MEMO_TYPES)[number];
+type MemoTypeKorean = (typeof MEMO_TYPES)[number];
+
+const FREE_TYPE_MAP: Record<MemoTypeKorean, FreeType> = {
+  운영팁: "TIP",
+  마케팅: "MARKETING",
+  메뉴개발: "MENU_DEV",
+  고객관리: "CUSTOMER_SERVICE",
+  트렌드: "TREND",
+};
 
 export default function GuestPositCreatePage() {
-  const [selectedType, setSelectedType] = useState<MemoType | null>(null);
+  const navigate = useNavigate();
+  const { storeId } = useParams();
+  const sid = Number(storeId);
+
+  const [selectedType, setSelectedType] = useState<MemoTypeKorean | null>(null);
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
-  const [toast, setToast] = useState<{
-    open: boolean;
-    message: string;
-  }>({
-    open: false,
-    message: "",
-  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const [toast, setToast] = useState({ open: false, message: "" });
   const MAX_LEN = 150;
 
   const showToast = (msg: string) => {
     setToast({ open: true, message: msg });
-
-    window.setTimeout(() => {
-      setToast({ open: false, message: "" });
-    }, 1000);
+    window.setTimeout(() => setToast({ open: false, message: "" }), 1000);
   };
 
   const canSubmit = useMemo(() => {
     const typeOk = selectedType !== null;
     const titleOk = title.trim().length > 0;
     const contentOk = content.trim().length > 0 && content.length <= MAX_LEN;
+    return typeOk && titleOk && contentOk && !submitting;
+  }, [selectedType, title, content, submitting]);
 
-    return typeOk && titleOk && contentOk;
-  }, [selectedType, title, content]);
-
-  const handleClose = () => {
-    // TODO: 라우팅 연결 (ex: navigate(-1))
-    console.log("close");
-  };
-
+  const handleClose = () => navigate(-1);
   const handleAddPhoto = (file: File) => setImage(file);
   const handleRemovePhoto = () => setImage(null);
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
+    if (!Number.isFinite(sid)) return showToast("storeId가 올바르지 않아요.");
 
-    // TODO: API 호출 성공 후
-    setSuccessOpen(true);
+    try {
+      setSubmitting(true);
+
+      let uploadedImageKey: string | null = null;
+
+      // 1) 이미지가 있으면 presigned 받고 S3 PUT 업로드
+      if (image) {
+        const { uploadUrl, imageKey } = await getPresignedUrlWithKey({
+          purpose: "MEMO_IMAGE",
+          files: [
+            {
+              fileName: image.name,
+              contentType: image.type,
+              contentLength: image.size,
+            },
+          ],
+        });
+
+        await uploadToS3(uploadUrl, image);
+        uploadedImageKey = imageKey;
+      }
+
+      // 2) memo 등록 (자유메모)
+      const payload = {
+        memoType: "FREE" as const,
+        freeType: FREE_TYPE_MAP[selectedType!],
+        title: title.trim(),
+        content: content.trim(),
+        images: uploadedImageKey
+          ? [{ imageKey: uploadedImageKey, order: 0 }]
+          : [],
+      };
+
+      await createStoreMemo(sid, payload);
+      setSuccessOpen(true);
+    } catch (e: unknown) {
+      if (e instanceof Error) showToast(e.message);
+      else showToast("등록 중 오류가 발생했어요.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   useEffect(() => {
-    if (successOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = successOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
