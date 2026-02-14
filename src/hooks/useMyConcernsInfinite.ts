@@ -13,7 +13,7 @@ function toCursorId(nextCursor: string | null) {
 }
 
 export function useMyConcernsInfinite(options: Options = {}) {
-  const { size = 10, onlyUnresolved = true } = options;
+  const { size = 10, onlyUnresolved = false } = options;
 
   const query = useInfiniteQuery({
     queryKey: ["concerns", "mine", { size, onlyUnresolved }],
