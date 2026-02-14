@@ -5,7 +5,7 @@ import ConcernReadonlyCard from "../../../components/Owner/Posit/ConcernReadonly
 import AdoptModal from "../../../components/Owner/Posit/AdoptModal";
 import RejectModal from "../../../components/Owner/Posit/RejectModal";
 
-export default function OwnerPositAnswerSelectPage() {
+export default function OwnerMemoAnswerSelectPage() {
   const [openModal, setOpenModal] = useState<"adopt" | "reject" | null>(null);
 
   return (
