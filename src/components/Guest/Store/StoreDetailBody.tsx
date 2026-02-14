@@ -80,7 +80,11 @@ export default function StoreDetailBody({
     title: "사장님 고민 POSiT! 하러가기",
     subtitle: "사장님 고민거리를 보고, POSiT을 보내 무료 음료 얻으러 가기",
     quotes: normalizeQuotes(store.ownerPosit?.quotes, 1),
-    onClick: () => scrollToSection("posit"),
+    onClick: () => {
+      navigate(`/guest/stores/${storeIdNum}/posit/concerns`, {
+        state: { storeName: store.name },
+      });
+    },
   };
 
   // 내 의견 POSiT (가게 상세 API의 positPreview 기반)
@@ -101,7 +105,11 @@ export default function StoreDetailBody({
       <StoreHeaderCard
         store={store}
         onClose={onClose}
-        onOwnerPositClick={() => scrollToSection("posit")}
+        onOwnerPositClick={() => {
+          navigate(`/guest/stores/${storeIdNum}/posit/concerns`, {
+            state: { storeName: store.name },
+          });
+        }}
         onMyPositClick={() => {
           navigate(`/stores/${storeIdNum}/posit/new`, {
             state: { storeName: store.name },

@@ -39,6 +39,7 @@ import OwnerCouponPage from "../pages/Owner/Coupon/OwnerCouponPage";
 import OwnerMyConcernsPage from "../pages/Owner/Home/OwnerMyConcernsPage";
 import GuestStoreMapPage from "../pages/Guest/Store/GuestStoreMapPage";
 import GuestPositCreatePage from "../pages/Guest/Posit/GuestPositCreatePage";
+import GuestPositConcernListPage from "../pages/Guest/Posit/GuestPositConcernListPage";
 
 export default function Router() {
   return (
@@ -61,7 +62,13 @@ export default function Router() {
       <Route path="/stores/:storeId/map" element={<GuestStoreMapPage />} />
 
       {/* Guest - POSiT */}
-      {/* 가게별 내 포짓 작성 */}
+      {/* 가게별 사장님 포짓 (고민답변)*/}
+      <Route
+        path="/guest/stores/:storeId/posit/concerns"
+        element={<GuestPositConcernListPage />}
+      />
+
+      {/* 가게별 내 포짓 (자유메모)*/}
       <Route
         path="/stores/:storeId/posit/new"
         element={<GuestPositCreatePage />}
