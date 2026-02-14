@@ -1,12 +1,10 @@
 @import "tailwindcss";
 @import "./styles/scrollbar.css";
 
-
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
 }
-
 
 @theme {
   /* ───────── Shades ───────── */
@@ -357,6 +355,22 @@ input[type="password"]::-ms-clear {
   }
 }
 
+/* 클릭 가능한 기본 요소들 */
+a[href],
+button,
+[role="button"],
+[role="link"],
+label,
+summary {
+  @apply cursor-pointer;
+}
+
+/* 비활성화된 버튼은 기본 커서 */
+button:disabled,
+[aria-disabled="true"] {
+  @apply cursor-default;
+}
+
 /* 온보딩 (첫번째 화면) 페이드인 효과 */
 @layer utilities {
   .animate-fade-in {
@@ -407,9 +421,9 @@ input[type="password"]::-ms-clear {
 /* 세로 스크롤바 숨기기 */
 .no-scrollbar-y {
   -ms-overflow-style: none; /* IE, Edge */
-  scrollbar-width: none;    /* Firefox */
+  scrollbar-width: none; /* Firefox */
 }
 
 .no-scrollbar-y::-webkit-scrollbar {
-  display: none;            /* Chrome, Safari */
+  display: none; /* Chrome, Safari */
 }
