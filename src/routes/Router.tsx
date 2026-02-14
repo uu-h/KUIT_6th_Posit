@@ -26,6 +26,8 @@ import OwnerMyAccount from "../pages/Owner/My/OwnerMyAccount";
 import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
 import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 import OwnerHomePage from "../pages/Owner/Home/OwnerHomePage";
+import OwnerPositAnswerSelectPage from "../pages/Owner/Posit/OwnerPositAnswerSelectPage"
+import OwnerMemoAnswerSelectPage from "../pages/Owner/Posit/OwnerMemoAnswerSelectPage"
 
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
@@ -118,6 +120,10 @@ export default function Router() {
 
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />
+
+      {/* Owner - Posit*/}
+      <Route path="/owner/answer-select" element={<OwnerPositAnswerSelectPage />} />
+      <Route path="/owner/memo-select" element={<OwnerMemoAnswerSelectPage />} />
 
       {/* Owner - Registration */}
       <Route path="/owner/store/register" element={<StoreRegistration />} />
