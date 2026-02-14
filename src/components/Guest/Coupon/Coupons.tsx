@@ -27,7 +27,7 @@ export default function Coupon({ title, used, onUse }: Props) {
           className={`
             typo-sub-title p-[10px] rounded-[8px]
             text-white
-            ${used ? "bg-neutrals-08 cursor-default" : "bg-primary-01"} 
+            ${used ? "bg-neutrals-07 cursor-default" : "bg-primary-01"} 
           `}
         >
           {used ? "사용완료" : "사용하기"}

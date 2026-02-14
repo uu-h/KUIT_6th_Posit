@@ -6,16 +6,6 @@ import CouponDescription from "../../../components/Guest/Coupon/CouponDescriptio
 import AppBar from "../../../components/Common/AppBar";
 import GuestLayout from "../../../layouts/GuestLayout";
 
-interface CouponFromList {
-  id: number;
-  brand: string;      // storeName
-  menu: string;       // title
-  condition: string;
-  expiration: string;
-  brandImg: string;
-  isUsed: boolean;
-}
-
 interface CouponDetail {
   couponId: number;
   storeId: number;
@@ -30,10 +20,17 @@ export default function CouponPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const listCoupon = location.state?.coupon as CouponFromList | undefined;
+  const usedFromVerify = location.state?.used === true;
 
   const [coupon, setCoupon] = useState<CouponDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isUsed, setIsUsed] = useState(false);
+
+  useEffect(() => {
+    if (usedFromVerify) {
+      setIsUsed(true);
+    }
+  }, [usedFromVerify]);
 
   useEffect(() => {
     const fetchCoupon = async () => {
@@ -57,8 +54,6 @@ export default function CouponPage() {
   if (loading) return <div className="p-10 text-center">로딩중...</div>;
   if (!coupon) return <div className="p-10 text-center">쿠폰 정보가 없습니다.</div>;
 
-  const storeName = listCoupon?.brand; 
-
   return (
     <GuestLayout active="coupon">
       <div className="h-dvh w-full flex flex-col bg-white">
@@ -72,20 +67,34 @@ export default function CouponPage() {
         <div className="px-[16px] flex-1 overflow-y-auto">
           <div className="flex flex-col items-center w-full pt-[13px] pb-10">
             <h1 className="typo-sub-title w-full mb-[30px] text-left leading-tight">
-              사용할 때<br />
-              점원에게 보여주세요.
+              {isUsed ? (
+                <>사용이 완료되었어요.</>
+              ) : (
+                <>
+                  사용할 때<br />
+                  점원에게 보여주세요.
+                </>
+              )}
             </h1>
 
             <Coupons
-              used={false}
-              onUse={() => navigate(`/guest/coupon/${id}/verify`, { state: { coupon } })}
+              used={isUsed}
+              onUse={() => {
+                if (!isUsed) {
+                  navigate(`/guest/coupon/${id}/verify`);
+                }
+              }}
               title={coupon.condition}
             />
 
-            <CouponDescription
-              expiration={coupon.expiredAt.slice(0, 10)}
-              brand={storeName ?? coupon.title} 
-            />
+            {isUsed ? (
+              <h1 className="mt-[63px] typo-sub-title text-primary-01">다음 POSiT!도 기대할게요!</h1>
+            ) : (
+              <CouponDescription
+                expiration={coupon.expiredAt.slice(0, 10)}
+                brand={coupon.title}
+                />
+            )}
           </div>
         </div>
       </div>
