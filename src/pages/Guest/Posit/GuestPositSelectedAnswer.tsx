@@ -8,7 +8,7 @@ import { http } from "../../../api/http";
 // ======================
 // UI에서 쓸 타입
 // ======================
-type AnswerType = "answer" | "memo";
+type AnswerType = "ANSWER" | "FREE";
 
 interface Answer {
   id: number;
@@ -21,7 +21,7 @@ interface Answer {
 }
 
 // ======================
-// 서버 응답 타입 (실제 응답 기준)
+// 서버 응답 타입
 // ======================
 type ApiCategory = "고민 답변" | "자유 메모";
 type ApiStatus = "REVIEWING" | "ADOPTED" | "REJECTED";
@@ -46,7 +46,7 @@ interface ApiResponse {
 }
 
 // ======================
-// 날짜 포맷: "10월 22일"
+// 날짜 포맷
 // ======================
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -60,59 +60,80 @@ function formatDate(iso: string) {
 // ======================
 export default function GuestPositSelectedAnswer() {
   const navigate = useNavigate();
-  const [selectedType, setSelectedType] = useState<AnswerType>("answer");
+
+  const [selectedType, setSelectedType] = useState<AnswerType>("ANSWER");
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const fetchAnswers = async () => {
-      try {
-        setLoading(true);
+  const [counts, setCounts] = useState<{ ANSWER: number; FREE: number }>({
+    ANSWER: 0,
+    FREE: 0,
+  });
 
-        const res = await http.get<ApiResponse>("/memos/me", {
-          params: {
-            status: "ADOPTED",
-            size: 20,
-          },
-        });
+  // ======================
+  // 공통 fetch 함수
+  // onlyCount = true면: 카운트만 갱신, 리스트는 안 건드림
+  // ======================
+  const fetchAnswers = async (type: AnswerType, onlyCount = false) => {
+    try {
+      const res = await http.get<ApiResponse>("/memos/me", {
+        params: {
+          type,        
+          status: "ADOPTED", 
+          size: 20,
+        },
+      });
 
-        console.log("API RESPONSE:", res.data); // 🔥 디버깅용
+      if (res.data.isSuccess && res.data.data?.memos) {
+        const mapped: Answer[] = res.data.data.memos.map((memo) => ({
+          id: memo.memoId,
+          type: memo.category === "자유 메모" ? "FREE" : "ANSWER",
+          title: memo.content,
+          content: memo.content,
+          cafeName: memo.storeName,
+          createdAt: formatDate(memo.createdAt),
+          isRead: true,
+        }));
 
-        if (res.data.isSuccess && res.data.data?.memos) {
-          const mapped: Answer[] = res.data.data.memos.map((memo) => ({
-            id: memo.memoId,
-            type: memo.category === "자유 메모" ? "memo" : "answer",
-            title: memo.content, // 서버에 title 없음
-            content: memo.content,
-            cafeName: memo.storeName,
-            createdAt: formatDate(memo.createdAt),
-            isRead: true,
-          }));
+        setCounts((prev) => ({
+          ...prev,
+          [type]: mapped.length,
+        }));
 
+        if (!onlyCount) {
           setAnswers(mapped);
-        } else {
-          setAnswers([]);
         }
-      } catch (error) {
-        console.error("채택된 답변 불러오기 실패:", error);
-      } finally {
-        setLoading(false);
+      } else {
+        setCounts((prev) => ({ ...prev, [type]: 0 }));
+        if (!onlyCount) setAnswers([]);
       }
-    };
-
-    fetchAnswers();
-  }, []);
-
-  const filteredAnswers = answers.filter((a) => a.type === selectedType);
-
-  const counts = {
-    answer: answers.filter((a) => a.type === "answer").length,
-    memo: answers.filter((a) => a.type === "memo").length,
+    } catch (err) {
+      console.error("API LOAD FAIL", err);
+      setCounts((prev) => ({ ...prev, [type]: 0 }));
+      if (!onlyCount) setAnswers([]);
+    }
   };
 
-  if (loading) {
-    return <div className="p-4">로딩 중...</div>;
-  }
+  // ======================
+  // 최초 마운트: 두 타입 다 미리 불러서 카운트 채우기
+  // ======================
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetchAnswers("ANSWER"),        
+      fetchAnswers("FREE", true),   
+    ]).finally(() => setLoading(false));
+  }, []);
+
+  // ======================
+  // 토글 클릭
+  // ======================
+  const handleToggle = async (type: AnswerType) => {
+    setSelectedType(type);
+    setLoading(true);
+    await fetchAnswers(type); 
+    setLoading(false);
+  };
 
   return (
     <div className="flex flex-col h-screen">
@@ -120,31 +141,33 @@ export default function GuestPositSelectedAnswer() {
 
       {/* 토글 */}
       <div className="flex justify-center">
-        {(["answer", "memo"] as AnswerType[]).map((type) => (
+        {(["ANSWER", "FREE"] as AnswerType[]).map((type) => (
           <button
             key={type}
-            onClick={() => setSelectedType(type)}
+            onClick={() => handleToggle(type)}
             className={`typo-14-medium w-[187.5px] pb-[18px] mt-[27px] h-[40px] ${
               selectedType === type
                 ? "border-b-2"
                 : "text-neutrals-07 border-b border-neutrals-07"
             }`}
           >
-            {type === "answer" ? "고민 답변" : "자유 메모함"} {counts[type]}
+            {type === "ANSWER" ? "고민 답변" : "자유 메모함"} {counts[type]}
           </button>
         ))}
       </div>
 
-      {/* 카드 리스트 */}
+      {/* 리스트 */}
       <div className="flex-1 overflow-y-auto flex flex-col no-scrollbar gap-[8px] pt-[20px] pb-[110px] px-[16px]">
-        {!loading && filteredAnswers.length === 0 && (
+        {loading && <div className="text-center"></div>}
+
+        {!loading && answers.length === 0 && (
           <div className="flex justify-center items-center h-full text-neutrals-07">
-            아직 채택된 답변이 없어요 🥲
+            <span>비었음</span>
           </div>
         )}
 
         {!loading &&
-          filteredAnswers.map((answer) => (
+          answers.map((answer) => (
             <AnswerCard
               key={answer.id}
               type={answer.type}

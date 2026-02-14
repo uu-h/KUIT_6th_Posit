@@ -1,7 +1,7 @@
 interface AnswerCardProps {
     title: string;
     cafeName?: string;
-    type: "answer" | "memo";
+    type: "ANSWER" | "FREE";
     createdAt: string;
     isRead?: boolean;
     onClick: () => void;
@@ -30,7 +30,7 @@ export default function AnswerCard({
         <div className="flex justify-between">
             <div className="flex flex-col gap-[6px]">
                 <p className="typo-12-medium text-neutrals-08">
-                    {cafeName} / {type === "answer" ? "고민 답변" : "자유 메모"}
+                    {cafeName} / {type === "ANSWER" ? "고민 답변" : "자유 메모"}
                 </p>
                 <p className="typo-15-medium w-[233px] line-clamp-2">
                     “{title}”

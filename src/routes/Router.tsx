@@ -40,6 +40,7 @@ import OwnerCouponPage from "../pages/Owner/Coupon/OwnerCouponPage";
 import OwnerMyConcernsPage from "../pages/Owner/Home/OwnerMyConcernsPage";
 import GuestStoreMapPage from "../pages/Guest/Store/GuestStoreMapPage";
 import GuestPositCreatePage from "../pages/Guest/Posit/GuestPositCreatePage";
+import IdeaAdopt from "../pages/Owner/Posit/IdeaAdopt";
 
 
 
@@ -122,6 +123,7 @@ export default function Router() {
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />
       <Route path="/owner/inbox/:id" element={<OwnerPositAnswerSelectPage/>}/>
+      <Route path="/owner/inbox/:id/adopted" element={<IdeaAdopt/>}/>
 
       {/* Owner - Registration */}
       <Route path="/owner/store/register" element={<StoreRegistration />} />
