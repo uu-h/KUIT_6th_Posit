@@ -353,22 +353,22 @@ input[type="password"]::-ms-clear {
   html {
     font-family: var(--font-sans);
   }
-}
 
-/* 클릭 가능한 기본 요소들 */
-a[href],
-button,
-[role="button"],
-[role="link"],
-label,
-summary {
-  @apply cursor-pointer;
-}
+  /* 클릭 가능한 기본 요소들 */
+  a[href],
+  button,
+  [role="button"],
+  [role="link"],
+  label,
+  summary {
+    @apply cursor-pointer;
+  }
 
-/* 비활성화된 버튼은 기본 커서 */
-button:disabled,
-[aria-disabled="true"] {
-  @apply cursor-default;
+  /* 비활성화된 버튼은 기본 커서 */
+  button:disabled,
+  [aria-disabled="true"] {
+    @apply cursor-default;
+  }
 }
 
 /* 온보딩 (첫번째 화면) 페이드인 효과 */
