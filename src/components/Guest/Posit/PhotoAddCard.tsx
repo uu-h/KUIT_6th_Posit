@@ -55,7 +55,6 @@ export default function PhotoAddCard({
         ref={fileRef}
         type="file"
         accept="image/*"
-        multiple
         onChange={handlePick}
         className="hidden"
       />
