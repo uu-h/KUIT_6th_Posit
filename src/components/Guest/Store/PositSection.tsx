@@ -5,6 +5,9 @@ import QuoteIcon from "../../../assets/Guest/Store/Quote.svg";
 import OwnerPositIcon from "../../../assets/Guest/Store/OwnerPosit.svg";
 import MyPositIcon from "../../../assets/Guest/Store/MyPosit.svg";
 
+const ownerFallback = "아직 채택 대기중인 고민이 없어요!";
+const myFallback = "아직 작성한 자유 메모가 없어요!";
+
 export default function PositSection({
   variant,
   data,
@@ -47,11 +50,13 @@ export default function PositSection({
       >
         {/* quotes area */}
         {isOwner ? (
-          <OwnerQuoteCard text={quotes[0] ?? ""} />
+          <OwnerQuoteCard
+            text={quotes[0]?.trim() ? quotes[0] : ownerFallback}
+          />
         ) : (
           <div className="grid grid-cols-2 gap-[12px]">
-            <MyQuoteCard text={quotes[0] ?? ""} />
-            <MyQuoteCard text={quotes[1] ?? ""} />
+            <MyQuoteCard text={quotes[0]?.trim() ? quotes[0] : myFallback} />
+            <MyQuoteCard text={quotes[1]?.trim() ? quotes[1] : myFallback} />
           </div>
         )}
 
