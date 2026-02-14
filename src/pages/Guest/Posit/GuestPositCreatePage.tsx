@@ -8,7 +8,7 @@ import TitleInput from "../../../components/Guest/Posit/TitleInput";
 import SuccessModal from "../../../components/Common/SuccessModal";
 import BottomToast from "../../../components/Guest/Posit/BottomToast";
 import ModalHeader from "../../../components/Guest/Posit/ModalHeader";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { createStoreMemo } from "../../../api/posit";
 import type { FreeType } from "../../../types/posit";
 import { getPresignedUrlWithKey, uploadToS3 } from "../../../api/image";
@@ -34,6 +34,9 @@ export default function GuestPositCreatePage() {
   const navigate = useNavigate();
   const { storeId } = useParams();
   const sid = Number(storeId);
+
+  const location = useLocation();
+  const storeName = (location.state as { storeName?: string })?.storeName ?? "";
 
   const [selectedType, setSelectedType] = useState<MemoTypeKorean | null>(null);
   const [content, setContent] = useState("");
@@ -174,18 +177,15 @@ export default function GuestPositCreatePage() {
         open={successOpen}
         onConfirm={() => {
           setSuccessOpen(false);
-          // TODO: 확인 누르면 어디로 갈지 (뒤로가기/리스트로 이동 등)
-          // navigate(-1)
+          // TODO: 확인 누르면 어디로 갈지 (일단은 가게 상세로 구현)
+          navigate(`/stores/${sid}`);
         }}
       />
 
       {/* 하단 안내 배너 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white">
         <div className="flex justify-center px-4 py-3">
-          <NoticeBanner
-            storeName="카페 레이저아워"
-            menu="아이스 아메리카노 한 잔 무료"
-          />
+          <NoticeBanner storeName={storeName} />
         </div>
       </div>
 
