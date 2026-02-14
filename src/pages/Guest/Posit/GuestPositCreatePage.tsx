@@ -89,7 +89,7 @@ export default function GuestPositCreatePage() {
 
       // 2) memo 등록 (자유메모)
       const payload = {
-        memoType: "MEMO" as const,
+        memoType: "FREE" as const,
         freeType: FREE_TYPE_MAP[selectedType!],
         title: title.trim(),
         content: content.trim(),

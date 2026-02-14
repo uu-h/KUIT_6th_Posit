@@ -1,4 +1,4 @@
-export type MemoType = "ANSWER" | "MEMO";
+export type MemoType = "ANSWER" | "FREE";
 export type FreeType =
   | "TIP"
   | "MARKETING"

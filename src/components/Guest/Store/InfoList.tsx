@@ -16,12 +16,7 @@ const ICON_MAP: Partial<Record<StoreInfoRow["key"], string>> = {
   convince: InfoIcon,
 };
 
-const TOGGLE_KEYS: StoreInfoRow["key"][] = [
-  "address",
-  "hours",
-  "phone",
-  "convince",
-];
+const TOGGLE_KEYS: StoreInfoRow["key"][] = ["address", "convince"];
 
 export default function InfoList({
   rows,
