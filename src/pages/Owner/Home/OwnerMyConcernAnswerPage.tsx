@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 import AppBar from "../../../components/Common/AppBar";
 import ConcernReadonlyCard from "../../../components/Owner/Posit/ConcernReadonlyCard";
 
@@ -27,7 +27,7 @@ const mockAnswerWithImage: AnswerDetailMock = {
 };
 
 export default function OwnerMyConcerAnswerPage() {
-  const { memoId } = useParams();
+  // const { memoId } = useParams();
 
   // 지금은 UI 테스트용으로 이미지 있는 버전/없는 버전 원하는 걸로 선택
   const data = mockAnswerWithImage; // 또는 mockAnswerNoImage
