@@ -9,9 +9,10 @@ type Answer = {
 
 type Props = {
   answers: Answer[];
+  onItemClick?: (id: Answer["id"]) => void;
 };
 
-export default function AnswerListCard({ answers }: Props) {
+export default function AnswerListCard({ answers, onItemClick }: Props) {
   return (
     <section className="mt-[34px]">
       <h2 className="typo-16-bold">받은 답변</h2>
@@ -31,6 +32,7 @@ export default function AnswerListCard({ answers }: Props) {
         {answers.map((a) => (
           <div
             key={a.id}
+            onClick={() => onItemClick?.(a.id)}
             className="px-[15px] py-[16px] 
             transition-colors
           hover:bg-[#FFF1F0]

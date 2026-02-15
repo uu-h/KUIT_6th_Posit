@@ -1,7 +1,7 @@
 import AppBar from "../../../components/Common/AppBar";
 import ConcernDetailHeader from "../../../components/Owner/Home/ConcernDetailHeader";
 import AnswerListCard from "../../../components/Owner/Home/AnswerListCard";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMemo } from "react";
 import { timeAgo } from "../../../utils/timeAgo";
 import { useConcernDetail } from "../../../hooks/useConcernDetail";
@@ -14,6 +14,7 @@ type Answer = {
 };
 
 export default function OwnerMyConcernDetailPage() {
+  const navigate = useNavigate();
   const { concernId } = useParams();
   const { data, isLoading, isError, refetch } = useConcernDetail(concernId);
 
@@ -54,7 +55,12 @@ export default function OwnerMyConcernDetailPage() {
         {!isLoading && !isError && (
           <>
             <ConcernDetailHeader concernTitle={title} />
-            <AnswerListCard answers={answers} />
+            <AnswerListCard
+              answers={answers}
+              onItemClick={(memoId) => {
+                navigate(`/owner/home/concerns/${concernId}/answer/${memoId}`);
+              }}
+            />
           </>
         )}
       </main>

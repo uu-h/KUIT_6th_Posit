@@ -43,6 +43,7 @@ import GuestPositCreatePage from "../pages/Guest/Posit/GuestPositCreatePage";
 import GuestPositConcernListPage from "../pages/Guest/Posit/GuestPositConcernListPage";
 import IdeaAdopt from "../pages/Owner/Posit/IdeaAdopt";
 import OwnerMyConcernDetailPage from "../pages/Owner/Home/OwnerMyConcernDetailPage";
+import OwnerMyConcerAnswerPage from "../pages/Owner/Home/OwnerMyConcernAnswerPage";
 
 export default function Router() {
   return (
@@ -128,6 +129,10 @@ export default function Router() {
       <Route
         path="/owner/home/concerns/:concernId"
         element={<OwnerMyConcernDetailPage />}
+      />
+      <Route
+        path="/owner/home/concerns/:concernId/answer/:memoId"
+        element={<OwnerMyConcerAnswerPage />}
       />
 
       {/* Owner - Inbox*/}
