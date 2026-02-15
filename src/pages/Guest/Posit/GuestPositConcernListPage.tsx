@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
+import { useParams } from "react-router-dom";
 import AppBar from "../../../components/Common/AppBar";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
-import { useMyConcernsInfinite } from "../../../hooks/useMyConcernsInfinite";
+import { useStoreConcernsInfinite } from "../../../hooks/useStoreConcernsInfinite";
 import { timeAgo } from "../../../utils/timeAgo";
+import type { ConcernDto } from "../../../api/concerns";
 
 type Concern = {
   id: number | string;
@@ -12,6 +14,21 @@ type Concern = {
 };
 
 export default function GuestPositConcernListPage() {
+  const { storeId } = useParams();
+  const storeIdNum = Number(storeId);
+
+  // ✅ storeId가 이상하면 훅 호출 전에 바로 return (가독성/안전성)
+  if (!Number.isFinite(storeIdNum) || storeIdNum <= 0) {
+    return (
+      <div className="min-h-dvh bg-white">
+        <AppBar layout="left" leftType="left" />
+        <main className="px-[16px] py-6">
+          <p className="typo-14-regular">잘못된 접근입니다. (storeId 없음)</p>
+        </main>
+      </div>
+    );
+  }
+
   const {
     data,
     isLoading,
@@ -20,12 +37,11 @@ export default function GuestPositConcernListPage() {
     fetchNextPage,
     isFetchingNextPage,
     refetch,
-  } = useMyConcernsInfinite({ size: 10 });
+  } = useStoreConcernsInfinite(storeIdNum, { size: 10 });
 
-  // select에서 flat 넣어뒀기 때문에 data?.flat으로 접근 가능
   const items: Concern[] = useMemo(() => {
-    const list = (data as any)?.flat ?? [];
-    return list.map((c: any) => ({
+    const list: ConcernDto[] = (data as any)?.flat ?? [];
+    return list.map((c) => ({
       id: c.concernId,
       title: c.title,
       createdAt: timeAgo(c.createdAt),
@@ -33,7 +49,6 @@ export default function GuestPositConcernListPage() {
     }));
   }, [data]);
 
-  // IntersectionObserver로 무한스크롤
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -92,7 +107,7 @@ export default function GuestPositConcernListPage() {
 
         {!isLoading && !isError && items.length === 0 && (
           <p className="typo-14-regular py-6 text-center">
-            아직 채택 대기중인 고민이 없어요!
+            아직 고민이 없어요!
           </p>
         )}
       </main>
