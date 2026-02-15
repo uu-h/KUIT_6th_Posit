@@ -67,8 +67,8 @@ export default function CouponPasswordChange({
             <div key={i} className="flex flex-col items-center">
               <div className="w-[46px] h-[46px] flex items-center justify-center">
                 <span
-                  className={`text-[32px] ${
-                    isError ? "text-[#FF0000]" : "text-black"
+                  className={`typo-title mb-[4px] ${
+                    isError ? "text-primary-01" : "text-black"
                   }`}
                 >
                   {code[i] || ""}
@@ -77,7 +77,7 @@ export default function CouponPasswordChange({
               <div
                 className={`w-[48px] h-[3px] ${
                   isError
-                    ? "bg-[#FF0000]"
+                    ? "bg-primary-01"
                     : code[i]
                     ? "bg-black"
                     : "bg-[#BABABA]"
@@ -88,17 +88,21 @@ export default function CouponPasswordChange({
         </div>
 
         {/* 에러 */}
-        <div className="h-[14px]">
+        <div className="h-[30px] pt-[12px]">
           {isError && step === "check" && (
-            <p className="text-[#FF0000] typo-12-regular">
-              비밀번호가 올바르지 않습니다.
+            <p className="text-primary-01 typo-12-medium text-center">
+              <span>
+                비밀 번호 불일치.
+                <br />
+                올바른 비밀 번호를 입력하십시오.
+              </span>
             </p>
           )}
         </div>
       </div>
 
       {/* 완료 버튼 */}
-      <div className="flex justify-end mt-[98px] mb-[22px]">
+      <div className="flex justify-end mt-[88px] mb-[22px]">
         <button
           onClick={handleComplete}
           className="flex justify-center items-center gap-[10px] w-[84px] h-[39px] rounded-full border border-primary-01"

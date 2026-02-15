@@ -1,14 +1,26 @@
+interface Props {
+  concernTitle: string;
+  writer: string;
+  adoptedAt: string;
+  reward: string;
+}
+
 interface AdoptInfoItem {
   label: string;
   value: string;
 }
 
-export default function AdoptDescription() {
+export default function AdoptDescription({
+  concernTitle,
+  writer,
+  adoptedAt,
+  reward,
+}: Props) {
   const infoList: AdoptInfoItem[] = [
-    { label: "고민제목", value: "가게 조명 관련" },
-    { label: "답변자", value: "김하윤" },
-    { label: "채택일", value: "2025년 10월 23일" },
-    { label: "보상", value: "아메리카노 무료 쿠폰 지급" },
+    { label: "고민제목", value: concernTitle },
+    { label: "답변자", value: writer },
+    { label: "채택일", value: adoptedAt },
+    { label: "보상", value: reward },
   ];
 
   return (

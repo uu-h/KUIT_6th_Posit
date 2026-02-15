@@ -1,6 +1,6 @@
 const TABS: { key: TabKey; label: string }[] = [
   { key: "ANSWER", label: "고민 답변" },
-  { key: "MEMO", label: "자유 메모함" },
+  { key: "FREE", label: "자유 메모함" },
   { key: "DONE", label: "채택 완료" },
 ];
 
@@ -10,7 +10,7 @@ const formatCount = (count?: number) => {
   return count;
 };
 
-type TabKey = "ANSWER" | "MEMO" | "DONE";
+type TabKey = "ANSWER" | "FREE" | "DONE";
 
 export default function InboxToggle({
   active,
