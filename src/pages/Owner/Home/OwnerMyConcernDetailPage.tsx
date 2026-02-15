@@ -1,6 +1,8 @@
 import AppBar from "../../../components/Common/AppBar";
 import ConcernDetailHeader from "../../../components/Owner/Home/ConcernDetailHeader";
 import AnswerListCard from "../../../components/Owner/Home/AnswerListCard";
+import { useParams } from "react-router-dom";
+import { useMemo } from "react";
 
 type Answer = {
   id: number | string;
@@ -41,12 +43,19 @@ const mockAnswers: Answer[] = [
 ];
 
 export default function OwnerMyConcernDetailPage() {
+  const { concernId } = useParams();
+
+  const title = useMemo(() => {
+    if (!concernId) return mockConcernTitle;
+    return mockConcernTitle; // TODO: API 붙이면 concernId로 실제 title 사용
+  }, [concernId]);
+
   return (
     <div className="min-h-dvh bg-white">
       <AppBar layout="left" leftType="left" />
 
       <main className="px-[16px] pt-[12px] pb-[24px]">
-        <ConcernDetailHeader concernTitle={mockConcernTitle} />
+        <ConcernDetailHeader concernTitle={title} />
         <AnswerListCard answers={mockAnswers} />
       </main>
     </div>

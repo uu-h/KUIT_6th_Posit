@@ -3,6 +3,7 @@ import AppBar from "../../../components/Common/AppBar";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
 import { useMyConcernsInfinite } from "../../../hooks/useMyConcernsInfinite";
 import { timeAgo } from "../../../utils/timeAgo";
+import { useNavigate } from "react-router-dom";
 
 type Concern = {
   id: number | string;
@@ -12,6 +13,8 @@ type Concern = {
 };
 
 export default function OwnerMyConcernsPage() {
+  const navigate = useNavigate();
+
   const {
     data,
     isLoading,
@@ -22,7 +25,7 @@ export default function OwnerMyConcernsPage() {
     refetch,
   } = useMyConcernsInfinite({ size: 10 });
 
-  // ✅ 서버가 준 순서 그대로 + timeAgo만 적용
+  // 서버가 준 순서 그대로 + timeAgo만 적용
   const items: Concern[] = useMemo(() => {
     const list = ((data as any)?.flat ?? []) as any[];
 
@@ -81,8 +84,7 @@ export default function OwnerMyConcernsPage() {
           <ConcernList
             items={items}
             onItemClick={(id) => {
-              // TODO: 고민 상세 연결
-              console.log("clicked concern:", id);
+              navigate(`/owner/home/concerns/${id}`);
             }}
           />
         )}

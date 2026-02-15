@@ -42,6 +42,7 @@ import GuestStoreMapPage from "../pages/Guest/Store/GuestStoreMapPage";
 import GuestPositCreatePage from "../pages/Guest/Posit/GuestPositCreatePage";
 import GuestPositConcernListPage from "../pages/Guest/Posit/GuestPositConcernListPage";
 import IdeaAdopt from "../pages/Owner/Posit/IdeaAdopt";
+import OwnerMyConcernDetailPage from "../pages/Owner/Home/OwnerMyConcernDetailPage";
 
 export default function Router() {
   return (
@@ -123,7 +124,11 @@ export default function Router() {
         element={<OwnerPositMyConcernPage />}
       />
       <Route path="/owner/home/coupon-manage" element={<OwnerCouponPage />} />
-      <Route path="/owner/home/concern" element={<OwnerMyConcernsPage />} />
+      <Route path="/owner/home/concerns" element={<OwnerMyConcernsPage />} />
+      <Route
+        path="/owner/home/concerns/:concernId"
+        element={<OwnerMyConcernDetailPage />}
+      />
 
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />

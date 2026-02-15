@@ -117,12 +117,12 @@ export default function OwnerHomePage() {
               <SectionHeader
                 title="내가 올린 고민"
                 actionText="전체 고민 보기"
-                onActionClick={() => navigate("/owner/home/concern")}
+                onActionClick={() => navigate("/owner/home/concerns")}
               />
 
               <ConcernList
                 items={concerns}
-                onItemClick={(id) => navigate(`/owner/home/concern/${id}`)}
+                onItemClick={(id) => navigate(`/owner/home/concerns/${id}`)}
               />
             </div>
           </>
