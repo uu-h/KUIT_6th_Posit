@@ -122,10 +122,7 @@ export default function GuestPositOwnerConcernPage() {
       {/* 하단 안내 배너 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white">
         <div className="flex justify-center px-4 py-3">
-          <NoticeBanner
-            storeName="카페 페이지아워"
-            menu="아이스아메리카노 한 잔 무료"
-          />
+          <NoticeBanner storeName="카페 페이지아워" />
         </div>
       </div>
       {/* 토스트 메시지 */}
