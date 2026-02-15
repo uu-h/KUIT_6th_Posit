@@ -1,9 +1,9 @@
-type TabKey = "ANSWER" | "FREE" | "DONE";
+type TabKey = "ANSWER" | "FREE" | "ADOPTED";
 
 const TITLE_MAP: Record<TabKey, string> = {
   ANSWER: "고민 답변",
   FREE: "자유 메모",
-  DONE: "채택 완료",
+  ADOPTED: "채택 완료",
 };
 
 type IdeaCardProps = {

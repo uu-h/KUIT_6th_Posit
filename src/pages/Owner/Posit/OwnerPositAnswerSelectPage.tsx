@@ -1,23 +1,28 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
 import ConcernReadonlyCard from "../../../components/Owner/Posit/ConcernReadonlyCard";
 import AdoptModal from "../../../components/Owner/Posit/AdoptModal";
 import RejectModal from "../../../components/Owner/Posit/RejectModal";
 
-type LocationState = {
-  memoId?: number;
-};
+//useParams 로 memoId 받기 수정
+//type LocationState = {
+  //memoId?: number;
+//};
 
 export default function OwnerPositAnswerSelectPage() {
+  //memoId 받기 
+  const { id } = useParams();
+  const memoId = Number(id);
+
   const [openModal, setOpenModal] = useState<
     "adopt" | "reject" | null
   >(null);
 
   //memoId 받기
-  const location = useLocation();
-  const memoId = (location.state as LocationState)?.memoId;
+  //const location = useLocation();
+  //const memoId = (location.state as LocationState)?.memoId;
 
   if (!memoId) {
     return (
