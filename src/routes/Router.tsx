@@ -44,6 +44,7 @@ import GuestPositConcernListPage from "../pages/Guest/Posit/GuestPositConcernLis
 import IdeaAdopt from "../pages/Owner/Posit/IdeaAdopt";
 import OwnerMyConcernDetailPage from "../pages/Owner/Home/OwnerMyConcernDetailPage";
 import OwnerMyConcerAnswerPage from "../pages/Owner/Home/OwnerMyConcernAnswerPage";
+import OwnerCouponAdoptionDetailPage from "../pages/Owner/Coupon/OwnerCouponAdoptionDetailPage";
 
 export default function Router() {
   return (
@@ -133,6 +134,10 @@ export default function Router() {
       <Route
         path="/owner/home/concerns/:concernId/answer/:memoId"
         element={<OwnerMyConcerAnswerPage />}
+      />
+      <Route
+        path="/owner/home/coupon-adoptions/:issuedCouponId"
+        element={<OwnerCouponAdoptionDetailPage />}
       />
 
       {/* Owner - Inbox*/}
