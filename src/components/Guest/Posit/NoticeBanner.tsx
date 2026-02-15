@@ -2,13 +2,11 @@ type NoticeBannerVariant = "opinion" | "concernReply";
 
 type NoticeBannerProps = {
   storeName: string; // 나중에 API/라우트에서 받아오면 됨
-  menu: string;
   variant?: NoticeBannerVariant; // 기본값: opinion
 };
 
 export default function NoticeBanner({
   storeName,
-  menu,
   variant = "opinion",
 }: NoticeBannerProps) {
   const firstLine =
@@ -29,7 +27,7 @@ export default function NoticeBanner({
     >
       {firstLine}
       <br />
-      채택 시 {menu} 쿠폰이 지급됩니다!
+      채택 시 쿠폰이 지급됩니다!
     </div>
   );
 }

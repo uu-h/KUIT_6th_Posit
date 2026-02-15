@@ -11,6 +11,7 @@ import { mapApi, mapStoreDetailDtoToStoreDetail } from "../../../api/map";
 type GuestStoreDetailLocationState = {
   restore?: unknown;
   from?: "home" | "posit" | "coupon" | "my" | string;
+  refreshPosit?: boolean;
 };
 
 export default function GuestStoreDetailPage() {
@@ -51,6 +52,8 @@ export default function GuestStoreDetailPage() {
       try {
         const res = await mapApi.getStoreDetail(idNum);
 
+        console.log("dto.positPreview =", res.data.data?.positPreview);
+
         if (!res.data.isSuccess) {
           throw new Error("API returned isSuccess=false");
         }
@@ -72,6 +75,30 @@ export default function GuestStoreDetailPage() {
       cancelled = true;
     };
   }, [idNum]);
+
+  useEffect(() => {
+    if (!state?.refreshPosit) return;
+
+    let cancelled = false;
+
+    const refetch = async () => {
+      try {
+        const res = await mapApi.getStoreDetail(idNum);
+        if (!res.data.isSuccess) return;
+
+        const mapped = mapStoreDetailDtoToStoreDetail(res.data.data);
+        if (!cancelled) setStore(mapped);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    void refetch();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [state?.refreshPosit, idNum]);
 
   if (!Number.isFinite(idNum)) {
     return (

@@ -35,13 +35,6 @@ function normalizeQuotes(quotes: unknown, needed: number): string[] {
   );
 }
 
-function hasAnyQuote(quotes: unknown): boolean {
-  return (
-    Array.isArray(quotes) &&
-    quotes.some((q) => typeof q === "string" && q.trim().length > 0)
-  );
-}
-
 function toStoreIdNum(id: string): number {
   return Number(String(id).replace("store_", ""));
 }
@@ -82,31 +75,24 @@ export default function StoreDetailBody({
 
   const storeIdNum = toStoreIdNum(store.id);
 
-  /** "사장님 포짓" 미작성 시 문구: 사장님 고민이 아직 없어요! */
-  const ownerBase = (store.ownerPosit ?? {}) as Partial<StorePositPreview>;
-  const ownerHasQuote = hasAnyQuote(ownerBase.quotes);
-
+  // 사장님 POSiT (가게 상세 API의 positPreview 기반)
   const ownerPositData: StorePositPreview = {
     title: "사장님 고민 POSiT! 하러가기",
-    subtitle: ownerHasQuote
-      ? (ownerBase.subtitle ?? "")
-      : "사장님 고민이 아직 없어요!",
-    quotes: normalizeQuotes(ownerBase.quotes, 1),
+    subtitle: "사장님 고민거리를 보고,\nPOSiT을 보내 무료 음료 얻으러 가기",
+    quotes: normalizeQuotes(store.ownerPosit?.quotes, 1),
     onClick: () => {
-      scrollToSection("posit");
+      navigate(`/guest/stores/${storeIdNum}/posit/concerns`, {
+        state: { storeName: store.name },
+      });
     },
   };
 
-  /** "내 포짓" 미작성 시 문구: 당신의 아이디어를 보내주세요! */
-  const myBase = (store.myPosit ?? {}) as Partial<StorePositPreview>;
-  const myHasQuote = hasAnyQuote(myBase.quotes);
-
+  // 내 의견 POSiT (가게 상세 API의 positPreview 기반)
   const myPositData: StorePositPreview = {
     title: "내 의견 POSiT! 하러가기",
-    subtitle: myHasQuote
-      ? (myBase.subtitle ?? "")
-      : "당신의 아이디어를 보내주세요!",
-    quotes: normalizeQuotes(myBase.quotes, 2),
+    subtitle:
+      "카페를 이용하고 자유로운 의견을\nPOSiT!으로 보내, 무료 음료 얻으러 가기",
+    quotes: normalizeQuotes(store.myPosit?.quotes, 2),
     onClick: () => {
       navigate(`/stores/${storeIdNum}/posit/new`, {
         state: { storeName: store.name },
@@ -119,8 +105,16 @@ export default function StoreDetailBody({
       <StoreHeaderCard
         store={store}
         onClose={onClose}
-        onOwnerPositClick={() => scrollToSection("posit")}
-        onMyPositClick={() => scrollToSection("posit")}
+        onOwnerPositClick={() => {
+          navigate(`/guest/stores/${storeIdNum}/posit/concerns`, {
+            state: { storeName: store.name },
+          });
+        }}
+        onMyPositClick={() => {
+          navigate(`/stores/${storeIdNum}/posit/new`, {
+            state: { storeName: store.name },
+          });
+        }}
       />
 
       <div className="mt-[15px]">

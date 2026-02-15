@@ -7,11 +7,11 @@ import { timeAgo } from "../../../utils/timeAgo";
 type Concern = {
   id: number | string;
   title: string;
-  createdAt: string; // 화면 표시용: "2일 전"
+  createdAt: string;
   commentCount: number;
 };
 
-export default function OwnerMyConcernsPage() {
+export default function GuestPositConcernListPage() {
   const {
     data,
     isLoading,
@@ -22,21 +22,14 @@ export default function OwnerMyConcernsPage() {
     refetch,
   } = useMyConcernsInfinite({ size: 10 });
 
-  // data.flat(전체 누적 리스트) -> 화면용 Concern[] 변환
-  // + 최신순 정렬(ISO createdAt 기준) + timeAgo 적용
+  // select에서 flat 넣어뒀기 때문에 data?.flat으로 접근 가능
   const items: Concern[] = useMemo(() => {
-    const list = ((data as any)?.flat ?? []) as any[];
-
-    const sorted = [...list].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-
-    return sorted.map((c) => ({
+    const list = (data as any)?.flat ?? [];
+    return list.map((c: any) => ({
       id: c.concernId,
-      title: c.title ?? c.content ?? "", // 응답 필드명 차이 대비
+      title: c.title,
       createdAt: timeAgo(c.createdAt),
-      commentCount: c.commentCount ?? 0,
+      commentCount: c.commentCount,
     }));
   }, [data]);
 
@@ -65,7 +58,7 @@ export default function OwnerMyConcernsPage() {
       <AppBar layout="left" leftType="left" />
 
       <div className="px-[16px]">
-        <h1 className="typo-sub-title">내가 올린 고민</h1>
+        <h1 className="typo-sub-title">사장님 고민 목록</h1>
       </div>
 
       <main className="px-[16px] pb-[24px]">
@@ -84,15 +77,7 @@ export default function OwnerMyConcernsPage() {
           </div>
         )}
 
-        {!isLoading && !isError && (
-          <ConcernList
-            items={items}
-            onItemClick={(id) => {
-              // TODO: 고민 상세 연결
-              console.log("clicked concern:", id);
-            }}
-          />
-        )}
+        {!isLoading && !isError && <ConcernList items={items} />}
 
         {/* sentinel */}
         <div ref={sentinelRef} className="h-[1px]" />
@@ -107,7 +92,7 @@ export default function OwnerMyConcernsPage() {
 
         {!isLoading && !isError && items.length === 0 && (
           <p className="typo-14-regular py-6 text-center">
-            아직 작성한 고민이 없어요!
+            아직 채택 대기중인 고민이 없어요!
           </p>
         )}
       </main>

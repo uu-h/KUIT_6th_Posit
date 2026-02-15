@@ -12,7 +12,7 @@ export type MemoImage = {
 };
 
 export type CreateMemoRequest = {
-  memoType: MemoType; // 여기선 "MEMO"만 씀
+  memoType: MemoType; // 여기선 "FREE"만 씀
   freeType: FreeType;
   title: string;
   content: string;
@@ -27,15 +27,6 @@ export type CreateMemoResponse = {
     memoType: MemoType;
     createdAt: string; // ISO string
     status: "REVIEWING" | string;
-  };
-  message: string;
-};
-
-// 업로드 응답은 서버 스펙에 맞춰 조정 필요
-export type UploadImageResponse = {
-  isSuccess: boolean;
-  data: {
-    imageKey: string;
   };
   message: string;
 };

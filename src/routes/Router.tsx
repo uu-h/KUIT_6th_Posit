@@ -26,7 +26,6 @@ import OwnerMyAccount from "../pages/Owner/My/OwnerMyAccount";
 import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
 import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 import OwnerHomePage from "../pages/Owner/Home/OwnerHomePage";
-import OwnerPositAnswerSelectPage from "../pages/Owner/Posit/OwnerPositAnswerSelectPage"
 
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
@@ -41,9 +40,8 @@ import OwnerCouponPage from "../pages/Owner/Coupon/OwnerCouponPage";
 import OwnerMyConcernsPage from "../pages/Owner/Home/OwnerMyConcernsPage";
 import GuestStoreMapPage from "../pages/Guest/Store/GuestStoreMapPage";
 import GuestPositCreatePage from "../pages/Guest/Posit/GuestPositCreatePage";
+import GuestPositConcernListPage from "../pages/Guest/Posit/GuestPositConcernListPage";
 import IdeaAdopt from "../pages/Owner/Posit/IdeaAdopt";
-
-
 
 export default function Router() {
   return (
@@ -66,7 +64,13 @@ export default function Router() {
       <Route path="/stores/:storeId/map" element={<GuestStoreMapPage />} />
 
       {/* Guest - POSiT */}
-      {/* 가게별 내 포짓 작성 */}
+      {/* 가게별 사장님 포짓 (고민답변)*/}
+      <Route
+        path="/guest/stores/:storeId/posit/concerns"
+        element={<GuestPositConcernListPage />}
+      />
+
+      {/* 가게별 내 포짓 (자유메모)*/}
       <Route
         path="/stores/:storeId/posit/new"
         element={<GuestPositCreatePage />}
@@ -123,11 +127,14 @@ export default function Router() {
 
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />
-      <Route path="/owner/inbox/:id" element={<OwnerPositAnswerSelectPage/>}/>
-      <Route path="/owner/inbox/:id/adopted" element={<IdeaAdopt/>}/>
+      <Route path="/owner/inbox/:id" element={<OwnerPositAnswerSelectPage />} />
+      <Route path="/owner/inbox/:id/adopted" element={<IdeaAdopt />} />
 
       {/* Owner - Posit*/}
-      <Route path="/owner/answer-select" element={<OwnerPositAnswerSelectPage />} />
+      <Route
+        path="/owner/answer-select"
+        element={<OwnerPositAnswerSelectPage />}
+      />
 
       {/* Owner - Registration */}
       <Route path="/owner/store/register" element={<StoreRegistration />} />
