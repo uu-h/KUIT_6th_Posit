@@ -3,15 +3,18 @@ import AppBar from "../../../components/Common/AppBar";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
 import { useMyConcernsInfinite } from "../../../hooks/useMyConcernsInfinite";
 import { timeAgo } from "../../../utils/timeAgo";
+import { useNavigate } from "react-router-dom";
 
 type Concern = {
   id: number | string;
   title: string;
-  createdAt: string; // 화면 표시용: "2일 전"
+  createdAt: string; // "2일 전"
   commentCount: number;
 };
 
 export default function OwnerMyConcernsPage() {
+  const navigate = useNavigate();
+
   const {
     data,
     isLoading,
@@ -22,25 +25,18 @@ export default function OwnerMyConcernsPage() {
     refetch,
   } = useMyConcernsInfinite({ size: 10 });
 
-  // data.flat(전체 누적 리스트) -> 화면용 Concern[] 변환
-  // + 최신순 정렬(ISO createdAt 기준) + timeAgo 적용
+  // 서버가 준 순서 그대로 + timeAgo만 적용
   const items: Concern[] = useMemo(() => {
     const list = ((data as any)?.flat ?? []) as any[];
 
-    const sorted = [...list].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-
-    return sorted.map((c) => ({
+    return list.map((c) => ({
       id: c.concernId,
-      title: c.title ?? c.content ?? "", // 응답 필드명 차이 대비
+      title: c.title ?? c.content ?? "",
       createdAt: timeAgo(c.createdAt),
       commentCount: c.commentCount ?? 0,
     }));
   }, [data]);
 
-  // IntersectionObserver로 무한스크롤
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -88,13 +84,11 @@ export default function OwnerMyConcernsPage() {
           <ConcernList
             items={items}
             onItemClick={(id) => {
-              // TODO: 고민 상세 연결
-              console.log("clicked concern:", id);
+              navigate(`/owner/home/concerns/${id}`);
             }}
           />
         )}
 
-        {/* sentinel */}
         <div ref={sentinelRef} className="h-[1px]" />
 
         {isFetchingNextPage && (

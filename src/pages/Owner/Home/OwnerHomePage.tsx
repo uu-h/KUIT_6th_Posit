@@ -10,7 +10,7 @@ import OwnerLayout from "../../../layouts/OwnerLayout";
 
 import { ownerApi } from "../../../api/owner";
 import type { OwnerHomeData } from "../../../types/ownerHome";
-import { timeAgo } from "../../../utils/timeAgo"; // ✅ 추가
+import { timeAgo } from "../../../utils/timeAgo";
 
 export default function OwnerHomePage() {
   const navigate = useNavigate();
@@ -62,16 +62,11 @@ export default function OwnerHomePage() {
     [home],
   );
 
-  // 최신순 정렬 + "n일 전" 적용
+  // ✅ 서버가 준 순서 그대로 + timeAgo만 적용
   const concerns = useMemo(() => {
     const raw = home?.myConcerns ?? [];
 
-    const sorted = [...raw].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-
-    return sorted.map((c) => ({
+    return raw.map((c) => ({
       id: c.concernId,
       title: c.content,
       createdAt: timeAgo(c.createdAt),
@@ -122,14 +117,13 @@ export default function OwnerHomePage() {
               <SectionHeader
                 title="내가 올린 고민"
                 actionText="전체 고민 보기"
-                onActionClick={() => navigate("/owner/home/concern")}
+                onActionClick={() => navigate("/owner/home/concerns")}
               />
 
               <ConcernList
                 items={concerns}
-                onItemClick={(id) => navigate(`/owner/home/concern/${id}`)}
+                onItemClick={(id) => navigate(`/owner/home/concerns/${id}`)}
               />
-              {/* 라우팅 수정 필요 */}
             </div>
           </>
         )}

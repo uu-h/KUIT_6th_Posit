@@ -3,17 +3,14 @@ import MenuItem from "../../../components/Owner/My/MenuItem";
 import ProfileHeader from "../../../components/Owner/My/ProfileHeader";
 import { useNavigate } from "react-router-dom";
 import OwnerLayout from "../../../layouts/OwnerLayout";
+import { useMe } from "../../../hooks/useMe";
 
 type Menu = { key: string; label: string; onClick?: () => void };
 
 export default function MyPage() {
   const navigate = useNavigate();
 
-  //나중에 API 붙이면 여기만 교체
-  const profile = {
-    name: "뉴베이크",
-    handle: "@tera_coffee_owner",
-  };
+  const { data: me, isLoading, isError } = useMe();
 
   const menus: Menu[] = [
     {
@@ -38,13 +35,27 @@ export default function MyPage() {
     },
   ];
 
+  // ProfileHeader가 name/handle만 받는 구조
+  // handle은 일단 loginId 기반
+  const profile = me
+    ? { name: me.name, handle: `@${me.loginId}` }
+    : { name: "", handle: "" };
+
   return (
     <OwnerLayout active="my">
       <AppBar title="MY" layout="center" />
 
       <main className="px-[16px] pt-[24px]">
         {/* 프로필 영역 */}
-        <ProfileHeader {...profile} />
+        {isLoading ? (
+          <div className="h-[64px] rounded-[12px] bg-neutrals-02" />
+        ) : isError ? (
+          <div className="rounded-[12px] bg-neutrals-01 p-[12px] text-neutrals-07">
+            프로필 정보를 불러오지 못했어요.
+          </div>
+        ) : (
+          <ProfileHeader {...profile} />
+        )}
 
         {/* 메뉴 리스트 */}
         <nav className="flex flex-col pt-[78px]">
