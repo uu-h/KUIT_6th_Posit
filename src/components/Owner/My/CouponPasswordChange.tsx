@@ -1,10 +1,8 @@
 import { useState } from "react";
 import NumberPad from "../../Guest/Coupon/NumberPad";
+import { http } from "../../../api/http";
 
 type Step = "check" | "change";
-
-/** mock 기존 비밀번호 */
-const MOCK_PASSWORD = "1234";
 
 interface Props {
   step: Step;
@@ -18,49 +16,65 @@ export default function CouponPasswordChange({
   onComplete,
 }: Props) {
   const [code, setCode] = useState("");
+  const [currentPin, setCurrentPin] = useState("");
   const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handlePress = (num: string) => {
-    if (code.length >= 4) return;
+    if (code.length >= 4 || loading) return;
     setIsError(false);
     setCode((prev) => prev + num);
   };
 
   const handleDelete = () => {
+    if (loading) return;
     setIsError(false);
     setCode((prev) => prev.slice(0, -1));
   };
 
   const handleClear = () => {
+    if (loading) return;
     setIsError(false);
     setCode("");
   };
 
-  const handleComplete = () => {
-    if (code.length !== 4) {
+  const handleComplete = async () => {
+    if (code.length !== 4 || loading) {
       setIsError(true);
       return;
     }
 
-    if (step === "check") {
-      if (code === MOCK_PASSWORD) {
-        onStepChange("change");
-        setCode("");
-        setIsError(false);
-      } else {
-        setIsError(true);
-      }
-      return;
-    }
+    try {
+      setLoading(true);
+      setIsError(false);
 
-    // change step
-    onComplete(code);
-    setCode("");
+      if (step === "check") {
+        await http.post("/owner/coupon-pin/verify", {
+          currentPin: code,
+        });
+
+        setCurrentPin(code);
+        setCode("");
+        onStepChange("change");
+        return;
+      }
+
+      await http.patch("/owner/coupon-pin", {
+        currentPin,
+        pin: code,
+      });
+
+      onComplete(code);
+      setCode("");
+    } catch {
+      setIsError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="flex flex-col flex-1">
-      {/* 비밀번호 표시 */}
       <div className="flex flex-col items-center gap-[17px]">
         <div className="flex justify-center gap-[24px]">
           {[0, 1, 2, 3].map((i) => (
@@ -87,27 +101,26 @@ export default function CouponPasswordChange({
           ))}
         </div>
 
-        {/* 에러 */}
         <div className="h-[30px] pt-[12px]">
-          {isError && step === "check" && (
+          {isError && (
             <p className="text-primary-01 typo-12-medium text-center">
-              <span>
-                비밀 번호 불일치.
-                <br />
-                올바른 비밀 번호를 입력하십시오.
-              </span>
+              {step === "check"
+                ? "비밀번호가 올바르지 않습니다."
+                : "비밀번호 변경에 실패했습니다."}
             </p>
           )}
         </div>
       </div>
 
-      {/* 완료 버튼 */}
       <div className="flex justify-end mt-[88px] mb-[22px]">
         <button
           onClick={handleComplete}
-          className="flex justify-center items-center gap-[10px] w-[84px] h-[39px] rounded-full border border-primary-01"
+          disabled={loading}
+          className="flex justify-center items-center gap-[10px] w-[84px] h-[39px] rounded-full border border-primary-01 disabled:opacity-50"
         >
-          <span className="typo-16-regular text-primary-01">완료</span>
+          <span className="typo-16-regular text-primary-01">
+            완료
+          </span>
         </button>
       </div>
 
