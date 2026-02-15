@@ -6,7 +6,7 @@ import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
 import { http } from "../../../api/http";
 import { useNavigate } from "react-router-dom";
 
-type TabKey = "ANSWER" | "MEMO" | "DONE";
+type TabKey = "ANSWER" | "FREE" | "DONE";
 
 interface InboxItem {
   id: number;
@@ -27,7 +27,7 @@ export default function PositInbox() {
       setLoading(true);
       const res = await http.get("/owner/inbox", {
         params: {
-          tab,        // 필수
+          tab,        
           cursorId: null,
           limit: 20,
         },
@@ -49,7 +49,7 @@ export default function PositInbox() {
 
   const counts = {
     ANSWER: items.filter((i) => i.type === "ANSWER").length,
-    MEMO: items.filter((i) => i.type === "MEMO").length,
+    FREE: items.filter((i) => i.type === "FREE").length,
     DONE: items.filter((i) => i.type === "DONE").length,
   };
 

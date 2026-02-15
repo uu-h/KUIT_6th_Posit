@@ -1,8 +1,8 @@
-type TabKey = "ANSWER" | "MEMO" | "DONE";
+type TabKey = "ANSWER" | "FREE" | "DONE";
 
 const TITLE_MAP: Record<TabKey, string> = {
   ANSWER: "고민 답변",
-  MEMO: "자유 메모",
+  FREE: "자유 메모",
   DONE: "채택 완료",
 };
 
