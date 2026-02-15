@@ -45,6 +45,9 @@ export default function GuestPositCreatePage() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // 생성된 memoId 저장
+  const [createdMemoId, setCreatedMemoId] = useState<number | null>(null);
+
   const [toast, setToast] = useState({ open: false, message: "" });
   const MAX_LEN = 150;
 
@@ -101,7 +104,11 @@ export default function GuestPositCreatePage() {
           : [],
       };
 
-      await createStoreMemo(sid, payload);
+      const result = await createStoreMemo(sid, payload);
+
+      // memoId 저장
+      setCreatedMemoId(result.memoId);
+
       setSuccessOpen(true);
     } catch (e: unknown) {
       if (e instanceof Error) showToast(e.message);
@@ -182,6 +189,7 @@ export default function GuestPositCreatePage() {
             replace: true,
             state: {
               refreshPosit: true,
+              memoId: createdMemoId,
               from: "home",
               restore: location.state?.restore,
             },
