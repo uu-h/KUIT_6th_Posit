@@ -1,12 +1,31 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
 import ConcernReadonlyCard from "../../../components/Owner/Posit/ConcernReadonlyCard";
 import AdoptModal from "../../../components/Owner/Posit/AdoptModal";
 import RejectModal from "../../../components/Owner/Posit/RejectModal";
 
+type LocationState = {
+  memoId?: number;
+};
+
 export default function OwnerPositAnswerSelectPage() {
-  const [openModal, setOpenModal] = useState<"adopt" | "reject" | null>(null);
+  const [openModal, setOpenModal] = useState<
+    "adopt" | "reject" | null
+  >(null);
+
+  //memoId 받기
+  const location = useLocation();
+  const memoId = (location.state as LocationState)?.memoId;
+
+  if (!memoId) {
+    return (
+      <div className="p-4">
+        memoId가 전달되지 않았습니다.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-white flex flex-col">
@@ -15,7 +34,9 @@ export default function OwnerPositAnswerSelectPage() {
 
       {/* Body */}
       <main className="px-[16px] flex-1">
-        <p className="mt-[12px] typo-16-bold text-black">나의 고민거리</p>
+        <p className="mt-[12px] typo-16-bold text-black">
+          나의 고민거리
+        </p>
 
         <p className="mt-[12px] typo-15-medium text-neutrals-08">
           매장 조명을 조금 더 밝게 바꿔야 할까요?
@@ -39,20 +60,33 @@ export default function OwnerPositAnswerSelectPage() {
 
       {/* Bottom Buttons */}
       <div className="px-[16px] pt-[20px] pb-[24px] flex gap-[10px]">
-        <Button variant="primary" onClick={() => setOpenModal("adopt")}>
+        <Button
+          variant="primary"
+          onClick={() => setOpenModal("adopt")}
+        >
           채택하기
         </Button>
-        <Button variant="outline" onClick={() => setOpenModal("reject")}>
+        <Button
+          variant="outline"
+          onClick={() => setOpenModal("reject")}
+        >
           거절하기
         </Button>
       </div>
 
       {/* Modals */}
       {openModal === "adopt" && (
-        <AdoptModal onClose={() => setOpenModal(null)} />
+        <AdoptModal
+          memoId={memoId}
+          onClose={() => setOpenModal(null)}
+        />
       )}
+
       {openModal === "reject" && (
-        <RejectModal onClose={() => setOpenModal(null)} />
+        <RejectModal
+          memoId={memoId}
+          onClose={() => setOpenModal(null)}
+        />
       )}
     </div>
   );
