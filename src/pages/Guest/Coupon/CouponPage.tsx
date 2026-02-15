@@ -1,32 +1,62 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import type { Coupon } from "./couponData";
+import { useEffect, useState } from "react";
+import { http } from "../../../api/http";
 import Coupons from "../../../components/Guest/Coupon/Coupons";
 import CouponDescription from "../../../components/Guest/Coupon/CouponDescription";
 import AppBar from "../../../components/Common/AppBar";
 import GuestLayout from "../../../layouts/GuestLayout";
 
+interface CouponDetail {
+  couponId: number;
+  storeId: number;
+  title: string;
+  condition: string;
+  expiredAt: string;
+  imageUrl: string;
+}
+
 export default function CouponPage() {
-  const { couponId } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const rawCoupon = location.state?.coupon as Coupon;
-  const successId = location.state?.usedCouponId;
+  const usedFromVerify = location.state?.used === true;
 
-  const isUsed =
-    rawCoupon?.isUsed || (successId && Number(successId) === Number(couponId));
+  const [coupon, setCoupon] = useState<CouponDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isUsed, setIsUsed] = useState(false);
 
-  const coupon = rawCoupon ? { ...rawCoupon, isUsed } : null;
+  useEffect(() => {
+    if (usedFromVerify) {
+      setIsUsed(true);
+    }
+  }, [usedFromVerify]);
 
-  if (!coupon) return <div>쿠폰 정보를 불러올 수 없습니다.</div>;
+  useEffect(() => {
+    const fetchCoupon = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const res = await http.get(`/coupons/${id}`);
+        if (res.data?.isSuccess) {
+          setCoupon(res.data.data);
+        }
+      } catch (err) {
+        console.error("쿠폰 상세 로딩 에러:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleUseCoupon = () => {
-    navigate(`/guest/coupon/${couponId}/verify`, { state: { coupon } });
-  };
+    fetchCoupon();
+  }, [id]);
+
+  if (loading) return <div className="p-10 text-center">로딩중...</div>;
+  if (!coupon) return <div className="p-10 text-center">쿠폰 정보가 없습니다.</div>;
 
   return (
     <GuestLayout active="coupon">
-      <div className="flex flex-col min-h-screen px-[16px]">
+      <div className="h-dvh w-full flex flex-col bg-white">
         <AppBar
           title="쿠폰"
           layout="left"
@@ -34,30 +64,38 @@ export default function CouponPage() {
           onBack={() => navigate("/guest/coupon")}
         />
 
-        <div className="flex flex-col items-center w-full gap-[26px]">
-          <h1 className="typo-sub-title leading-[130%] my-[13px] h-[48px] w-full text-left">
-            {isUsed ? (
-              "사용이 완료되었어요."
-            ) : (
-              <>
-                사용할 때<br />
-                점원에게 보여주세요.
-              </>
-            )}
-          </h1>
+        <div className="px-[16px] flex-1 overflow-y-auto">
+          <div className="flex flex-col items-center w-full pt-[13px] pb-10">
+            <h1 className="typo-sub-title w-full mb-[30px] text-left leading-tight">
+              {isUsed ? (
+                <>사용이 완료되었어요.</>
+              ) : (
+                <>
+                  사용할 때<br />
+                  점원에게 보여주세요.
+                </>
+              )}
+            </h1>
 
-          <Coupons used={isUsed} onUse={handleUseCoupon} />
-
-          {isUsed ? (
-            <div className="pt-[37px] typo-sub-title text-primary-01 text-center">
-              다음 POSiT!도 기대할게요!
-            </div>
-          ) : (
-            <CouponDescription
-              expiration={coupon.expiration}
-              brand={coupon.brand}
+            <Coupons
+              used={isUsed}
+              onUse={() => {
+                if (!isUsed) {
+                  navigate(`/guest/coupon/${id}/verify`);
+                }
+              }}
+              title={coupon.condition}
             />
-          )}
+
+            {isUsed ? (
+              <h1 className="mt-[63px] typo-sub-title text-primary-01">다음 POSiT!도 기대할게요!</h1>
+            ) : (
+              <CouponDescription
+                expiration={coupon.expiredAt.slice(0, 10)}
+                brand={coupon.title}
+                />
+            )}
+          </div>
         </div>
       </div>
     </GuestLayout>

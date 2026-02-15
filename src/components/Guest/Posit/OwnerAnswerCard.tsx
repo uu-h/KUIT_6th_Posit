@@ -2,7 +2,7 @@ import OwnerProfileIcon from "../../../assets/Owner/Posit/OwnerProfile.svg";
 
 interface OwnerAnswerCardProps {
   content: string;
-  createdAt?: string; // 서버에서 주면 표시
+  createdAt?: string; 
 }
 
 export default function OwnerAnswerCard({ content, createdAt }: OwnerAnswerCardProps) {

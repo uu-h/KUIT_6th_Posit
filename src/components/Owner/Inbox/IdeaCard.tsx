@@ -1,24 +1,28 @@
-type TabKey = "answer" | "memo" | "done";
+type TabKey = "ANSWER" | "MEMO" | "DONE";
 
 const TITLE_MAP: Record<TabKey, string> = {
-  answer: "고민 답변",
-  memo: "자유 메모",
-  done: "채택 완료",
+  ANSWER: "고민 답변",
+  MEMO: "자유 메모",
+  DONE: "채택 완료",
 };
 
 type IdeaCardProps = {
   type: TabKey;
   contents: string;
   date: string;
+  onClick?: () => void;
 };
 
 export default function IdeaCard({
   type,
   contents,
   date,
+  onClick,
+
 }: IdeaCardProps) {
   return (
     <div
+      onClick={onClick} 
       className="
         h-[109px]
         py-[20px] px-[22px] rounded-[16px] border border-neutrals-04
