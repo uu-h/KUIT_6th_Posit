@@ -6,6 +6,7 @@ import CouponSection from "../../../components/Owner/Posit/CouponSection";
 import Button from "../../../components/Button";
 import SuccessModal from "../../../components/Common/SuccessModal";
 import { createOwnerConcern } from "../../../api/ownerConcern";
+import { useNavigate } from "react-router-dom";
 
 type CouponOption = "americano" | "dessert" | "icetea";
 
@@ -17,6 +18,8 @@ const COUPON_TO_TEMPLATE_ID: Record<CouponOption, number> = {
 };
 
 export default function OwnerPositMyConcernPage() {
+  const navigate = useNavigate();
+
   const [content, setContent] = useState("");
   const [coupon, setCoupon] = useState<CouponOption | "">("");
   const [openSuccess, setOpenSuccess] = useState(false);
@@ -64,7 +67,7 @@ export default function OwnerPositMyConcernPage() {
     setContent("");
     setCoupon("");
 
-    // 또는 등록 완료 후 다른 페이지로 이동이 필요하면 여기서 navigate 처리
+    navigate(-1);
   };
 
   return (
