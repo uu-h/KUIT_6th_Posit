@@ -13,7 +13,7 @@ interface DetailResponse {
   concernContent: string | null;
   memoTitle: string;
   memoContent: string;
-  ownerReply: string;
+  ownerReply: string | null;
   status: string;
   createdAt: string;
 }
@@ -72,7 +72,13 @@ export default function GuestPositSelectedDetail() {
       </div>
 
       {/* 사장님 답변 */}
-      <OwnerAnswerCard content={detail.ownerReply} />
+      {detail.ownerReply && (
+        <OwnerAnswerCard
+          content={detail.ownerReply}
+          createdAt={detail.createdAt}
+      />
+      )}
+
 
       <BottomBar active="posit" onChange={() => {}} />
     </div>

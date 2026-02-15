@@ -24,7 +24,7 @@ export default function CouponCard({
       className={`w-[343px] h-[109px] shadow-[0_0_5px_rgba(0,0,0,0.25)] rounded-[16px] flex justify-between overflow-hidden cursor-pointer`}
     >
       <div className="flex items-center gap-[15px] p-[12px]">
-        <img src={brandImg} className="w-[56px] h-[56px]" alt={brand} />
+        <img src={brandImg} className="w-[56px] h-[56px] rounded-full" alt={brand} />
         <div className="flex flex-col gap-[4px]">
           <span className="typo-13-semibold">{brand}</span>
           <span className="typo-16-semibold">{menu}</span>

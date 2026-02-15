@@ -5,11 +5,13 @@ interface DescriptionProps {
 
 export default function CouponDescription({ expiration, brand }: DescriptionProps) {
 
-  const dateParts = expiration.split(".");
+  const dateOnly = expiration.split("T")[0];
+  const [y, m, d] = dateOnly.split("-");
   
-  const formattedDate = dateParts.length === 3 
-    ? `${dateParts[0]}년 ${dateParts[1]}월 ${dateParts[2]}일`
-    : expiration;
+  const month = m ? String(Number(m)) : m;
+  const day = d ? String(Number(d)) : d;
+  
+  const formattedDate = y && month && day ? `${y}년 ${month}월 ${day}일` : expiration;
 
   return (
     <section
@@ -20,7 +22,7 @@ export default function CouponDescription({ expiration, brand }: DescriptionProp
         [&>div]:justify-between
         [&>div>span:first-child]:text-neutrals-07
         w-full
-        pt-[20px]
+        pt-[35px]
       "
     >
       <div>
