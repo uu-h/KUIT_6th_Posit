@@ -31,3 +31,15 @@ export type CreateAnswerMemoRequest = {
 };
 
 export type CreateMemoRequest = CreateFreeMemoRequest | CreateAnswerMemoRequest;
+
+export type CreateMemoResponse = {
+  isSuccess: boolean;
+  code?: string;
+  message?: string;
+  data: {
+    memoId: number;
+    memoType: MemoType; // "ANSWER" | "FREE"
+    createdAt: string; // ISO string
+    status: string; // 서버 enum 있으면 더 좁혀도 됨
+  };
+};
