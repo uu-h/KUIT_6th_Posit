@@ -8,20 +8,17 @@ import SuccessModal from "../../../components/Common/SuccessModal";
 import { createOwnerConcern } from "../../../api/ownerConcern";
 import { useNavigate } from "react-router-dom";
 
-type CouponOption = "americano" | "dessert" | "icetea";
-
-// templateId 매핑
-const COUPON_TO_TEMPLATE_ID: Record<CouponOption, number> = {
-  americano: 1,
-  dessert: 2,
-  icetea: 3,
-};
+import type { CouponOption } from "../../../components/Owner/Posit/CouponRadioGroup"; // 경로 맞게
 
 export default function OwnerPositMyConcernPage() {
   const navigate = useNavigate();
 
   const [content, setContent] = useState("");
   const [coupon, setCoupon] = useState<CouponOption | "">("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
+    null,
+  );
+
   const [openSuccess, setOpenSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -31,23 +28,22 @@ export default function OwnerPositMyConcernPage() {
     content.trim().length > 0 &&
     content.trim().length <= MAX_LEN &&
     coupon !== "" &&
+    selectedTemplateId !== null &&
     !submitting;
 
   const handleClickConfirm = async () => {
-    if (!isEnabled) return;
+    if (!isEnabled || selectedTemplateId === null) return;
 
     try {
       setSubmitting(true);
 
-      const templateId = COUPON_TO_TEMPLATE_ID[coupon as CouponOption];
       const payload = {
         content: content.trim(),
-        templateId,
+        templateId: selectedTemplateId,
       };
 
       const result = await createOwnerConcern(payload);
 
-      // 응답 형식이 항상 isSuccess를 준다고 했으니 체크
       if (!result.isSuccess) {
         throw new Error("고민 등록에 실패했어요.");
       }
@@ -62,11 +58,9 @@ export default function OwnerPositMyConcernPage() {
 
   const handleModalConfirm = () => {
     setOpenSuccess(false);
-
-    // 원하면 성공 후 입력 초기화
     setContent("");
     setCoupon("");
-
+    setSelectedTemplateId(null);
     navigate(-1);
   };
 
@@ -83,7 +77,11 @@ export default function OwnerPositMyConcernPage() {
 
         <Divider className="mt-[22px]" />
 
-        <CouponSection value={coupon} onChange={setCoupon} />
+        <CouponSection
+          value={coupon}
+          onChange={setCoupon}
+          onTemplateIdChange={setSelectedTemplateId}
+        />
       </main>
 
       <div className="pt-[65px]">
