@@ -26,7 +26,6 @@ import OwnerMyAccount from "../pages/Owner/My/OwnerMyAccount";
 import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
 import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 import OwnerHomePage from "../pages/Owner/Home/OwnerHomePage";
-import OwnerPositAnswerSelectPage from "../pages/Owner/Posit/OwnerPositAnswerSelectPage"
 
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
@@ -43,8 +42,6 @@ import GuestStoreMapPage from "../pages/Guest/Store/GuestStoreMapPage";
 import GuestPositCreatePage from "../pages/Guest/Posit/GuestPositCreatePage";
 import GuestPositConcernListPage from "../pages/Guest/Posit/GuestPositConcernListPage";
 import IdeaAdopt from "../pages/Owner/Posit/IdeaAdopt";
-
-
 
 export default function Router() {
   return (
@@ -130,11 +127,14 @@ export default function Router() {
 
       {/* Owner - Inbox*/}
       <Route path="/owner/inbox" element={<PositInbox />} />
-      <Route path="/owner/inbox/:id" element={<OwnerPositAnswerSelectPage/>}/>
-      <Route path="/owner/inbox/:id/adopted" element={<IdeaAdopt/>}/>
+      <Route path="/owner/inbox/:id" element={<OwnerPositAnswerSelectPage />} />
+      <Route path="/owner/inbox/:id/adopted" element={<IdeaAdopt />} />
 
       {/* Owner - Posit*/}
-      <Route path="/owner/answer-select" element={<OwnerPositAnswerSelectPage />} />
+      <Route
+        path="/owner/answer-select"
+        element={<OwnerPositAnswerSelectPage />}
+      />
 
       {/* Owner - Registration */}
       <Route path="/owner/store/register" element={<StoreRegistration />} />
