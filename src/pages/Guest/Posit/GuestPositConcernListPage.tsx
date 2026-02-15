@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AppBar from "../../../components/Common/AppBar";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
 import { useStoreConcernsInfinite } from "../../../hooks/useStoreConcernsInfinite";
@@ -9,15 +9,19 @@ import type { ConcernDto } from "../../../api/concerns";
 type Concern = {
   id: number | string;
   title: string;
+  content: string;
   createdAt: string;
   commentCount: number;
 };
 
 export default function GuestPositConcernListPage() {
+  const navigate = useNavigate();
+
+  const location = useLocation();
   const { storeId } = useParams();
   const storeIdNum = Number(storeId);
 
-  // ✅ storeId가 이상하면 훅 호출 전에 바로 return (가독성/안전성)
+  // storeId가 이상하면 훅 호출 전에 바로 return (가독성/안전성)
   if (!Number.isFinite(storeIdNum) || storeIdNum <= 0) {
     return (
       <div className="min-h-dvh bg-white">
@@ -44,6 +48,7 @@ export default function GuestPositConcernListPage() {
     return list.map((c) => ({
       id: c.concernId,
       title: c.title,
+      content: c.content,
       createdAt: timeAgo(c.createdAt),
       commentCount: c.commentCount,
     }));
@@ -92,7 +97,24 @@ export default function GuestPositConcernListPage() {
           </div>
         )}
 
-        {!isLoading && !isError && <ConcernList items={items} />}
+        {!isLoading && !isError && (
+          <ConcernList
+            items={items}
+            onItemClick={(c) => {
+              navigate(`/guest/stores/${storeIdNum}/posit/concerns/${c.id}`, {
+                state: {
+                  storeName: (location.state as any)?.storeName,
+                  restore: (location.state as any)?.restore,
+                  concern: {
+                    id: c.id,
+                    title: c.title,
+                    content: c.content,
+                  },
+                },
+              });
+            }}
+          />
+        )}
 
         {/* sentinel */}
         <div ref={sentinelRef} className="h-[1px]" />

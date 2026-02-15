@@ -44,6 +44,8 @@ import GuestPositConcernListPage from "../pages/Guest/Posit/GuestPositConcernLis
 import IdeaAdopt from "../pages/Owner/Posit/IdeaAdopt";
 import OwnerMyConcernDetailPage from "../pages/Owner/Home/OwnerMyConcernDetailPage";
 import OwnerMyConcerAnswerPage from "../pages/Owner/Home/OwnerMyConcernAnswerPage";
+import OwnerCouponAdoptionDetailPage from "../pages/Owner/Coupon/OwnerCouponAdoptionDetailPage";
+import GuestPositOwnerConcernPage from "../pages/Guest/Posit/GuestPositOwnerConcernPage";
 
 export default function Router() {
   return (
@@ -70,6 +72,10 @@ export default function Router() {
       <Route
         path="/guest/stores/:storeId/posit/concerns"
         element={<GuestPositConcernListPage />}
+      />
+      <Route
+        path="/guest/stores/:storeId/posit/concerns/:concernId"
+        element={<GuestPositOwnerConcernPage />}
       />
 
       {/* 가게별 내 포짓 (자유메모)*/}
@@ -133,6 +139,10 @@ export default function Router() {
       <Route
         path="/owner/home/concerns/:concernId/answer/:memoId"
         element={<OwnerMyConcerAnswerPage />}
+      />
+      <Route
+        path="/owner/home/coupon-adoptions/:issuedCouponId"
+        element={<OwnerCouponAdoptionDetailPage />}
       />
 
       {/* Owner - Inbox*/}

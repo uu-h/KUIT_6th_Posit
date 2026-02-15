@@ -62,13 +62,14 @@ export default function OwnerHomePage() {
     [home],
   );
 
-  // ✅ 서버가 준 순서 그대로 + timeAgo만 적용
+  // 서버가 준 순서 그대로 + timeAgo만 적용
   const concerns = useMemo(() => {
     const raw = home?.myConcerns ?? [];
 
     return raw.map((c) => ({
       id: c.concernId,
       title: c.content,
+      content: c.content ?? "",
       createdAt: timeAgo(c.createdAt),
       commentCount: c.commentCount,
     }));
@@ -122,7 +123,9 @@ export default function OwnerHomePage() {
 
               <ConcernList
                 items={concerns}
-                onItemClick={(id) => navigate(`/owner/home/concerns/${id}`)}
+                onItemClick={(item) =>
+                  navigate(`/owner/home/concerns/${item.id}`)
+                }
               />
             </div>
           </>

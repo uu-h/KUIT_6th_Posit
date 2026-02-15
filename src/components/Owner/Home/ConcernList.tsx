@@ -3,13 +3,14 @@ import ChatIcon from "../../../assets/Owner/Home/Chat.svg";
 type Concern = {
   id: number | string;
   title: string;
+  content: string;
   createdAt: string;
   commentCount: number;
 };
 
 type Props = {
   items: Concern[];
-  onItemClick?: (id: Concern["id"]) => void;
+  onItemClick?: (item: Concern) => void;
 };
 
 export default function ConcernList({ items, onItemClick }: Props) {
@@ -19,7 +20,7 @@ export default function ConcernList({ items, onItemClick }: Props) {
         <button
           key={c.id}
           type="button"
-          onClick={() => onItemClick?.(c.id)}
+          onClick={() => onItemClick?.(c)}
           className="
             w-full text-left
             rounded-[16px] border border-neutrals-04
