@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 type Concern = {
   id: number | string;
   title: string;
+  content: string;
   createdAt: string; // "2일 전"
   commentCount: number;
 };
@@ -32,6 +33,7 @@ export default function OwnerMyConcernsPage() {
     return list.map((c) => ({
       id: c.concernId,
       title: c.title ?? c.content ?? "",
+      content: c.content ?? "",
       createdAt: timeAgo(c.createdAt),
       commentCount: c.commentCount ?? 0,
     }));
@@ -83,8 +85,8 @@ export default function OwnerMyConcernsPage() {
         {!isLoading && !isError && (
           <ConcernList
             items={items}
-            onItemClick={(id) => {
-              navigate(`/owner/home/concerns/${id}`);
+            onItemClick={(item) => {
+              navigate(`/owner/home/concerns/${item.id}`);
             }}
           />
         )}

@@ -1,4 +1,5 @@
 export type MemoType = "ANSWER" | "FREE";
+
 export type FreeType =
   | "TIP"
   | "MARKETING"
@@ -11,22 +12,22 @@ export type MemoImage = {
   order: number;
 };
 
-export type CreateMemoRequest = {
-  memoType: MemoType; // 여기선 "FREE"만 씀
+// FREE 메모 (자유 의견)
+export type CreateFreeMemoRequest = {
+  memoType: "FREE";
   freeType: FreeType;
   title: string;
   content: string;
   images: MemoImage[];
-  // concernId?: number; // 답변일 때만
 };
 
-export type CreateMemoResponse = {
-  isSuccess: boolean;
-  data: {
-    memoId: number;
-    memoType: MemoType;
-    createdAt: string; // ISO string
-    status: "REVIEWING" | string;
-  };
-  message: string;
+// ANSWER 메모 (사장님 고민 답변)
+export type CreateAnswerMemoRequest = {
+  memoType: "ANSWER";
+  concernId: number;
+  title: string;
+  content: string;
+  images: MemoImage[];
 };
+
+export type CreateMemoRequest = CreateFreeMemoRequest | CreateAnswerMemoRequest;
