@@ -10,7 +10,7 @@ import { getMemoDetail, getMemoAdoption } from "../../../api/posit";
 import type { MemoType } from "../../../types/posit";
 
 export default function OwnerPositAnswerSelectPage() {
-  //memoId 받기 
+  //memoId 받기
   const { id } = useParams();
   const memoId = Number(id);
 
@@ -18,9 +18,14 @@ export default function OwnerPositAnswerSelectPage() {
   const [memoDetail, setMemoDetail] = useState<any>(null);
   const [isAdopted, setIsAdopted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [openModal, setOpenModal] = useState<
-    "adopt" | "reject" | null
-  >(null);
+  const [openModal, setOpenModal] = useState<"adopt" | "reject" | null>(null);
+
+  // 이미지 처리
+  const S3_BASE = "https://posit-deploy.s3.ap-northeast-2.amazonaws.com/";
+
+  const imageUrl = memoDetail?.images?.[0]
+    ? `${S3_BASE}${memoDetail.images[0]}`
+    : undefined;
 
   useEffect(() => {
     if (!memoId || Number.isNaN(memoId)) return;
@@ -62,8 +67,7 @@ export default function OwnerPositAnswerSelectPage() {
     return <div className="p-4">불러오는 중...</div>;
   }
 
-  const headerTitle =
-    memoType === "FREE" ? "자유 메모" : "나의 고민거리";
+  const headerTitle = memoType === "FREE" ? "자유 메모" : "나의 고민거리";
 
   return (
     <div className="min-h-dvh bg-white flex flex-col">
@@ -75,9 +79,7 @@ export default function OwnerPositAnswerSelectPage() {
       />
       {/* Body */}
       <main className="px-[16px] flex-1">
-        <p className="mt-[12px] typo-16-bold text-black">
-          {headerTitle}
-        </p>
+        <p className="mt-[12px] typo-16-bold text-black">{headerTitle}</p>
 
         <div className="mt-[20px]">
           {memoDetail && (
@@ -87,7 +89,7 @@ export default function OwnerPositAnswerSelectPage() {
               title={memoDetail.title}
               date={memoDetail.createdAt}
               content={memoDetail.content}
-              imageUrl={memoDetail.images?.[0]}
+              imageUrl={imageUrl}
             />
           )}
         </div>
@@ -96,35 +98,23 @@ export default function OwnerPositAnswerSelectPage() {
       {/* 채택 완료면 버튼 숨김 */}
       {!isAdopted && (
         <div className="px-[16px] pt-[20px] pb-[24px] flex gap-[10px]">
-          <Button
-            variant="primary"
-            onClick={() => setOpenModal("adopt")}
-          >
+          <Button variant="primary" onClick={() => setOpenModal("adopt")}>
             채택하기
           </Button>
 
-          <Button
-            variant="outline"
-            onClick={() => setOpenModal("reject")}
-          >
+          <Button variant="outline" onClick={() => setOpenModal("reject")}>
             거절하기
           </Button>
         </div>
       )}
-      
+
       {/* Modals */}
       {openModal === "adopt" && (
-        <AdoptModal
-          memoId={memoId}
-          onClose={() => setOpenModal(null)}
-        />
+        <AdoptModal memoId={memoId} onClose={() => setOpenModal(null)} />
       )}
 
       {openModal === "reject" && (
-        <RejectModal
-          memoId={memoId}
-          onClose={() => setOpenModal(null)}
-        />
+        <RejectModal memoId={memoId} onClose={() => setOpenModal(null)} />
       )}
     </div>
   );
