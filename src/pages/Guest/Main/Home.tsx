@@ -505,11 +505,13 @@ export default function Home() {
   );
 
   /** 바텀시트 높이 기반 오프셋 */
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+
   const getCenterOffsetPx = useCallback(() => {
-    const vh = isDetailMode ? 53 : 38;
-    const sheetPx = (window.innerHeight * vh) / 100;
-    return sheetPx / 2;
-  }, [isDetailMode]);
+    const h = sheetRef.current?.getBoundingClientRect().height;
+    if (!h) return 0;
+    return h / 2;
+  }, [isDetailMode, currentSheetState]);
 
   /** 상세로 이동 (restore 전달) */
   const onGoDetail = useCallback(() => {
@@ -779,8 +781,10 @@ export default function Home() {
 
       {/* Bottom Sheet */}
       <BottomSheet
+        bottomInsetPx={90}
+        ref={sheetRef}
         initialState={sheetOpen ? "half" : "collapsed"}
-        halfHeight={isDetailMode ? "53vh" : "38vh"}
+        halfHeight={isDetailMode ? "53dvh" : "38dvh"}
         onStateChange={(state) => {
           setCurrentSheetState(state);
           if (state === "collapsed") setSheetOpen(false);
@@ -812,13 +816,12 @@ export default function Home() {
           <>
             <PlaceList
               places={placesForList}
-              onSelect={(storeId) => {
-                void onClickStoreFromList(storeId);
-              }}
+              onSelect={(storeId) => void onClickStoreFromList(storeId)}
             />
             <BottomSheetFooter />
           </>
         }
+        footer={null}
       />
     </GuestLayout>
   );

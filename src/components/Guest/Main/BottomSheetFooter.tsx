@@ -6,9 +6,7 @@ export default function BottomSheetFooter() {
         <p>고객센터</p>
         <p>신고센터</p>
       </span>
-      <div className="mt-[6px] typo-12-semibold text-neutrals-07"> 
-        POSiT !
-      </div>
+      <div className="mt-[6px] typo-12-semibold text-neutrals-07">POSiT !</div>
     </footer>
   );
 }
