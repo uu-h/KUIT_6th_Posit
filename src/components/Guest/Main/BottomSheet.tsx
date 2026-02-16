@@ -88,6 +88,7 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
       drag="y"
       dragControls={dragControls}
       dragListener={false}
+      onPointerDown={(e) => dragControls.start(e)}
       dragConstraints={{ top: 0, bottom: 0 }}
       onDragEnd={(_, info) => {
         const offsetY = info.offset.y;
@@ -148,6 +149,7 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
           h-[50px]
           cursor-grab active:cursor-grabbing
           select-none
+          touch-none  
         "
         onPointerDown={(e) => dragControls.start(e)}
       >
