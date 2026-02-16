@@ -86,10 +86,11 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
     <motion.div
       ref={ref}
       drag="y"
+      dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
+      dragElastic={{ top: 0.15, bottom: 0.15, left: 0, right: 0 }}
       dragControls={dragControls}
       dragListener={false}
       onPointerDown={(e) => dragControls.start(e)}
-      dragConstraints={{ top: 0, bottom: 0 }}
       onDragEnd={(_, info) => {
         const offsetY = info.offset.y;
         const velocityY = info.velocity.y;
