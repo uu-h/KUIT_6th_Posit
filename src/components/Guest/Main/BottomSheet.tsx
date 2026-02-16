@@ -153,7 +153,6 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
         "
         onPointerDown={(e) => dragControls.start(e)}
       >
-        d
         <div className="w-[36px] h-[4px] rounded-full bg-neutrals-04 mb-2" />
       </div>
 
