@@ -6,7 +6,7 @@ import ConcernReadonlyCard from "../../../components/Owner/Posit/ConcernReadonly
 import AdoptModal from "../../../components/Owner/Posit/AdoptModal";
 import RejectModal from "../../../components/Owner/Posit/RejectModal";
 
-import { getMemoDetail } from "../../../api/posit";
+import { getMemoDetail, getMemoAdoption } from "../../../api/posit";
 import type { MemoType } from "../../../types/posit";
 
 export default function OwnerPositAnswerSelectPage() {
@@ -15,29 +15,41 @@ export default function OwnerPositAnswerSelectPage() {
   const memoId = Number(id);
 
   const [memoType, setMemoType] = useState<MemoType | null>(null);
+  const [isAdopted, setIsAdopted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState<
     "adopt" | "reject" | null
   >(null);
 
-  /* =========================
-     memo 상세 조회
-  ========================= */
   useEffect(() => {
-    if (!memoId) return;
+    if (!memoId || Number.isNaN(memoId)) return;
 
-    const fetchMemo = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getMemoDetail(memoId);
-        setMemoType(data.memoType);
+        // 먼저 메모 상세 조회
+        const memo = await getMemoDetail(memoId);
+
+        setMemoType(memo.memoType);
+
+        // status가 ADOPTED일 때만 adoption API 호출
+        if (memo.status === "ADOPTED") {
+          try {
+            await getMemoAdoption(memoId);
+            setIsAdopted(true);
+          } catch {
+            setIsAdopted(false);
+          }
+        } else {
+          setIsAdopted(false);
+        }
       } catch (e) {
-        console.error(e);
+        console.error("메모 조회 실패", e);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMemo();
+    fetchData();
   }, [memoId]);
 
   if (!memoId || Number.isNaN(memoId)) {
@@ -49,27 +61,21 @@ export default function OwnerPositAnswerSelectPage() {
   }
 
   const headerTitle =
-    memoType === "FREE"
-      ? "자유 메모"
-      : "나의 고민거리";
+    memoType === "FREE" ? "자유 메모" : "나의 고민거리";
 
   return (
     <div className="min-h-dvh bg-white flex flex-col">
-      {/* Header */}
-      <AppBar title="답변 채택" layout="left" leftType="left" />
+      {/* 채택 여부에 따라 제목 변경 */}
+      <AppBar
+        title={isAdopted ? "답변 채택 완료" : "답변 채택"}
+        layout="left"
+        leftType="left"
+      />
       {/* Body */}
       <main className="px-[16px] flex-1">
         <p className="mt-[12px] typo-16-bold text-black">
           {headerTitle}
         </p>
-
-        <p className="mt-[12px] typo-15-medium text-neutrals-08">
-          매장 조명을 조금 더 밝게 바꿔야 할까요?
-        </p>
-
-        <div className="mt-[20px] flex justify-between items-center">
-          <p className="typo-16-bold text-black">고민 답변</p>
-        </div>
 
         <div className="mt-[20px]">
           <ConcernReadonlyCard
@@ -83,22 +89,25 @@ export default function OwnerPositAnswerSelectPage() {
         </div>
       </main>
 
-      {/* Bottom Buttons */}
-      <div className="px-[16px] pt-[20px] pb-[24px] flex gap-[10px]">
-        <Button
-          variant="primary"
-          onClick={() => setOpenModal("adopt")}
-        >
-          채택하기
-        </Button>
+      {/* 채택 완료면 버튼 숨김 */}
+      {!isAdopted && (
+        <div className="px-[16px] pt-[20px] pb-[24px] flex gap-[10px]">
+          <Button
+            variant="primary"
+            onClick={() => setOpenModal("adopt")}
+          >
+            채택하기
+          </Button>
 
-        <Button
-          variant="outline"
-          onClick={() => setOpenModal("reject")}
-        >
-          거절하기
-        </Button>
-      </div>
+          <Button
+            variant="outline"
+            onClick={() => setOpenModal("reject")}
+          >
+            거절하기
+          </Button>
+        </div>
+      )}
+      
       {/* Modals */}
       {openModal === "adopt" && (
         <AdoptModal
