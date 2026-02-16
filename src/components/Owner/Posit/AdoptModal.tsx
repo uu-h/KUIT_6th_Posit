@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../components/Button";
 import closeIcon from "../../../assets/Owner/Posit/close.svg";
@@ -9,26 +9,44 @@ import squareChecked from "../../../assets/Owner/Posit/checkbox_square_checked.s
 import squareUnchecked from "../../../assets/Owner/Posit/checkbox_square_unchecked.svg";
 
 import { adoptAnswer } from "../../../api/posit";
+import { getOwnerCouponTemplates } from "../../../api/coupon";
 
 type Props = {
   memoId: number;
   onClose: () => void;
 };
 
-// 실제로는 서버에서 받아오는 게 맞지만 일단 예시
-const coupons = [
-  { id: 1, label: "아이스 아메리카노 1잔 무료" },
-  { id: 2, label: "디저트 20% 할인 쿠폰" },
-  { id: 3, label: "아이스티 1잔 무료" },
-];
+type CouponTemplate = {
+  templateId: number;
+  title: string;
+  description: string;
+  validDays: number;
+};
 
 export default function AdoptModal({ memoId, onClose }: Props) {
   const navigate = useNavigate();
 
+  const [coupons, setCoupons] = useState<CouponTemplate[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [sendMessage, setSendMessage] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const data = await getOwnerCouponTemplates();
+        setCoupons(data);
+      } catch (error) {
+        alert("쿠폰 목록을 불러오지 못했어요.");
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchCoupons();
+  }, []);
 
   const handleConfirm = async () => {
     if (selected === null) return;
@@ -37,15 +55,13 @@ export default function AdoptModal({ memoId, onClose }: Props) {
       setLoading(true);
 
       await adoptAnswer(memoId, {
-        couponTemplateId: coupons[selected].id,
+        couponTemplateId: coupons[selected].templateId,
         message: sendMessage ? message.trim() : "",
       });
 
-      // 채택 성공 후 adopted 페이지로 이동
+      // 채택 성공 후 이동
       navigate(`/owner/inbox/${memoId}/adopted`);
-
     } catch (error) {
-      console.error(error);
       alert("채택 처리에 실패했습니다.");
     } finally {
       setLoading(false);
@@ -55,9 +71,12 @@ export default function AdoptModal({ memoId, onClose }: Props) {
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
       <div className="bg-white w-[343px] h-[461px] rounded-[16px] p-[16px] flex flex-col">
+        
         {/* Header */}
         <div className="flex justify-between items-center">
-          <p className="mt-[8px] ml-[6px] typo-sub-title">쿠폰 지급하기</p>
+          <p className="mt-[8px] ml-[6px] typo-sub-title">
+            쿠폰 지급하기
+          </p>
           <img
             src={closeIcon}
             onClick={onClose}
@@ -66,29 +85,43 @@ export default function AdoptModal({ memoId, onClose }: Props) {
           />
         </div>
 
-        {/* Coupon list */}
-        <div className="mt-[26px] pl-[5px] flex flex-col gap-[16px]">
-          {coupons.map((item, idx) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-[20px] cursor-pointer"
-              onClick={() => setSelected(idx)}
-            >
-              <img
-                src={selected === idx ? circleChecked : circleUnchecked}
-                className="w-[20px]"
-                alt="선택"
-              />
-              <p className="typo-15-regular text-neutrals-07">
-                {item.label}
-              </p>
-            </div>
-          ))}
+        {/* 쿠폰 목록 */}
+        <div className="mt-[26px] pl-[5px] flex flex-col gap-[16px] overflow-y-auto">
+          {fetching ? (
+            <p className="typo-14-regular text-neutrals-06">
+              불러오는 중...
+            </p>
+          ) : coupons.length === 0 ? (
+            <p className="typo-14-regular text-neutrals-06">
+              등록된 쿠폰이 없습니다.
+            </p>
+          ) : (
+            coupons.map((item, idx) => (
+              <div
+                key={item.templateId}
+                className="flex items-center gap-[20px] cursor-pointer"
+                onClick={() => setSelected(idx)}
+              >
+                <img
+                  src={
+                    selected === idx
+                      ? circleChecked
+                      : circleUnchecked
+                  }
+                  className="w-[20px]"
+                  alt="선택"
+                />
+                <p className="typo-15-regular text-neutrals-07">
+                  {item.title}
+                </p>
+              </div>
+            ))
+          )}
         </div>
 
-        {/* Send message checkbox */}
+        {/* 메시지 체크박스 */}
         <div
-          className="mt-[35px] ml-[5px] flex items-center gap-[12px] cursor-pointer"
+          className="mt-[20px] ml-[5px] flex items-center gap-[12px] cursor-pointer"
           onClick={() => {
             setSendMessage((prev) => !prev);
             if (sendMessage) setMessage("");
@@ -104,10 +137,10 @@ export default function AdoptModal({ memoId, onClose }: Props) {
           </p>
         </div>
 
-        {/* Message */}
+        {/* 메시지 입력 */}
         <div className="relative mx-auto mt-[18px] w-[293px]">
           <textarea
-            className="w-[293px] h-[126px] border rounded-[9px] p-[12px] pb-[28px] disabled:bg-gray-100"
+            className="w-[293px] h-[100px] border rounded-[9px] p-[12px] pb-[28px] disabled:bg-gray-100"
             maxLength={150}
             disabled={!sendMessage}
             value={message}
@@ -118,11 +151,13 @@ export default function AdoptModal({ memoId, onClose }: Props) {
           </p>
         </div>
 
-        {/* Bottom Button */}
+        {/* 하단 버튼 */}
         <Button
           variant="primary"
-          disabled={selected === null || loading}
-          className="mt-[16px]"
+          disabled={
+            selected === null || loading || coupons.length === 0
+          }
+          className="mt-auto"
           onClick={handleConfirm}
         >
           {loading ? "처리 중..." : "확인"}
