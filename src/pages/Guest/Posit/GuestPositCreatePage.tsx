@@ -190,7 +190,6 @@ export default function GuestPositCreatePage() {
             state: {
               refreshPosit: true,
               memoId: createdMemoId,
-              memoType: "FREE",
               from: "home",
               restore: location.state?.restore,
             },

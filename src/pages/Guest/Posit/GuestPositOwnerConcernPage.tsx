@@ -194,7 +194,6 @@ export default function GuestPositOwnerConcernPage() {
             state: {
               refreshPosit: true,
               memoId: createdMemoId,
-              memoType: "ANSWER",
               from: "home",
               restore: state?.restore, // ✅ 동일 패턴
             },
