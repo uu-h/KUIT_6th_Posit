@@ -31,7 +31,7 @@ import type { StoreDetail } from "../../../types/store";
 import type { Place } from "../../../types/place";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchArrowIcon from "../../../assets/Guest/Main/SearchArrow.svg";
-import StoreDetailBody from "../../../components/Guest/Store/StoreDetailBody";
+import StoreBottom from "../../../components/Guest/Main/StoreBottom";
 
 /** restore state */
 type HomeRestoreState = {
@@ -781,7 +781,6 @@ export default function Home() {
       <BottomSheet
         initialState={sheetOpen ? "half" : "collapsed"}
         halfHeight={isDetailMode ? "53vh" : "38vh"}
-        disableScrollOnHalf={isDetailMode}
         onStateChange={(state) => {
           setCurrentSheetState(state);
           if (state === "collapsed") setSheetOpen(false);
@@ -792,10 +791,8 @@ export default function Home() {
         popularContent={
           isDetailMode && selectedStore ? (
             <div className="bg-white">
-              <StoreDetailBody
+              <StoreBottom
                 store={selectedStore}
-                headerOffset={64}
-                hideSectionNav={currentSheetState === "collapsed"}
                 onClose={() => {
                   setSheetOpen(false);
                   setSelectedStore(null);
