@@ -4,12 +4,13 @@ import AppBar from "../../../components/Common/AppBar";
 import AnswerContentCard from "../../../components/Guest/Posit/AnswerContentCard";
 import BottomBar from "../../../components/BottomBar/BottomBar";
 import { http } from "../../../api/http";
+import ConcernCard from "../../../components/Guest/Posit/ConcernCard";
 
 interface ApiDetail {
   memoId: number;
   storeId: number;
   storeName: string;
-  concernContent?: string;
+  concernContent: string;
   memoTitle: string;
   memoContent: string;
   ownerReply?: string;
@@ -53,19 +54,11 @@ export default function GuestPositWaitingDetail() {
       />
 
       <div className="flex flex-col gap-[11px] mx-[16px]">
-    
         {isAnswer && (
-          <div className="flex flex-col justify-center p-[21px] bg-corals-000 h-[100px] rounded-[8px] border border-primary-01">
-            <p>
-              <span className="typo-16-semibold">
-                {detail.storeName}의 고민거리
-              </span>
-              <br />
-              <span className="typo-14-regular">
-                {detail.concernContent}
-              </span>
-            </p>
-          </div>
+          <ConcernCard
+            label={detail.storeName}
+            content={detail.concernContent}
+          />
         )}
 
         <AnswerContentCard
