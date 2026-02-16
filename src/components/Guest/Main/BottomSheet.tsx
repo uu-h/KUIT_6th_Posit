@@ -90,7 +90,6 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
       dragElastic={{ top: 0.15, bottom: 0.15, left: 0, right: 0 }}
       dragControls={dragControls}
       dragListener={false}
-      onPointerDown={(e) => dragControls.start(e)}
       onDragEnd={(_, info) => {
         const offsetY = info.offset.y;
         const velocityY = info.velocity.y;
@@ -165,10 +164,10 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
       )}
 
       {/* 스크롤 영역 + footer 분리 */}
-      <div className="flex-1 min-h-0 flex flex-col px-4">
+      <div className="flex-1 min-h-0 min-w-0 flex flex-col px-4">
         <div
           className={[
-            "min-h-0 grow",
+            "min-h-0 grow overflow-x-hidden",
             shouldLockScroll
               ? "overflow-hidden"
               : "overflow-y-auto no-scrollbar-y",
