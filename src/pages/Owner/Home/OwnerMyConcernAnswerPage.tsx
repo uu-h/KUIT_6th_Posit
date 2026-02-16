@@ -13,6 +13,13 @@ export default function OwnerMyConcerAnswerPage() {
   const [memoDetail, setMemoDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // 이미지 처리
+  const S3_BASE = "https://posit-deploy.s3.ap-northeast-2.amazonaws.com/";
+
+  const imageUrl = memoDetail?.images?.[0]
+    ? `${S3_BASE}${memoDetail.images[0]}`
+    : undefined;
+
   useEffect(() => {
     if (!id || Number.isNaN(id)) return;
 
@@ -52,7 +59,7 @@ export default function OwnerMyConcerAnswerPage() {
             title={memoDetail.title}
             date={memoDetail.createdAt}
             content={memoDetail.content}
-            imageUrl={memoDetail.images?.[0]}
+            imageUrl={imageUrl}
           />
         )}
       </main>
