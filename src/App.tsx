@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import Router from "./routes/Router";
+import GlobalToastHost from "./components/Common/GlobalToastHost";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
         <BrowserRouter>
           <Router />
         </BrowserRouter>
+        <GlobalToastHost />
       </div>
     </div>
   );

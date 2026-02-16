@@ -58,7 +58,7 @@ export default function MyPage() {
         )}
 
         {/* 메뉴 리스트 */}
-        <nav className="flex flex-col pt-[78px]">
+        <nav className="flex flex-col pt-[36px]">
           {menus.map((m) => (
             <MenuItem key={m.key} label={m.label} onClick={m.onClick} />
           ))}
