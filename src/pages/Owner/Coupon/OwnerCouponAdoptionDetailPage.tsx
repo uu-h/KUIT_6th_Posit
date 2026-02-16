@@ -29,8 +29,6 @@ export default function OwnerCouponAdoptionDetailPage() {
         <div className="mt-[18px]">
           <ConcernReadonlyCard
             name={data.answer.name}
-            gender={data.answer.gender}
-            age={data.answer.age}
             title={data.answer.title}
             content={data.answer.content}
             date={data.answer.date}
