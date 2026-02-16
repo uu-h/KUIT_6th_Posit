@@ -15,6 +15,7 @@ export default function OwnerPositAnswerSelectPage() {
   const memoId = Number(id);
 
   const [memoType, setMemoType] = useState<MemoType | null>(null);
+  const [memoDetail, setMemoDetail] = useState<any>(null);
   const [isAdopted, setIsAdopted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState<
@@ -29,6 +30,7 @@ export default function OwnerPositAnswerSelectPage() {
         // 먼저 메모 상세 조회
         const memo = await getMemoDetail(memoId);
 
+        setMemoDetail(memo);
         setMemoType(memo.memoType);
 
         // status가 ADOPTED일 때만 adoption API 호출
@@ -78,14 +80,16 @@ export default function OwnerPositAnswerSelectPage() {
         </p>
 
         <div className="mt-[20px]">
-          <ConcernReadonlyCard
-            name="김하윤"
-            gender="여성"
-            age={21}
-            title="노란 조명 대신 따뜻한 화이트 톤 조명 어떨까요?"
-            date="2025-10-17 13:00 PM"
-            content={`지금 조명이 노란 빛이라 음식 사진이 실제보다 덜 맛있게 나와요 ㅠ 조명 톤을 따뜻한 화이트로 바꾸면 사진도 더 잘 나오고, 공간도 훨씬 깔끔해 보일 것 같아요!`}
-          />
+          {memoDetail && (
+            <ConcernReadonlyCard
+              name={memoDetail.writer?.name ?? ""}
+              profile={memoDetail.writer?.profile}
+              title={memoDetail.title}
+              date={memoDetail.createdAt}
+              content={memoDetail.content}
+              imageUrl={memoDetail.images?.[0]}
+            />
+          )}
         </div>
       </main>
 
