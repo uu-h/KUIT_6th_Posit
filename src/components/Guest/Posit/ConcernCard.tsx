@@ -5,7 +5,7 @@ type ConcernCardProps = {
 };
 
 export default function ConcernCard({
-  label = "사장님의 고민거리",
+  label = "사장님",
   content,
   className = "",
 }: ConcernCardProps) {
@@ -17,7 +17,7 @@ export default function ConcernCard({
         className,
       ].join(" ")}
     >
-      <div className="typo-16-semibold">{label}</div>
+      <div className="typo-16-semibold">{label}의 고민거리</div>
       <div className="mt-[5px] typo-14-regular whitespace-pre-wrap break-words max-h-[140px] overflow-auto">
         {content}
       </div>
