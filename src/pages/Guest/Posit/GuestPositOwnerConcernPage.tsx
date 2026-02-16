@@ -128,7 +128,7 @@ export default function GuestPositOwnerConcernPage() {
     };
   }, [successOpen]);
 
-  // ✅ state 없이 직접 URL로 들어온 경우
+  // state 없이 직접 URL로 들어온 경우
   if (!concern) {
     return (
       <div className="min-h-dvh bg-white overflow-x-hidden">
@@ -183,31 +183,28 @@ export default function GuestPositOwnerConcernPage() {
           onDisabledClick={() => showToast("모든 항목을 입력해주세요!")}
         />
       </div>
-
       <SuccessModal
         open={successOpen}
         onConfirm={() => {
           setSuccessOpen(false);
-          // ✅ GuestPositCreatePage와 동일하게 가게 상세로 이동 + state 전달
+          // GuestPositCreatePage와 동일하게 가게 상세로 이동 + state 전달
           navigate(`/stores/${sid}`, {
             replace: true,
             state: {
               refreshPosit: true,
               memoId: createdMemoId,
               from: "home",
-              restore: state?.restore, // ✅ 동일 패턴
+              restore: state?.restore,
             },
           });
         }}
       />
-
       {/* 하단 안내 배너 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white">
         <div className="flex justify-center px-4 py-3">
-          <NoticeBanner storeName={storeName} />
+          <NoticeBanner storeName={storeName} variant="concernReply" />
         </div>
       </div>
-
       {/* 토스트 메시지 */}
       <BottomToast open={toast.open} message={toast.message} />
     </div>

@@ -1,5 +1,5 @@
 type ConcernCardProps = {
-  label?: string; // 기본: "사장님의 고민거리"
+  label?: string;
   content: string;
   className?: string;
 };
@@ -12,13 +12,15 @@ export default function ConcernCard({
   return (
     <div
       className={[
-        "h-[100px] rounded-[8px] border border-primary-01 bg-corals-000",
+        "min-h-[50px] rounded-[8px] border border-primary-01 bg-corals-000",
         "p-[18px] mt-[27px]",
         className,
       ].join(" ")}
     >
-      <div className="typo-16-semibold ">{label}</div>
-      <div className="mt-[5px] typo-14-regular">{content}</div>
+      <div className="typo-16-semibold">{label}</div>
+      <div className="mt-[5px] typo-14-regular whitespace-pre-wrap break-words max-h-[140px] overflow-auto">
+        {content}
+      </div>
     </div>
   );
 }
