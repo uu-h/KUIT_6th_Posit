@@ -1,17 +1,18 @@
 import { motion, useDragControls } from "framer-motion";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 
 export type SheetState = "collapsed" | "half" | "expanded"; //수정!!
 
 const getHeightMap = (halfHeight: string): Record<SheetState, string> => ({
   collapsed: "120px",
   half: halfHeight,
-  expanded: "85vh",
+  expanded: "85dvh",
 });
 
 type Props = {
   popularContent?: React.ReactNode;
   expandedContent?: React.ReactNode;
+  footer?: React.ReactNode;
 
   onStateChange?: (state: SheetState) => void;
   /** 외부에서 강제로 상태 열기 */
@@ -32,19 +33,26 @@ type Props = {
   onExpandedIntent?: () => void;
 
   disableScrollOnHalf?: boolean;
+
+  bottomInsetPx?: number; // 하단 바 높이(GuestLayout과 동일 값)
 };
 
-export default function BottomSheet({
-  popularContent,
-  expandedContent,
-  onStateChange,
-  initialState = "collapsed",
-  showSortBar = true,
-  disableExpanded = false,
-  onExpandedIntent,
-  halfHeight = "38vh",
-  disableScrollOnHalf = false,
-}: Props) {
+const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
+  {
+    popularContent,
+    expandedContent,
+    footer,
+    onStateChange,
+    initialState = "collapsed",
+    showSortBar = true,
+    disableExpanded = false,
+    onExpandedIntent,
+    halfHeight = "38dvh",
+    disableScrollOnHalf = false,
+    bottomInsetPx = 90,
+  }: Props,
+  ref,
+) {
   const [sheetState, setSheetState] = useState<SheetState>(initialState);
   const heightMap = getHeightMap(halfHeight);
   const dragControls = useDragControls();
@@ -76,6 +84,7 @@ export default function BottomSheet({
 
   return (
     <motion.div
+      ref={ref}
       drag="y"
       dragControls={dragControls}
       dragListener={false}
@@ -152,17 +161,31 @@ export default function BottomSheet({
         </div>
       )}
 
-      <div
-        className={[
-          "flex-1 px-4 pb-[90px]",
-          shouldLockScroll
-            ? "overflow-hidden"
-            : "overflow-y-auto no-scrollbar-y",
-        ].join(" ")}
-      >
-        {sheetState !== "expanded" && popularContent}
-        {sheetState === "expanded" && expandedContent}
+      {/* 스크롤 영역 + footer 분리 */}
+      <div className="flex-1 min-h-0 flex flex-col px-4">
+        <div
+          className={[
+            "min-h-0 grow",
+            shouldLockScroll
+              ? "overflow-hidden"
+              : "overflow-y-auto no-scrollbar-y",
+          ].join(" ")}
+        >
+          {sheetState !== "expanded" && popularContent}
+          {sheetState === "expanded" && expandedContent}
+
+          <div
+            aria-hidden
+            style={{
+              height: `calc(env(safe-area-inset-bottom) + ${bottomInsetPx}px)`,
+            }}
+          />
+        </div>
+
+        {footer && <div className="shrink-0">{footer}</div>}
       </div>
     </motion.div>
   );
-}
+});
+
+export default BottomSheet;

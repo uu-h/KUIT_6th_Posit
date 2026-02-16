@@ -31,7 +31,9 @@ export default function GuestLayout({
   return (
     <div
       className={`relative min-h-dvh bg-white ${className}`}
-      style={{ paddingBottom: bottomBarHeightPx }}
+      style={{
+        paddingBottom: `calc(env(safe-area-inset-bottom) + ${bottomBarHeightPx}px)`,
+      }}
     >
       {children}
       <BottomBar active={resolvedActive} />
