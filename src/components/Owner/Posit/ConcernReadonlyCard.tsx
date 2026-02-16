@@ -2,25 +2,40 @@ import ProfileIcon from "../../../assets/Owner/Posit/Profile.svg";
 
 type ConcernReadonlyCardProps = {
   name: string;
-  age: number;
-  gender: string;
+  profile?: string;
   title: string;
   content: string;
   date: string;
-
-  //추가: 이미지가 있으면 렌더
   imageUrl?: string;
 };
 
 export default function ConcernReadonlyCard({
   name,
-  age,
-  gender,
   title,
   content,
   date,
   imageUrl,
 }: ConcernReadonlyCardProps) {
+
+  const formatDate = (dateString: string) => {
+    const d = new Date(dateString);
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours === 0 ? 12 : hours;
+
+    const hourStr = String(hours).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hourStr}:${minutes} ${ampm}`;
+  };
+
   return (
     <div
       className="
@@ -35,13 +50,14 @@ export default function ConcernReadonlyCard({
       {/* 상단 프로필 영역 */}
       <div className="flex items-start justify-between">
         <div className="flex gap-[19px]">
-          <img src={ProfileIcon} alt="profile" className="w-[56px] h-[56px]" />
+          <img
+            src={ProfileIcon}
+            alt="profile"
+            className="w-[56px] h-[56px]"
+          />
 
           <div className="flex flex-col justify-center gap-[8px]">
-            <p className="typo-14-semibold text-black">{name}</p>
-            <p className="typo-12-regular text-neutrals-07">
-              {gender} 만 {age}세
-            </p>
+            <p className="typo-14-semibold text-black">@{name}</p>
           </div>
         </div>
       </div>
@@ -49,7 +65,9 @@ export default function ConcernReadonlyCard({
       {/* 제목 / 날짜 */}
       <div className="mt-[24px] flex flex-col gap-[16px]">
         <p className="typo-16-semibold text-black">{title}</p>
-        <p className="typo-12-semibold text-neutrals-07">{date}</p>
+        <p className="typo-12-semibold text-neutrals-07">
+          {formatDate(date)}
+        </p>
       </div>
 
       {/* 구분선 */}
@@ -61,7 +79,7 @@ export default function ConcernReadonlyCard({
           <img
             src={imageUrl}
             alt="answer"
-            className="w-full h-[232px] w-[311px] object-cover rounded-[8px]"
+            className="w-[311px] h-[232px] object-cover rounded-[8px]"
           />
         </div>
       )}

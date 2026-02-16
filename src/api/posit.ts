@@ -75,3 +75,53 @@ export async function rejectAnswer(
 
   return res.data.data;
 }
+
+export interface MemoDetail {
+  memoId: number;
+  memoType: "FREE" | "ANSWER";
+  title: string;
+  content: string;
+  createdAt: string;
+  status: string;
+}
+
+export interface GetMemoDetailResponse {
+  isSuccess: boolean;
+  data: MemoDetail;
+}
+
+export async function getMemoDetail(memoId: number) {
+  const res = await http.get<GetMemoDetailResponse>(
+    `/memos/${memoId}`
+  );
+
+  if (!res.data?.isSuccess) {
+    throw new Error("메모 조회 실패");
+  }
+
+  return res.data.data;
+}
+
+export interface MemoAdoptionDetail {
+  concernTitle: string;
+  writer: string;
+  adoptedAt: string;
+  reward: string;
+}
+
+export interface GetMemoAdoptionResponse {
+  isSuccess: boolean;
+  data: MemoAdoptionDetail;
+}
+
+export async function getMemoAdoption(memoId: number) {
+  const res = await http.get<GetMemoAdoptionResponse>(
+    `/memos/${memoId}/adoption`
+  );
+
+  if (!res.data?.isSuccess) {
+    throw new Error("채택 정보 조회 실패");
+  }
+
+  return res.data.data;
+}
