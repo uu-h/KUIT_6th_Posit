@@ -814,7 +814,7 @@ export default function Home() {
               ? "53dvh"
               : "53dvh"
             : isMobile
-              ? "45dvh"
+              ? "50dvh"
               : "40dvh"
         }
         onStateChange={(state) => {
