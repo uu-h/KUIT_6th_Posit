@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { StoreInfoRow } from "../../../types/store";
+import type { StoreDetail, StoreInfoRow } from "../../../types/store";
 
 import LocationIcon from "../../../assets/Guest/Store/Location.svg";
 import TimeIcon from "../../../assets/Guest/Store/Time.svg";
@@ -17,12 +17,14 @@ const ICON_MAP: Partial<Record<StoreInfoRow["key"], string>> = {
 };
 
 // 토글 지원 키
-const TOGGLE_KEYS: StoreInfoRow["key"][] = ["address", "convince"];
+const TOGGLE_KEYS: StoreInfoRow["key"][] = ["address", "hours", "convince"];
 
 export default function InfoList({
+  store,
   rows,
   onClickMap,
 }: {
+  store: StoreDetail;
   rows: StoreInfoRow[];
   onClickMap?: () => void;
 }) {
@@ -67,7 +69,6 @@ export default function InfoList({
 
                 {/* 텍스트/콘텐츠 */}
                 <div className="flex-1 min-w-0">
-                  {/* phone: 버튼으로 만들어서 모달 띄우기 */}
                   {row.key === "phone" ? (
                     <button
                       type="button"
@@ -85,6 +86,12 @@ export default function InfoList({
                     >
                       {row.value}
                     </a>
+                  ) : row.key === "hours" ? (
+                    <div className="flex items-center gap-[6px] min-w-0">
+                      <span className="typo-14-semibold flex-shrink-0">
+                        {store.statusText}
+                      </span>
+                    </div>
                   ) : (
                     <p className="typo-14-regular text-neutrals-07 truncate">
                       {row.value}
@@ -92,7 +99,7 @@ export default function InfoList({
                   )}
                 </div>
 
-                {/* 토글 버튼(주소/편의만) */}
+                {/* 토글 버튼(주소/시간/편의만) */}
                 {canToggle && (
                   <button
                     type="button"

@@ -3,7 +3,7 @@ import { useRef } from "react";
 type Props = {
   name: string;
   description: string;
-  status: "영업 중" | "영업 종료";
+  status: "영업 중" | "정기휴무" | "영업 종료";
   address: string;
   images: string[];
 };

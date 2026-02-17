@@ -140,6 +140,7 @@ export default function StoreDetailBody({
 
       <div ref={homeRef} className="mt-[33px] scroll-mt-[144px]">
         <InfoList
+          store={store}
           rows={store.infoRows}
           onClickMap={() => {
             navigate(`/stores/${storeIdNum}/map`, {
