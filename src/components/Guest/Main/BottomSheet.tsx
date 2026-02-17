@@ -179,12 +179,14 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
           {sheetState === "expanded" && footer && <div>{footer}</div>}
 
           {/* 3. 최하단 여백 (푸터 아래에 위치) */}
-          <div
-            aria-hidden
-            style={{
-              height: `calc(env(safe-area-inset-bottom) + ${bottomInsetPx}px)`,
-            }}
-          />
+          {sheetState === "expanded" && (
+            <div
+              aria-hidden
+              style={{
+                height: `calc(env(safe-area-inset-bottom) + ${bottomInsetPx}px)`,
+              }}
+            />
+          )}
         </div>
       </div>
     </motion.div>
