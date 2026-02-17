@@ -1,15 +1,7 @@
 import { useRef } from "react";
 import CategoryChip from "./CategoryChip";
 
-export type CategoryTypeCode =
-  | "DESSERT"
-  | "HUGE"
-  | "BRUNCH"
-  | "ROASTERY"
-  | "BOOK_CAFE"
-  | "PET_FRIENDLY"
-  | "STUDY_CAFE"
-  | "TEA_HOUSE";
+export type CategoryTypeCode = "DESSERT" | "BRUNCH" | "STUDY";
 
 type ChipItem = {
   label: string;
@@ -23,7 +15,7 @@ type Props = {
 
 const CHIPS: ChipItem[] = [
   { label: "주변", type: undefined },
-  { label: "스터디 카페", type: "STUDY_CAFE" },
+  { label: "스터디 카페", type: "STUDY" },
   { label: "브런치 카페", type: "BRUNCH" },
   { label: "디저트 카페", type: "DESSERT" },
 ];
