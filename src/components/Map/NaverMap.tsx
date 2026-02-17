@@ -96,7 +96,7 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
     selectedStoreIdRef.current = selectedStoreId;
   }, [selectedStoreId]);
 
-  // ✅ Home에서 bounds/camera 가져가게 노출
+  // Home에서 bounds/camera 가져가게 노출
   useImperativeHandle(ref, () => ({
     getBounds: () => {
       const map = mapRef.current;
@@ -137,7 +137,7 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
       );
       map.setZoom(cam.zoom);
     },
-    // ✅ 검색 결과 클릭에서도 마커 클릭과 동일한 오프셋 이동을 쓰기 위함
+    // 검색 결과 클릭에서도 마커 클릭과 동일한 오프셋 이동을 쓰기 위함
     panToWithOffset: ({ lat, lng, zoom, offsetYPx }) => {
       const map = mapRef.current;
       if (!map || !window.naver) return;
@@ -198,7 +198,7 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
       },
     );
 
-    // ✅ 지도 이동 감지 (드래그/줌/idle 조합)
+    // 지도 이동 감지 (드래그/줌/idle 조합)
     const onMoved = () => onMapMovedRef.current?.();
     movedListenersRef.current = [
       window.naver.maps.Event.addListener(map, "dragend", onMoved),
@@ -280,20 +280,50 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
           const info = infoWindowRef.current;
           if (!info) return;
 
-          // 여기서는 지도 이동 X (Home이 담당)
-          // onMapMoved 호출 X (불필요하게 “현 지도에서 검색” 버튼 뜸)
+          // 1. 이전 인포윈도우 먼저 닫기 (이전 마커에서 이름 바뀌는 현상 제거)
+          info.close();
 
-          info.setContent(`
-    <div style="height:17px;display:inline-flex;align-items:center;justify-content:center;
-      font-size:14px;line-height:16px;font-weight:500;white-space:nowrap;user-select:none;">
-      ${escapeHtml(store.name)}
-    </div>
-  `);
+          // 2. 오프셋 계산 후 pan 먼저 실행
+          const offsetY = getCenterOffsetPxRef.current?.() ?? 0;
+          const projection = map.getProjection();
+          const positionPoint = projection.fromCoordToOffset(position);
 
-          // 인포윈도우를 즉시 열지 말고(원하면), Home에서 openInfoStoreId로 열게 하는 게 더 자연스러움
-          // info.open(map, dotMarker);
+          const newPoint = new window.naver.maps.Point(
+            positionPoint.x,
+            positionPoint.y + offsetY,
+          );
+          const newCoord = projection.fromOffsetToCoord(newPoint);
 
+          map.panTo(newCoord);
+
+          // 부모(Home) 쪽 상태 업데이트
           onMarkerClickRef.current?.(store.storeId);
+
+          // 3. 인포윈도우 내용 준비
+          const html = `
+      <div style="
+        height: 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        line-height: 16px;
+        font-weight: 500;
+        white-space: nowrap;
+        user-select: none;
+      ">
+        ${escapeHtml(store.name)}
+      </div>
+    `;
+
+          info.setContent(html);
+
+          // 4. pan 애니메이션 끝난 뒤에 열기 (핵심)
+          window.naver.maps.Event.once(map, "idle", () => {
+            setTimeout(() => {
+              info.open(map, dotMarker);
+            }, 120); // 조정
+          });
         },
       );
 
@@ -339,7 +369,7 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
     </div>
   `);
 
-    // ✅ 지도 이동(panTo) 없이 그대로 열기 (카메라는 Home에서 이미 복원)
+    // 지도 이동(panTo) 없이 그대로 열기 (카메라는 Home에서 이미 복원)
     info.open(map, targetMarker);
   }, [openInfoStoreId, markers]);
 

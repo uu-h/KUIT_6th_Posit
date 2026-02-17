@@ -149,7 +149,7 @@ export default function Home() {
         lastPanRef.current?.storeId === storeId &&
         now - lastPanRef.current.at < 400
       ) {
-        return; // ✅ 더블클릭/중복 트리거 방지
+        return; // 더블클릭/중복 트리거 방지
       }
       lastPanRef.current = { storeId, at: now };
 
