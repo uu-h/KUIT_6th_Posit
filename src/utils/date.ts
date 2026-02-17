@@ -8,12 +8,17 @@ const DAY_KR: Record<string, string> = {
   SUN: "일요일",
 };
 
-export function dayCodeToKr(code: string | null | undefined): string | null {
+export function dayCodeToKr(
+  code: string | string[] | null | undefined,
+): string | null {
   if (!code) return null;
 
-  // 혹시 "SUN,MON" / "SUN|MON" 같은 형태로 올 수도 있으니 안전 처리
-  const parts = code.split(/[\s,|/]+/).filter(Boolean);
-  const mapped = parts.map((p) => DAY_KR[p] ?? p);
+  const parts = Array.isArray(code) ? code : String(code).split(/[\s,|/]+/);
 
-  return mapped.join(", ");
+  const mapped = parts
+    .map((p) => String(p).trim())
+    .filter(Boolean)
+    .map((p) => DAY_KR[p] ?? p);
+
+  return mapped.length ? mapped.join(", ") : null;
 }
