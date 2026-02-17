@@ -792,10 +792,10 @@ export default function Home() {
           isDetailMode
             ? isMobile
               ? "53dvh"
-              : "80dvh"
+              : "100dvh"
             : isMobile
               ? "40dvh"
-              : "45dvh"
+              : "450dvh"
         }
         onStateChange={(state) => {
           setCurrentSheetState(state);
