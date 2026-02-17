@@ -138,7 +138,7 @@ export default function Home() {
   const lastPanRef = useRef<{ storeId: number; at: number } | null>(null);
 
   const getExpectedCenterOffsetPx = useCallback((detail: boolean) => {
-    const halfRatio = detail ? 0.53 : 0.38; // BottomSheet halfHeight와 동일
+    const halfRatio = detail ? 0.53 : 0.4; // BottomSheet halfHeight와 동일
     return (window.innerHeight * halfRatio) / 2;
   }, []);
 
@@ -162,6 +162,9 @@ export default function Home() {
     },
     [getExpectedCenterOffsetPx],
   );
+
+  /** 모바일 크기 */
+  const isMobile = window.innerWidth < 768;
 
   /** 인기 Top3 */
   const [popularTop3, setPopularTop3] = useState<PopularItem[]>([]);
@@ -785,7 +788,15 @@ export default function Home() {
         bottomInsetPx={90}
         ref={sheetRef}
         initialState={sheetOpen ? "half" : "collapsed"}
-        halfHeight={isDetailMode ? "53dvh" : "40dvh"}
+        halfHeight={
+          isDetailMode
+            ? isMobile
+              ? "53dvh"
+              : "80dvh"
+            : isMobile
+              ? "40dvh"
+              : "45dvh"
+        }
         onStateChange={(state) => {
           setCurrentSheetState(state);
           if (state === "collapsed") setSheetOpen(false);
