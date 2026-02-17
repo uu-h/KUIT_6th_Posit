@@ -811,7 +811,7 @@ export default function Home() {
         halfHeight={
           isDetailMode
             ? isMobile
-              ? "80dvh"
+              ? "68dvh"
               : "53dvh"
             : isMobile
               ? "48dvh"
