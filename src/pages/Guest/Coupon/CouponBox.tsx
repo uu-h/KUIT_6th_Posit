@@ -69,9 +69,6 @@ export default function CouponBox() {
             isUsed: c.status !== "ISSUED",
           }));
 
-          // 탭 상태와 일치할 때만 리스트 업데이트 (setSelectedTab과의 불일치 방지)
-          // 이 로직을 위해 selectedTab은 fetchCoupons 내부가 아닌 useEffect에서 관리하는게 좋지만,
-          // 현재 로직을 유지하면서 버그를 막으려면 아래 조건이 필요합니다.
           setCoupons(newCoupons);
 
           setCounts((prev) => ({
