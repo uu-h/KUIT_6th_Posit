@@ -813,15 +813,12 @@ export default function Home() {
           )
         }
         expandedContent={
-          <>
-            <PlaceList
-              places={placesForList}
-              onSelect={(storeId) => void onClickStoreFromList(storeId)}
-            />
-            <BottomSheetFooter />
-          </>
+          <PlaceList
+            places={placesForList}
+            onSelect={(storeId) => void onClickStoreFromList(storeId)}
+          />
         }
-        footer={null}
+        footer={<BottomSheetFooter />}
       />
     </GuestLayout>
   );
