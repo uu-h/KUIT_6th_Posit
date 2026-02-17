@@ -132,6 +132,37 @@ export default function Home() {
 
   const [myLoc, setMyLoc] = useState<LatLng | null>(null);
 
+  /** =========================
+   *  pan 유틸 (한 번만 이동)
+   *  ========================= */
+  const lastPanRef = useRef<{ storeId: number; at: number } | null>(null);
+
+  const getExpectedCenterOffsetPx = useCallback((detail: boolean) => {
+    const halfRatio = detail ? 0.53 : 0.38; // BottomSheet halfHeight와 동일
+    return (window.innerHeight * halfRatio) / 2;
+  }, []);
+
+  const panToStore = useCallback(
+    (storeId: number, lat: number, lng: number, detail: boolean) => {
+      const now = Date.now();
+      if (
+        lastPanRef.current?.storeId === storeId &&
+        now - lastPanRef.current.at < 400
+      ) {
+        return; // 더블클릭/중복 트리거 방지
+      }
+      lastPanRef.current = { storeId, at: now };
+
+      mapHandleRef.current?.panToWithOffset({
+        lat,
+        lng,
+        zoom: 16,
+        offsetYPx: getExpectedCenterOffsetPx(detail),
+      });
+    },
+    [getExpectedCenterOffsetPx],
+  );
+
   /** 인기 Top3 */
   const [popularTop3, setPopularTop3] = useState<PopularItem[]>([]);
 
@@ -176,12 +207,11 @@ export default function Home() {
     [],
   );
 
-  /** statusCode -> "영업 중/영업 종료" (서버 enum 확정되면 여기만 바꾸면 됨) */
+  /** statusCode -> "영업 중/영업 종료" */
   const statusTextFromStatusCode = useCallback(
     (statusCode?: string | null): Place["status"] => {
       if (!statusCode) return "영업 중";
       if (statusCode === "CLOSE" || statusCode === "CLOSED") return "영업 종료";
-      // UNKNOWN 포함 기본은 영업 중으로 처리
       return "영업 중";
     },
     [],
@@ -290,7 +320,7 @@ export default function Home() {
     [myLoc],
   );
 
-  /** expanded 리스트(거리순) 만들기: markers -> (상세 n개) -> Place[] */
+  /** expanded 리스트(거리순) 만들기 */
   const buildDistanceSortedPlaceList = useCallback(
     async (serverMarkers: StoreMarker[], limit = 20) => {
       const reqId = ++listReqIdRef.current;
@@ -354,7 +384,6 @@ export default function Home() {
       setAllMarkers(serverMarkers);
       setMarkers(serverMarkers);
 
-      // ✅ 같은 bounds 결과로 Top3 + expanded 리스트 둘 다 갱신
       void buildPopularTop3(serverMarkers);
       void buildDistanceSortedPlaceList(serverMarkers, 20);
     },
@@ -377,15 +406,14 @@ export default function Home() {
         setMyLoc(loc);
       }
 
-      // 전세계 bounds - 전역 검색
       const res = await mapApi.getMarkers({
         swLat: -90,
         swLng: -180,
         neLat: 90,
         neLng: 180,
         keyword: q,
-        type: typeCode ?? undefined, // 카테고리도 함께 필터링 원하면 유지
-        limit: 50, // 검색 결과는 넉넉히
+        type: typeCode ?? undefined,
+        limit: 50,
       });
 
       if (!res.data.isSuccess)
@@ -403,7 +431,6 @@ export default function Home() {
 
     const run = async () => {
       try {
-        // 지도 준비될 때까지 잠깐 대기
         for (let i = 0; i < 10; i++) {
           if (cancelled) return;
           const b = mapHandleRef.current?.getBounds();
@@ -444,7 +471,7 @@ export default function Home() {
     }
   }, [fetchMarkersByCurrentBounds, keyword, typeCode]);
 
-  /** 서버 상세 조회 + 선택 상태 세팅 */
+  /** 서버 상세 조회 + 선택 상태 세팅 (pan 금지!) */
   const fetchAndSelectStore = useCallback(async (storeId: number) => {
     const res = await mapApi.getStoreDetail(storeId);
     if (!res.data.isSuccess) throw new Error("detail isSuccess=false");
@@ -453,6 +480,7 @@ export default function Home() {
 
     setSelectedStore(store);
     setSheetOpen(true);
+    setCurrentSheetState("half");
     setOpenInfoStoreId(storeId);
   }, []);
 
@@ -461,57 +489,45 @@ export default function Home() {
     return Number(selectedStore.id.replace("store_", ""));
   }, [selectedStore]);
 
-  /** Top3 클릭 핸들러 */
+  /** Top3 클릭 */
   const onClickPopular = useCallback(
     async (storeId: number) => {
       suppressMapMovedRef.current = true;
 
       const it = popularTop3.find((p) => p.storeId === storeId);
-
-      if (it?.lat && it?.lng) {
-        mapHandleRef.current?.panToWithOffset({
-          lat: it.lat,
-          lng: it.lng,
-          zoom: 16,
-        });
-      }
+      if (it) panToStore(storeId, it.lat, it.lng, false);
 
       await fetchAndSelectStore(storeId);
     },
-    [popularTop3, fetchAndSelectStore],
+    [popularTop3, panToStore, fetchAndSelectStore],
   );
 
-  /** 가게 리스트 클릭 핸들러 */
+  const markersForMap = useMemo(() => {
+    if (!pinnedMarker) return markers;
+
+    const exists = markers.some((m) => m.storeId === pinnedMarker.storeId);
+    return exists ? markers : [...markers, pinnedMarker];
+  }, [markers, pinnedMarker]);
+
+  /** 리스트 클릭 */
   const onClickStoreFromList = useCallback(
     async (storeId: number) => {
       suppressMapMovedRef.current = true;
 
-      // 1) markers에서 좌표 찾기 (현재 bounds 결과 리스트 기준)
-      const m = markers.find((x) => x.storeId === storeId);
+      const m = markersForMap.find((x) => x.storeId === storeId);
+      if (m) panToStore(storeId, m.lat, m.lng, false);
 
-      // 2) 좌표가 있으면 중앙으로 이동
-      if (m) {
-        mapHandleRef.current?.panToWithOffset({
-          lat: m.lat,
-          lng: m.lng,
-          zoom: 16,
-        });
-      }
-
-      // 3) 상세 조회 + half 열기 + 선택 마커/인포윈도우
       await fetchAndSelectStore(storeId);
     },
-    [markers, fetchAndSelectStore],
+    [markersForMap, panToStore, fetchAndSelectStore],
   );
 
-  /** 바텀시트 높이 기반 오프셋 */
+  /** 바텀시트 높이 기반 오프셋 (예상값 기반) */
   const sheetRef = useRef<HTMLDivElement | null>(null);
 
   const getCenterOffsetPx = useCallback(() => {
-    const h = sheetRef.current?.getBoundingClientRect().height;
-    if (!h) return 0;
-    return h / 2;
-  }, [isDetailMode, currentSheetState]);
+    return getExpectedCenterOffsetPx(isDetailMode);
+  }, [isDetailMode, getExpectedCenterOffsetPx]);
 
   /** 상세로 이동 (restore 전달) */
   const onGoDetail = useCallback(() => {
@@ -552,14 +568,12 @@ export default function Home() {
 
     didRestoreRef.current = true;
 
-    // 1) 지도 카메라 복원
     if (restore.mapCamera) {
       setTimeout(() => {
         mapHandleRef.current?.setCamera(restore.mapCamera!);
       }, 0);
     }
 
-    // 2) 마커/시트 UI 복원
     startTransition(() => {
       if (restore.filteredStoreIds && restore.filteredStoreIds.length > 0) {
         setMarkers(
@@ -578,14 +592,12 @@ export default function Home() {
       setOpenInfoStoreId(restore.openInfoStoreId ?? null);
     });
 
-    // 3) 선택 가게 복원은 서버 재조회
     if (typeof restore.selectedStoreId === "number") {
       void fetchAndSelectStore(restore.selectedStoreId);
     } else {
       setSelectedStore(null);
     }
 
-    // 4) state 제거
     setTimeout(() => {
       navigate(location.pathname, { replace: true, state: null });
     }, 0);
@@ -597,8 +609,8 @@ export default function Home() {
     fetchAndSelectStore,
   ]);
 
-  /** SearchContainer에 넣을 데이터(주소 없음) */
-  const searchPlaces: SearchPlace[] = useMemo(() => {
+  /** SearchContainer에 넣을 데이터 */
+  const searchPlaces: (SearchPlace & { distance?: string })[] = useMemo(() => {
     const base = searchMarkers;
 
     return base.map((m) => {
@@ -609,10 +621,10 @@ export default function Home() {
       return {
         id: m.storeId,
         name: m.name,
-        address: "", // 서버가 marker에 주소 안 주니까 일단 유지
+        address: "",
         lat: m.lat,
         lng: m.lng,
-        distance: formatDistance(km), // 거리 표시
+        distance: formatDistance(km),
       };
     });
   }, [searchMarkers, myLoc]);
@@ -638,22 +650,12 @@ export default function Home() {
     [fetchMarkersByCurrentBounds, keyword, typeCode],
   );
 
-  const markersForMap = useMemo(() => {
-    if (!pinnedMarker) return markers;
-
-    const exists = markers.some((m) => m.storeId === pinnedMarker.storeId);
-    return exists ? markers : [...markers, pinnedMarker];
-  }, [markers, pinnedMarker]);
-
   /** 선택/상세/고정마커/검색 here 버튼 초기화 */
   const resetSelectionUI = useCallback(() => {
     setSelectedStore(null);
     setSheetOpen(false);
     setOpenInfoStoreId(null);
-
-    // 검색으로 범위 밖 눌렀을 때 마커 pin 해두는 거 썼다면
-    setPinnedMarker?.(null); // pinnedMarker 쓰고 있을 때만
-
+    setPinnedMarker(null);
     setShowSearchHere(false);
   }, []);
 
@@ -661,9 +663,9 @@ export default function Home() {
   const [searchUiKey, setSearchUiKey] = useState(0);
 
   const resetSearchUI = useCallback(() => {
-    setKeyword(""); // Home의 keyword 상태
-    setSearchMarkers([]); // 전역 검색 결과
-    setSearchUiKey((k) => k + 1); // ✅ SearchContainer 리셋(내부 keyword도 초기화)
+    setKeyword("");
+    setSearchMarkers([]);
+    setSearchUiKey((k) => k + 1);
   }, []);
 
   return (
@@ -675,7 +677,19 @@ export default function Home() {
           markers={markersForMap}
           selectedStoreId={selectedStoreNumericId}
           openInfoStoreId={openInfoStoreId}
-          onMarkerClick={(id) => void fetchAndSelectStore(id)}
+          onMarkerClick={(storeId) => {
+            suppressMapMovedRef.current = true;
+
+            // 시트 열기
+            setSheetOpen(true);
+            setCurrentSheetState("half");
+
+            // 즉시 pan (한 번만)
+            const m = markersForMap.find((x) => x.storeId === storeId);
+            if (m) panToStore(storeId, m.lat, m.lng, false);
+
+            void fetchAndSelectStore(storeId);
+          }}
           onMapClick={() => {
             setSelectedStore(null);
             setSheetOpen(false);
@@ -725,22 +739,17 @@ export default function Home() {
           places={searchPlaces}
           onKeywordChange={(v) => {
             setKeyword(v);
-
-            // 선택/상세는 닫아도 됨(충돌 방지)
             resetSelectionUI();
-
-            // 여기서 resetSearchUI() 하면 전역 검색이 매번 깨짐
 
             if (searchDebounceRef.current)
               window.clearTimeout(searchDebounceRef.current);
             searchDebounceRef.current = window.setTimeout(() => {
-              void fetchSearchMarkersGlobal(v); // ✅ 전역 검색
+              void fetchSearchMarkersGlobal(v);
             }, 250);
           }}
           onSelectPlace={(place) => {
             suppressMapMovedRef.current = true;
 
-            // 범위 밖 가게도 마커 뜨게 “핀” 다시 세팅 (이거 빠지면 전역검색 클릭이 허무해짐)
             if (place.lat && place.lng) {
               setPinnedMarker({
                 storeId: place.id,
@@ -749,11 +758,7 @@ export default function Home() {
                 lng: place.lng,
               });
 
-              mapHandleRef.current?.panToWithOffset({
-                lat: place.lat,
-                lng: place.lng,
-                zoom: 16,
-              });
+              panToStore(place.id, place.lat, place.lng, false);
             }
 
             void fetchAndSelectStore(place.id);
@@ -766,13 +771,9 @@ export default function Home() {
         <CategoryChipBar
           value={typeCode}
           onChange={(next) => {
-            // 1) 선택/상세/핀/버튼 UI 초기화
-            resetSelectionUI(); // selectedStore, sheetOpen, openInfoStoreId, pinnedMarker, showSearchHere 등
+            resetSelectionUI();
+            resetSearchUI();
 
-            // 2) 검색 컨텍스트 초기화 (칩 클릭에서만!)
-            resetSearchUI(); // keyword "", searchMarkers [], SearchContainer reset(key 증가)
-
-            // 3) 타입 적용 + 현재 bounds로 마커 재조회
             setTypeCode(next);
             void refetchWithCurrentFilters({ keyword: "", type: next });
           }}
