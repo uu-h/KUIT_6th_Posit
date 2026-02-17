@@ -60,7 +60,7 @@ export default function OwnerCouponAdoptionDetailPage() {
   const imageUrl = memoDetail.images?.[0];
   const writer = memoDetail.writer?.name ?? adoption.writer ?? "";
   const adoptedAt = adoption.adoptedAt ?? "";
-  const reward = adoption.reward ?? "";
+  //const reward = adoption.reward ?? "";
 
   const mode = adoption.concernTitle ? "CONCERN" : "FREE";
 
