@@ -13,7 +13,7 @@ export default function ConcernCard({
     <div
       className={[
         "min-h-[50px] rounded-[8px] border border-primary-01 bg-corals-000",
-        "p-[18px] mt-[27px]",
+        "p-[18px] mt-[12px]",
         className,
       ].join(" ")}
     >

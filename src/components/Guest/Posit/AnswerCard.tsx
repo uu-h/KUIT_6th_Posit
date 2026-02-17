@@ -21,7 +21,6 @@ export default function AnswerCard({
         className="border border-neutrals-04 
             rounded-[16px] p-[17px] 
             cursor-pointer 
-            h-[103px]
             transition-all duration-200
             hover:bg-corals-000
             hover:border-primary-01

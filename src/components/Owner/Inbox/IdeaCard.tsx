@@ -8,14 +8,14 @@ const TITLE_MAP: Record<TabKey, string> = {
 
 type IdeaCardProps = {
   type: TabKey;
-  contents: string;
   date: string;
+  title: string;
   onClick?: () => void;
 };
 
 export default function IdeaCard({
   type,
-  contents,
+  title,
   date,
   onClick,
 
@@ -24,7 +24,6 @@ export default function IdeaCard({
     <div
       onClick={onClick} 
       className="
-        h-[109px]
         py-[20px] px-[22px] rounded-[16px] border border-neutrals-04
         cursor-pointer transition
         hover:bg-corals-000 hover:border-primary-01
@@ -43,8 +42,8 @@ export default function IdeaCard({
       </div>
 
       {/* 내용 */}
-      <p className="typo-15-medium w-[270px]">
-       "{contents}"
+      <p className="typo-15-medium w-[270px] line-clamp-2">
+       "{title}"
       </p>
     </div>
   );

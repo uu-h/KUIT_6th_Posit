@@ -16,6 +16,7 @@ interface DetailResponse {
   ownerReply: string | null;
   status: string;
   createdAt: string;
+  images: string[];
 }
 
 export default function GuestPositSelectedDetail() {
@@ -68,6 +69,7 @@ export default function GuestPositSelectedDetail() {
           title={detail.memoTitle}
           createdAt={detail.createdAt} 
           content={detail.memoContent}
+          images={detail.images}
         />
       </div>
 

@@ -16,6 +16,7 @@ interface ApiDetail {
   ownerReply?: string;
   status: string;
   createdAt: string;
+  images: string[];
 }
 
 export default function GuestPositWaitingDetail() {
@@ -53,7 +54,7 @@ export default function GuestPositWaitingDetail() {
         leftType="left"
       />
 
-      <div className="flex flex-col gap-[11px] mx-[16px]">
+      <div className="flex flex-col gap-[11px] mx-[12px]">
         {isAnswer && (
           <ConcernCard
             label={detail.storeName}
@@ -65,6 +66,7 @@ export default function GuestPositWaitingDetail() {
           title={detail.memoTitle}
           createdAt={detail.createdAt}
           content={detail.memoContent}
+          images={detail.images}
         />
       </div>
 

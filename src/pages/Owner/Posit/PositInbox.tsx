@@ -4,7 +4,7 @@ import InboxToggle from "../../../components/Owner/Inbox/InboxToggle";
 import IdeaCard from "../../../components/Owner/Inbox/IdeaCard";
 import OwnerBottomBar from "../../../components/BottomBar/OwnerBottomBar";
 import { http } from "../../../api/http";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 type TabKey = "ANSWER" | "FREE" | "ADOPTED";
 
@@ -18,14 +18,29 @@ interface InboxItem {
 
 export default function PositInbox() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [active, setActive] = useState<TabKey>("ANSWER");
+  // 🔥 URL 기반 탭 관리
+  const tabParam = searchParams.get("tab") as TabKey;
+  const active: TabKey =
+    tabParam === "FREE" || tabParam === "ADOPTED"
+      ? tabParam
+      : "ANSWER";
+
   const [loading, setLoading] = useState(true);
 
   const [answerItems, setAnswerItems] = useState<InboxItem[]>([]);
   const [freeItems, setFreeItems] = useState<InboxItem[]>([]);
   const [adoptedItems, setAdoptedItems] = useState<InboxItem[]>([]);
 
+  // 🔥 최초 진입 시 tab 없으면 기본값 세팅
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: "ANSWER" });
+    }
+  }, []);
+
+  // 🔥 전체 데이터 한번에 로드
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -98,9 +113,13 @@ export default function PositInbox() {
     <div className="h-dvh w-full flex flex-col bg-white overflow-hidden">
       <AppBar title="수신함" layout="center" />
 
-      <InboxToggle active={active} counts={counts} onChange={setActive} />
+      <InboxToggle
+        active={active}
+        counts={counts}
+        onChange={(tab) => setSearchParams({ tab })} // 🔥 URL에 저장
+      />
 
-      <div className="flex-1 overflow-y-auto no-scrollbar mb-[100px]">
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-[102px]">
         <div className="flex flex-col gap-[8px] px-[16px] mt-[15px]">
           {loading ? (
             <div className="text-center py-10">로딩중...</div>
@@ -113,7 +132,7 @@ export default function PositInbox() {
               <IdeaCard
                 key={item.id}
                 type={item.type}
-                contents={item.content}
+                title={item.title}
                 date={formatRelativeTime(item.createdAt)}
                 onClick={() => navigate(`/owner/inbox/${item.id}`)}
               />
