@@ -809,7 +809,6 @@ export default function Home() {
             <PopularPlaces
               items={popularTop3}
               onClickItem={(storeId) => void onClickPopular(storeId)}
-              showDistance={false}
             />
           )
         }

@@ -164,7 +164,7 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
       )}
 
       {/* 스크롤 영역 + footer 분리 */}
-      <div className="flex-1 min-h-0 min-w-0 flex flex-col px-4">
+      <div className="flex-1 min-h-0 min-w-0 flex flex-col px-4 ">
         <div
           className={[
             "min-h-0 grow overflow-x-hidden",
@@ -184,7 +184,7 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
           />
         </div>
 
-        {footer && <div className="shrink-0">{footer}</div>}
+        {footer && <div className="shrink-0 ">{footer}</div>}
       </div>
     </motion.div>
   );
