@@ -164,7 +164,25 @@ export default function Home() {
   );
 
   /** 모바일 크기 */
-  const isMobile = window.innerWidth < 768;
+  function useMediaQuery(query: string) {
+    const getMatch = () =>
+      typeof window !== "undefined" ? window.matchMedia(query).matches : false;
+
+    const [matches, setMatches] = useState(getMatch);
+
+    useEffect(() => {
+      const m = window.matchMedia(query);
+      const onChange = () => setMatches(m.matches);
+
+      onChange(); // 혹시 몰라 동기 보정
+      m.addEventListener("change", onChange);
+      return () => m.removeEventListener("change", onChange);
+    }, [query]);
+
+    return matches;
+  }
+
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   /** 인기 Top3 */
   const [popularTop3, setPopularTop3] = useState<PopularItem[]>([]);
@@ -671,6 +689,8 @@ export default function Home() {
     setSearchUiKey((k) => k + 1);
   }, []);
 
+  console.log("innerWidth", window.innerWidth, "isMobile", isMobile);
+
   return (
     <GuestLayout>
       {/* 지도 영역 */}
@@ -792,10 +812,10 @@ export default function Home() {
           isDetailMode
             ? isMobile
               ? "53dvh"
-              : "100dvh"
+              : "53dvh"
             : isMobile
-              ? "40dvh"
-              : "450dvh"
+              ? "45dvh"
+              : "40dvh"
         }
         onStateChange={(state) => {
           setCurrentSheetState(state);
