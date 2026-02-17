@@ -785,7 +785,7 @@ export default function Home() {
         bottomInsetPx={90}
         ref={sheetRef}
         initialState={sheetOpen ? "half" : "collapsed"}
-        halfHeight={isDetailMode ? "53dvh" : "38dvh"}
+        halfHeight={isDetailMode ? "53dvh" : "40dvh"}
         onStateChange={(state) => {
           setCurrentSheetState(state);
           if (state === "collapsed") setSheetOpen(false);
