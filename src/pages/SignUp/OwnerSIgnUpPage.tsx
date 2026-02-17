@@ -165,7 +165,10 @@ export default function OwnerSignUpPage() {
         phone: phone.replace(/[^0-9]/g, ""),
         gender: "MALE", 
         birth: "1900-01-01", 
-        signupToken,
+        //signupToken, 
+        //임시
+        signupToken: signupToken ?? "TEMP_TOKEN",
+
 
         // Owner 전용 필드
         ownerProfile: {
