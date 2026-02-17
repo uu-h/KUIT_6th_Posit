@@ -280,37 +280,19 @@ const NaverMap = forwardRef<NaverMapHandle, NaverMapProps>(function NaverMap(
           const info = infoWindowRef.current;
           if (!info) return;
 
-          const offsetY = getCenterOffsetPxRef.current?.() ?? 0;
-          const projection = map.getProjection();
-          const positionPoint = projection.fromCoordToOffset(position);
-
-          const newPoint = new window.naver.maps.Point(
-            positionPoint.x,
-            positionPoint.y + offsetY,
-          );
-          const newCoord = projection.fromOffsetToCoord(newPoint);
-
-          map.panTo(newCoord);
-          onMapMovedRef.current?.();
+          // 여기서는 지도 이동 X (Home이 담당)
+          // onMapMoved 호출 X (불필요하게 “현 지도에서 검색” 버튼 뜸)
 
           info.setContent(`
-            <div style="
-              height: 17px;
-              display: inline-flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 14px;
-              line-height: 16px;
-              font-weight: 500;
-              white-space: nowrap;
-              user-select: none;
-            ">
-            
-              ${escapeHtml(store.name)}
-            </div>
-          `);
+    <div style="height:17px;display:inline-flex;align-items:center;justify-content:center;
+      font-size:14px;line-height:16px;font-weight:500;white-space:nowrap;user-select:none;">
+      ${escapeHtml(store.name)}
+    </div>
+  `);
 
-          info.open(map, dotMarker);
+          // 인포윈도우를 즉시 열지 말고(원하면), Home에서 openInfoStoreId로 열게 하는 게 더 자연스러움
+          // info.open(map, dotMarker);
+
           onMarkerClickRef.current?.(store.storeId);
         },
       );
