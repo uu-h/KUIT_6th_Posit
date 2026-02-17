@@ -83,7 +83,7 @@ export default function StoreRegisterHours() {
           </p>
 
           {/* 요일 */}
-          <div className="flex gap-5 mb-4">
+          <div className="flex justify-between mb-4">
             {DAYS.map((day) => (
               <button
                 key={day}
