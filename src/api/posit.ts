@@ -83,7 +83,15 @@ export interface MemoDetail {
   content: string;
   createdAt: string;
   status: string;
+
+  writer?: {
+    name: string;
+    profile?: string;
+  };
+
+  images?: string[];
 }
+
 
 export interface GetMemoDetailResponse {
   isSuccess: boolean;

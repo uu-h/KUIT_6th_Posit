@@ -16,6 +16,7 @@ export type OwnerCouponItemDto = {
   couponThumbnailUrl: string;
   quantity: number;
   status: IssuedCouponStatus;
+  memoId: number;
 };
 
 export type OwnerCouponManagementResDto = {
