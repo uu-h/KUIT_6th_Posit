@@ -8,10 +8,8 @@ const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
 export default function StoreRegisterHours() {
   const navigate = useNavigate();
-
   const location = useLocation();
   const saved = location.state;
-
 
   /* ---------- 영업 요일 ---------- */
   const [openDays, setOpenDays] = useState<string[]>([]);
@@ -29,17 +27,6 @@ export default function StoreRegisterHours() {
   const [startMinute, setStartMinute] = useState("");
   const [endHour, setEndHour] = useState("");
   const [endMinute, setEndMinute] = useState("");
-
-  /* ---------- 정기 휴무 ---------- */
-  const [closedDays, setClosedDays] = useState<string[]>([]);
-
-  const toggleClosedDay = (day: string) => {
-    setClosedDays((prev) =>
-      prev.includes(day)
-        ? prev.filter((d) => d !== day)
-        : [...prev, day]
-    );
-  };
 
   /* ---------- 시간 유효성 체크 ---------- */
   const isValidHour = (v: string) => {
@@ -87,7 +74,13 @@ export default function StoreRegisterHours() {
       <div className="flex-1 px-6 space-y-8">
         {/* 영업시간 */}
         <div>
-          <p className="typo-14-medium mb-3">영업시간</p>
+          <p className="typo-14-medium mb-1">영업시간</p>
+
+          <p className="typo-12-regular text-shades-02 mb-4">
+            영업하는 요일을 선택해주세요.
+            <br />
+            선택하지 않은 요일은 자동으로 휴무로 설정됩니다.
+          </p>
 
           {/* 요일 */}
           <div className="flex gap-5 mb-4">
@@ -133,29 +126,6 @@ export default function StoreRegisterHours() {
             />
           </div>
         </div>
-
-        {/* 정기 휴무 */}
-        <div>
-          <p className="typo-14-medium mb-3">정기 휴무</p>
-
-          <div className="flex flex-wrap gap-2">
-            {DAYS.map((day) => (
-              <button
-                key={day}
-                type="button"
-                onClick={() => toggleClosedDay(day)}
-                className={`w-[64px] h-[36px] rounded-[4px] typo-14-regular
-                  ${
-                    closedDays.includes(day)
-                      ? "bg-primary-01 text-corals-000"
-                      : "bg-neutrals-03 text-neutrals-09"
-                  }`}
-              >
-                {day}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Bottom Button */}
@@ -168,7 +138,9 @@ export default function StoreRegisterHours() {
               state: {
                 ...saved,
                 openDays,
-                closedDays,
+                closedDays: DAYS.filter(
+                  (day) => !openDays.includes(day)
+                ),
                 startHour,
                 startMinute,
                 endHour,
@@ -176,7 +148,6 @@ export default function StoreRegisterHours() {
               },
             })
           }
-
         >
           완료
         </Button>
