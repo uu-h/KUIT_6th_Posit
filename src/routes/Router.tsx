@@ -141,7 +141,7 @@ export default function Router() {
         element={<OwnerMyConcerAnswerPage />}
       />
       <Route
-        path="/owner/home/coupon-adoptions/:issuedCouponId"
+        path="/owner/home/coupon-adoptions/:memoId"
         element={<OwnerCouponAdoptionDetailPage />}
       />
 

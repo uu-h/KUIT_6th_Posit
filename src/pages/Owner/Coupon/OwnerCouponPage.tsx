@@ -96,8 +96,8 @@ export default function OwnerCouponPage() {
         <div className="mt-[37px]">
           <CouponIssuedSectionList
             sections={sections}
-            onDetailClick={(issuedCouponId) => {
-              navigate(`/owner/home/coupon-adoptions/${issuedCouponId}`);
+            onDetailClick={(memoId) => {
+              navigate(`/owner/home/coupon-adoptions/${memoId}`);
             }}
           />
         </div>

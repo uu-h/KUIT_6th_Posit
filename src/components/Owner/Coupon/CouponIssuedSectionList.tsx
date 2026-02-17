@@ -3,7 +3,7 @@ import CouponCard from "./CouponCard";
 
 type Props = {
   sections: CouponIssuedSection[];
-  onDetailClick?: (couponId: number) => void;
+  onDetailClick?: (memoId: number) => void; 
 };
 
 export default function CouponIssuedSectionList({
@@ -15,15 +15,18 @@ export default function CouponIssuedSectionList({
       {sections.map((section) => (
         <section key={section.issuedAt}>
           <p className="typo-14-regular">
-            발행일 <span className="typo-14-semibold">{section.issuedAt}</span>
+            발행일{" "}
+            <span className="typo-14-semibold">{section.issuedAt}</span>
           </p>
 
           <div className="mt-[9px] space-y-[12px]">
             {section.items.map((coupon) => (
               <CouponCard
-                key={coupon.id}
+                key={coupon.id} 
                 coupon={coupon}
-                onDetailClick={() => onDetailClick?.(coupon.id)}
+                onDetailClick={() =>
+                  onDetailClick?.(coupon.memoId) 
+                }
               />
             ))}
           </div>

@@ -6,7 +6,8 @@ export type CouponType =
 export type CouponStatus = "USED" | "UNUSED";
 
 export type CouponItem = {
-  id: number;
+  id: number;              
+  memoId: number;         
   receiverName: string;
   couponType: CouponType;
   quantity: number;

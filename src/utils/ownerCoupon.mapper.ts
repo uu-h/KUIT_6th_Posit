@@ -43,7 +43,8 @@ export function mapItemsToSections(
       issuedAt: formatIssuedAt(date),
       items: (grouped.get(date) ?? []).map(
         (item): CouponItem => ({
-          id: item.issuedCouponId,
+          id: item.issuedCouponId,     
+          memoId: item.memoId,         
           receiverName: item.userName,
           couponType: mapCouponTypeByTitle(item.couponTitle),
           quantity: item.quantity,
