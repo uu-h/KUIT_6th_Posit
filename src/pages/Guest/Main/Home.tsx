@@ -809,20 +809,16 @@ export default function Home() {
             <PopularPlaces
               items={popularTop3}
               onClickItem={(storeId) => void onClickPopular(storeId)}
-              showDistance={false}
             />
           )
         }
         expandedContent={
-          <>
-            <PlaceList
-              places={placesForList}
-              onSelect={(storeId) => void onClickStoreFromList(storeId)}
-            />
-            <BottomSheetFooter />
-          </>
+          <PlaceList
+            places={placesForList}
+            onSelect={(storeId) => void onClickStoreFromList(storeId)}
+          />
         }
-        footer={null}
+        footer={<BottomSheetFooter />}
       />
     </GuestLayout>
   );

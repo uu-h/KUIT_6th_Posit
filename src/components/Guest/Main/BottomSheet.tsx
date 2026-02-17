@@ -155,27 +155,30 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
       >
         <div className="w-[36px] h-[4px] rounded-full bg-neutrals-04 mb-2" />
       </div>
-
       {/* 정렬 바: 리스트 모드에서 expanded일 때만 */}
       {sheetState === "expanded" && showSortBar && (
         <div className="flex items-center gap-1 px-4 pb-2 mb-1">
           <span className="typo-12-light text-black">거리순 정렬</span>
         </div>
       )}
-
-      {/* 스크롤 영역 + footer 분리 */}
-      <div className="flex-1 min-h-0 min-w-0 flex flex-col px-4">
+      {/* 스크롤 영역 */}
+      <div className="flex-1 min-h-0 min-w-0 flex flex-col">
         <div
           className={[
-            "min-h-0 grow overflow-x-hidden",
+            "min-h-0 grow overflow-x-hidden px-4",
             shouldLockScroll
               ? "overflow-hidden"
               : "overflow-y-auto no-scrollbar-y",
           ].join(" ")}
         >
-          {sheetState !== "expanded" && popularContent}
-          {sheetState === "expanded" && expandedContent}
+          {/* 1. 인기 장소 또는 상세 정보 */}
+          {sheetState !== "expanded" ? popularContent : expandedContent}
 
+          {/* 2. 수정 포인트: 푸터를 스크롤 박스 안으로 배치 */}
+          {/* -mx-4를 주어 부모의 px-4 패딩을 무시하고 양 끝까지 꽉 채웁니다. */}
+          {sheetState === "expanded" && footer && <div>{footer}</div>}
+
+          {/* 3. 최하단 여백 (푸터 아래에 위치) */}
           <div
             aria-hidden
             style={{
@@ -183,8 +186,6 @@ const BottomSheet = forwardRef<HTMLDivElement, Props>(function BottomSheet(
             }}
           />
         </div>
-
-        {footer && <div className="shrink-0">{footer}</div>}
       </div>
     </motion.div>
   );

@@ -24,7 +24,7 @@ const truncateText = (text: string, maxLength = 9) => {
 export default function PopularPlaces({
   items,
   onClickItem,
-  showDistance,
+  showDistance = true,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +32,7 @@ export default function PopularPlaces({
   const startX = useRef(0);
   const scrollLeft = useRef(0);
 
-  // ✅ 드래그 중 클릭 방지용
+  // 드래그 중 클릭 방지용
   const draggedRef = useRef(false);
 
   const onMouseDown = (e: React.MouseEvent) => {
