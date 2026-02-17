@@ -811,10 +811,10 @@ export default function Home() {
         halfHeight={
           isDetailMode
             ? isMobile
-              ? "53dvh"
+              ? "80dvh"
               : "53dvh"
             : isMobile
-              ? "50dvh"
+              ? "48dvh"
               : "40dvh"
         }
         onStateChange={(state) => {
