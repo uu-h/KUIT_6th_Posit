@@ -2,22 +2,15 @@ import { useState } from "react";
 import AppBar from "../../../components/Common/AppBar";
 import ConcernTextareaCard from "../../../components/Owner/Posit/ConcernTextareaCard";
 import Divider from "../../../components/Owner/Posit/Divider";
-import CouponSection from "../../../components/Owner/Posit/CouponSection";
 import Button from "../../../components/Button";
 import SuccessModal from "../../../components/Common/SuccessModal";
 import { createOwnerConcern } from "../../../api/ownerConcern";
 import { useNavigate } from "react-router-dom";
 
-import type { CouponOption } from "../../../components/Owner/Posit/CouponRadioGroup"; // 경로 맞게
-
 export default function OwnerPositMyConcernPage() {
   const navigate = useNavigate();
 
   const [content, setContent] = useState("");
-  const [coupon, setCoupon] = useState<CouponOption | "">("");
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(
-    null,
-  );
 
   const [openSuccess, setOpenSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -27,19 +20,16 @@ export default function OwnerPositMyConcernPage() {
   const isEnabled =
     content.trim().length > 0 &&
     content.trim().length <= MAX_LEN &&
-    coupon !== "" &&
-    selectedTemplateId !== null &&
     !submitting;
 
   const handleClickConfirm = async () => {
-    if (!isEnabled || selectedTemplateId === null) return;
+    if (!isEnabled) return;
 
     try {
       setSubmitting(true);
 
       const payload = {
         content: content.trim(),
-        templateId: selectedTemplateId,
       };
 
       const result = await createOwnerConcern(payload);
@@ -59,8 +49,6 @@ export default function OwnerPositMyConcernPage() {
   const handleModalConfirm = () => {
     setOpenSuccess(false);
     setContent("");
-    setCoupon("");
-    setSelectedTemplateId(null);
     navigate(-1);
   };
 
@@ -76,15 +64,9 @@ export default function OwnerPositMyConcernPage() {
         />
 
         <Divider className="mt-[22px]" />
-
-        <CouponSection
-          value={coupon}
-          onChange={setCoupon}
-          onTemplateIdChange={setSelectedTemplateId}
-        />
       </main>
 
-      <div className="pt-[65px]">
+      <div className="pt-[65px] mb-[10px]">
         <Button
           disabled={!isEnabled}
           onClick={handleClickConfirm}

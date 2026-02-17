@@ -2,7 +2,7 @@ import { http } from "./http";
 
 export type CreateOwnerConcernRequest = {
   content: string;
-  templateId: number;
+  templateId?: number;
 };
 
 export type CreateOwnerConcernResponse = {
@@ -10,7 +10,7 @@ export type CreateOwnerConcernResponse = {
   data: {
     concernId: number;
     storeId: number;
-    templateId: number;
+    templateId?: number | null;
   };
 };
 
