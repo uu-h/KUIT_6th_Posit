@@ -6,6 +6,7 @@ import Button from "../../../components/Button";
 import SuccessModal from "../../../components/Common/SuccessModal";
 import { createOwnerConcern } from "../../../api/ownerConcern";
 import { useNavigate } from "react-router-dom";
+import InfoLine from "../../../components/Owner/Posit/InfoLine";
 
 export default function OwnerPositMyConcernPage() {
   const navigate = useNavigate();
@@ -64,6 +65,10 @@ export default function OwnerPositMyConcernPage() {
         />
 
         <Divider className="mt-[22px]" />
+        <InfoLine
+          className="mt-[20px]"
+          text="고민거리를 상세하게 작성할수록, 더욱 효과적인 게스트의 답변을 받을 수 있어요!"
+        />
       </main>
 
       <div className="pt-[65px] mb-[10px]">
