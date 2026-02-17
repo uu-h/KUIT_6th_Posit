@@ -214,7 +214,9 @@ export default function GuestSignUpPage() {
               /^(\d{4})(\d{2})(\d{2})$/,
               "$1-$2-$3"
             ),
-             signupToken,
+             //signupToken,
+             //임시
+             signupToken: signupToken ?? "TEMP_TOKEN",
           });
 
           if (res.isSuccess) {
