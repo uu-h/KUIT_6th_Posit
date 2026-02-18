@@ -38,8 +38,13 @@ interface ApiResponse {
   };
 }
 
+// 18시간 보정 적용
 function formatDate(iso: string) {
   const d = new Date(iso);
+
+  // 18시간 수동 보정
+  d.setHours(d.getHours() + 18);
+
   return `${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
@@ -76,6 +81,7 @@ export default function GuestPositWaitingAnswer() {
       cafeName: memo.storeName,
       createdAt: formatDate(memo.createdAt),
       isRead: memo.ownerRead ?? false,
+
     }));
 
     setCounts((prev) => ({
@@ -95,8 +101,7 @@ export default function GuestPositWaitingAnswer() {
 
   useEffect(() => {
     setLoading(true);
-    fetchAnswers(selectedType)
-      .finally(() => setLoading(false));
+    fetchAnswers(selectedType).finally(() => setLoading(false));
   }, [selectedType]);
 
   const handleToggle = (type: AnswerType) => {
@@ -107,7 +112,6 @@ export default function GuestPositWaitingAnswer() {
     <div className="flex flex-col h-screen">
       <AppBar title="대기 중인 답변" layout="left" leftType="left" />
 
-      {/* 토글 */}
       <div className="flex justify-center">
         {(["ANSWER", "FREE"] as AnswerType[]).map((type) => (
           <button
@@ -124,13 +128,16 @@ export default function GuestPositWaitingAnswer() {
         ))}
       </div>
 
-      {/* 리스트 */}
       <div className="flex-1 overflow-y-auto flex flex-col gap-[8px] pt-[20px] pb-[110px] px-[16px]">
         {loading && <div className="text-center">로딩중</div>}
 
         {!loading && answers.length === 0 && (
           <div className="flex justify-center items-center typo-15-medium h-full text-center text-neutrals-09">
-            <span>아직 보낸 답변이 없어요.<br/>POSiT!으로 사장님께 의견을 전달해보세요!</span>
+            <span>
+              아직 보낸 답변이 없어요.
+              <br />
+              POSiT!으로 사장님께 의견을 전달해보세요!
+            </span>
           </div>
         )}
 
@@ -144,7 +151,7 @@ export default function GuestPositWaitingAnswer() {
               createdAt={answer.createdAt}
               isRead={answer.isRead}
               onClick={() =>
-                navigate(`/guest/posit/waiting/${answer.id}`,{
+                navigate(`/guest/posit/waiting/${answer.id}`, {
                   state: answer,
                 })
               }

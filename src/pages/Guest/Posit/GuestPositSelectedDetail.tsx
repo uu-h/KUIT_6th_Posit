@@ -20,7 +20,7 @@ interface DetailResponse {
 }
 
 export default function GuestPositSelectedDetail() {
-  const { id } = useParams(); // memoId
+  const { id } = useParams();
   const [detail, setDetail] = useState<DetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,46 +44,51 @@ export default function GuestPositSelectedDetail() {
   if (loading) return <div className="p-4">로딩 중...</div>;
   if (!detail) return <div className="p-4">데이터 없음</div>;
 
-  const isAnswer = !!detail.concernContent; 
+  const isAnswer = !!detail.concernContent;
+
+  // 18시간 보정
+  const formatCreatedAt = (iso: string) => {
+    const d = new Date(iso);
+    d.setHours(d.getHours() + 18);
+    return d.toISOString();
+  };
 
   return (
     <div className="flex flex-col h-screen">
       <AppBar title="채택 된 답변" layout="left" leftType="left" />
 
-      {/* 스크롤 영역 */}
       <div className="flex-1 overflow-y-auto pb-[120px] no-scrollbar">
-      <div className="flex flex-col gap-[11px] mx-[16px]">
-        {isAnswer && (
-          <div className="flex flex-col justify-center p-[21px] bg-corals-000 h-[100px] rounded-[8px] border border-primary-01">
-            <p>
-              <span className="typo-16-semibold">
-                {detail.storeName}의 고민거리
-              </span>
-              <br />
-              <span className="typo-14-regular">
-                {detail.concernContent}
-              </span>
-            </p>
-          </div>
+        <div className="flex flex-col gap-[11px] mx-[16px]">
+          {isAnswer && (
+            <div className="flex flex-col justify-center p-[21px] bg-corals-000 h-[100px] rounded-[8px] border border-primary-01">
+              <p>
+                <span className="typo-16-semibold">
+                  {detail.storeName}의 고민거리
+                </span>
+                <br />
+                <span className="typo-14-regular">
+                  {detail.concernContent}
+                </span>
+              </p>
+            </div>
+          )}
+
+          <AnswerContentCard
+            title={detail.memoTitle}
+            createdAt={formatCreatedAt(detail.createdAt)} // 보정 적용
+            content={detail.memoContent}
+            images={detail.images}
+          />
+        </div>
+
+        {detail.ownerReply && (
+          <OwnerAnswerCard
+            content={detail.ownerReply}
+            createdAt={formatCreatedAt(detail.createdAt)} // 보정 적용
+          />
         )}
-
-        <AnswerContentCard
-          title={detail.memoTitle}
-          createdAt={detail.createdAt} 
-          content={detail.memoContent}
-          images={detail.images}
-        />
       </div>
 
-      {/* 사장님 답변 */}
-      {detail.ownerReply && (
-        <OwnerAnswerCard
-          content={detail.ownerReply}
-          createdAt={detail.createdAt}
-      />
-      )}
-
-      </div>
       <BottomBar active="posit" onChange={() => {}} />
     </div>
   );
