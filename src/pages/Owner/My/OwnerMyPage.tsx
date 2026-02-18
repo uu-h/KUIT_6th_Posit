@@ -18,9 +18,8 @@ export default function MyPage() {
     localStorage.removeItem("autoLogin");
     localStorage.removeItem("role");
 
-    navigate("/owner/login", { replace: true });
+    navigate("/type", { replace: true });
   };
-
 
   const menus: Menu[] = [
     {
