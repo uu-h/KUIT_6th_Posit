@@ -111,6 +111,9 @@ export default function OwnerCouponPage() {
             />
           </div>
         )}
+        {!hasNextPage && flatItems.length > 0 && (
+          <p className="typo-12-medium text-center py-3">마지막이에요</p>
+        )}
       </main>
     </div>
   );
