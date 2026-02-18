@@ -1,73 +1,85 @@
-# React + TypeScript + Vite
+# POSiT! – post your idea
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+30초 만에 사장님과 게스트를 연결하는 아이디어 메모 & 채택 쿠폰 서비스
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 Overview
 
-## React Compiler
+POSiT은 게스트의 짧은 메모를 통해 사장님의 고민을 해결하고, 채택 시 쿠폰 보상으로 이어지는 선순환 구조의 서비스입니다.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 30초 메모 작성
+- 사장님 채택
+- 자동 쿠폰 발행
+- 재방문 유도
+  
 
-## Expanding the ESLint configuration
+## 🛠 Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Frontend
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Axios
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Deployment
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Vercel
+
+
+## ✨ Features
+
+### 👤 Guest
+
+- 위치 기반 매장 탐색
+- 사장님 고민 확인
+- 자유 메모 작성 (이미지 첨부 가능)
+- 채택 시 쿠폰 자동 지급
+- 쿠폰 사용 및 바코드 확인
+
+### 🧑‍💼 Owner
+
+- 고민 등록
+- 메모 수신함 관리
+- 아이디어 채택 / 거절
+- 쿠폰 자동 발행 설정
+  
+
+## 📁 Project Structure
+
+```bash
+src/
+├─ api/                # API 요청 모듈
+├─ assets/             # 이미지 / 아이콘 / Lottie
+├─ components/         # 공통 UI 컴포넌트
+├─ hooks/              # Custom Hooks
+├─ layout/             # 공통 레이아웃 (하단바 등)
+├─ pages/
+│   ├─ Guest/          # 게스트 화면
+│   │   ├─ Main/       # 메인
+│   │   ├─ My/         # 내 계정
+│   │   ├─ Posit/      # POSiT 작성
+│   │   ├─ Store/      # 가게 상세
+│   │   └─ Coupon/     # 쿠폰
+│   ├─ Owner/          # 사장님 화면
+│   │   ├─ Home/       # 메인
+│   │   ├─ My/         # 내 계정
+│   │   ├─ Posit/      # POSiT 관리
+│   │   ├─ Registration/ # 가게 등록
+│   │   └─ Coupon/     # 쿠폰 관리
+│   ├─ Login/          # 로그인
+│   ├─ Onboarding/     # 온보딩
+│   ├─ SignUp/         # 회원가입
+│   └─ Splash/         # 스플래시
+├─ styles/             # 글로벌 스타일
+├─ routes/             # 라우팅 설정
+├─ types/              # TypeScript 타입 정의
+└─ utils/              # 공통 유틸 함수
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🚀 Live Demo
+
+👉 https://kuit-6th-posit.vercel.app/
