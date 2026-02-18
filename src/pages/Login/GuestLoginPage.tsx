@@ -34,11 +34,6 @@ export default function GuestLoginPage() {
     }
   }, [navigate]);
 
-
-
-
-
-
   const handleLogin = async () => {
     if (!loginId || !password) {
       alert("아이디와 비밀번호를 입력해주세요.");
@@ -93,7 +88,7 @@ export default function GuestLoginPage() {
       <div className="mb-[40px] flex flex-col">
         <button
           className="w-fit flex items-center justify-center cursor-pointer"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/type", { replace: true })}
         >
           <img
             src={LeftArrowIcon}
