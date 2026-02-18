@@ -75,7 +75,7 @@ export default function PopularPlaces({
   return (
     <>
       <h2 className="typo-16-bold mb-4">
-        지도 주변 인기 장소 <span className="text-primary-01">Top 3</span>
+        지도 주변 가까운 장소 <span className="text-primary-01">Top 3</span>
       </h2>
 
       <div

@@ -148,10 +148,20 @@ export function mapStoreDetailDtoToStoreDetail(
     : [];
 
   const openTimeText = dto.openTime ?? "정보 없음";
-  const notOpenKr = dayCodeToKr(dto.notOpen);
-  const hoursValue = notOpenKr
-    ? `${openTimeText}, 정기휴무:${notOpenKr}`
-    : `매일 ${openTimeText}`;
+  const notOpenSet = new Set(dto.notOpen ?? []);
+  const hoursValue = `ㅤ•ㅤ${openTimeText}`;
+
+  const ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+  const weeklyHours =
+    notOpenSet.size === 0
+      ? `매일 : ${openTimeText}`
+      : ORDER.map((day) => {
+          const dayKr = dayCodeToKr(day);
+          return notOpenSet.has(day)
+            ? `${dayKr} : 정기 휴무`
+            : `${dayKr} : ${openTimeText}`;
+        }).join("\n");
 
   const infoRows: StoreInfoRow[] = [
     {
@@ -164,7 +174,7 @@ export function mapStoreDetailDtoToStoreDetail(
       key: "hours",
       label: "영업시간",
       value: hoursValue,
-      extra: hoursValue,
+      extra: weeklyHours,
     },
     ...(dto.phone
       ? ([
