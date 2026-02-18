@@ -104,9 +104,14 @@ export default function StoreModifyPhoto() {
       </div>
 
       <div className="p-6">
-        <Button height="h-[48px]" disabled={photos.filter(Boolean).length === 0} onClick={handleUpdate}>
+        <Button
+          height="h-[48px]"
+          disabled={photos.filter((p): p is string => !!p).length < 3}
+          onClick={handleUpdate}
+        >
           수정 완료
-          </Button>
+        </Button>
+
       </div>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
       {showToast && (<div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50"><div className="bg-white w-[274px] h-[130px] rounded-lg flex items-center justify-center shadow-lg"><p className="typo-15-medium text-center">가게 사진이<br />수정되었습니다.</p></div></div>)}
