@@ -3,7 +3,7 @@ import LeftArrowIcon from "../../assets/Login/left_arrow.svg";
 import ToggleOnIcon from "../../assets/Login/toggle_on.svg";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { login } from "../../api/auth";
 
 import EyeOnIcon from "../../assets/Login/eye_on.svg";
@@ -17,6 +17,22 @@ export default function OwnerLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [autoLogin, setAutoLogin] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const autoLoginFlag = localStorage.getItem("autoLogin");
+    const accessToken = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("role");
+
+    if (
+      autoLoginFlag === "true" &&
+      accessToken &&
+      role === "OWNER"
+    ) {
+      navigate("/owner/home", { replace: true });
+    }
+  }, [navigate]);
+
+
 
   const handleLogin = async () => {
     if (!loginId || !password) {
@@ -38,9 +54,12 @@ export default function OwnerLoginPage() {
       // 토큰 저장
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("role", role);
 
       if (autoLogin) {
         localStorage.setItem("autoLogin", "true");
+      } else {
+        localStorage.removeItem("autoLogin");
       }
 
       // 사장님 로그인 화면에서는 OWNER만 허용
