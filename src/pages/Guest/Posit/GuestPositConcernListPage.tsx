@@ -3,7 +3,6 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AppBar from "../../../components/Common/AppBar";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
 import { useStoreConcernsInfinite } from "../../../hooks/useStoreConcernsInfinite";
-import { timeAgo } from "../../../utils/timeAgo";
 import type { ConcernDto } from "../../../api/concerns";
 
 type Concern = {
@@ -16,18 +15,18 @@ type Concern = {
 
 export default function GuestPositConcernListPage() {
   const navigate = useNavigate();
-
   const location = useLocation();
   const { storeId } = useParams();
   const storeIdNum = Number(storeId);
 
-  // storeId가 이상하면 훅 호출 전에 바로 return (가독성/안전성)
   if (!Number.isFinite(storeIdNum) || storeIdNum <= 0) {
     return (
       <div className="min-h-dvh bg-white">
         <AppBar layout="left" leftType="left" />
         <main className="px-[16px] py-6">
-          <p className="typo-14-regular">잘못된 접근입니다. (storeId 없음)</p>
+          <p className="typo-14-regular">
+            잘못된 접근입니다. (storeId 없음)
+          </p>
         </main>
       </div>
     );
@@ -43,13 +42,35 @@ export default function GuestPositConcernListPage() {
     refetch,
   } = useStoreConcernsInfinite(storeIdNum, { size: 10 });
 
+  // 18시간 보정 + 상대시간 계산
+  const formatRelativeTime = (iso: string) => {
+    const d = new Date(iso);
+
+    // 18시간 수동 보정
+    d.setHours(d.getHours() + 18);
+
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffMin < 1) return "방금 전";
+    if (diffMin < 60) return `${diffMin}분 전`;
+    if (diffHour < 24) return `${diffHour}시간 전`;
+    if (diffDay < 10) return `${diffDay}일 전`;
+
+    return d.toLocaleDateString("ko-KR");
+  };
+
   const items: Concern[] = useMemo(() => {
     const list: ConcernDto[] = (data as any)?.flat ?? [];
+
     return list.map((c) => ({
       id: c.concernId,
       title: c.title,
       content: c.content,
-      createdAt: timeAgo(c.createdAt),
+      createdAt: formatRelativeTime(c.createdAt),
       commentCount: c.commentCount,
     }));
   }, [data]);
@@ -86,7 +107,9 @@ export default function GuestPositConcernListPage() {
 
         {isError && (
           <div className="py-4">
-            <p className="typo-14-regular">목록을 불러오지 못했어요.</p>
+            <p className="typo-14-regular">
+              목록을 불러오지 못했어요.
+            </p>
             <button
               type="button"
               className="typo-14-semibold"
@@ -101,30 +124,36 @@ export default function GuestPositConcernListPage() {
           <ConcernList
             items={items}
             onItemClick={(c) => {
-              navigate(`/guest/stores/${storeIdNum}/posit/concerns/${c.id}`, {
-                state: {
-                  storeName: (location.state as any)?.storeName,
-                  restore: (location.state as any)?.restore,
-                  concern: {
-                    id: c.id,
-                    title: c.title,
-                    content: c.content,
+              navigate(
+                `/guest/stores/${storeIdNum}/posit/concerns/${c.id}`,
+                {
+                  state: {
+                    storeName: (location.state as any)?.storeName,
+                    restore: (location.state as any)?.restore,
+                    concern: {
+                      id: c.id,
+                      title: c.title,
+                      content: c.content,
+                    },
                   },
                 },
-              });
+              );
             }}
           />
         )}
 
-        {/* sentinel */}
         <div ref={sentinelRef} className="h-[1px]" />
 
         {isFetchingNextPage && (
-          <p className="typo-12-medium text-center py-3">더 불러오는 중...</p>
+          <p className="typo-12-medium text-center py-3">
+            더 불러오는 중...
+          </p>
         )}
 
         {!hasNextPage && !isLoading && items.length > 0 && (
-          <p className="typo-12-medium text-center py-3">마지막이에요</p>
+          <p className="typo-12-medium text-center py-3">
+            마지막이에요
+          </p>
         )}
 
         {!isLoading && !isError && items.length === 0 && (
