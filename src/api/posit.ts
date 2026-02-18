@@ -14,7 +14,7 @@ export async function createStoreMemo(
   );
 
   if (!res.data?.isSuccess) {
-    throw new Error(res.data?.message ?? "메모 등록 실패");
+    throw { response: { data: res.data } };
   }
   return res.data.data; // { memoId, memoType, createdAt, status }
 }
@@ -28,49 +28,32 @@ export interface AdoptAnswerRequest {
   message: string;
 }
 
-export async function adoptAnswer(
-  memoId: number,
-  body: AdoptAnswerRequest,
-) {
-  const res = await http.post(
-    `/memos/${memoId}/adopt`,
-    body,
-  );
+export async function adoptAnswer(memoId: number, body: AdoptAnswerRequest) {
+  const res = await http.post(`/memos/${memoId}/adopt`, body);
 
   if (!res.data?.isSuccess) {
-    throw new Error(res.data?.message ?? "답변 채택 실패");
+    throw { response: { data: res.data } };
   }
 
   return res.data.data;
 }
 
-
 /* =====================
    답변 거절
 ===================== */
 
-export type RejectCode =
-  | "BUDGET"
-  | "REALISTIC"
-  | "ALREADY"
-  | "ECT";
+export type RejectCode = "BUDGET" | "REALISTIC" | "ALREADY" | "ECT";
 
 export interface RejectAnswerRequest {
   rejectCode: RejectCode;
   message: string;
 }
 
-export async function rejectAnswer(
-  memoId: number,
-  body: RejectAnswerRequest,
-) {
-  const res = await http.post(
-    `/memos/${memoId}/reject`,
-    body,
-  );
+export async function rejectAnswer(memoId: number, body: RejectAnswerRequest) {
+  const res = await http.post(`/memos/${memoId}/reject`, body);
 
   if (!res.data?.isSuccess) {
-    throw new Error(res.data?.message ?? "답변 거절 실패");
+    throw { response: { data: res.data } };
   }
 
   return res.data.data;
@@ -92,16 +75,13 @@ export interface MemoDetail {
   images?: string[];
 }
 
-
 export interface GetMemoDetailResponse {
   isSuccess: boolean;
   data: MemoDetail;
 }
 
 export async function getMemoDetail(memoId: number) {
-  const res = await http.get<GetMemoDetailResponse>(
-    `/memos/${memoId}`
-  );
+  const res = await http.get<GetMemoDetailResponse>(`/memos/${memoId}`);
 
   if (!res.data?.isSuccess) {
     throw new Error("메모 조회 실패");
@@ -124,7 +104,7 @@ export interface GetMemoAdoptionResponse {
 
 export async function getMemoAdoption(memoId: number) {
   const res = await http.get<GetMemoAdoptionResponse>(
-    `/memos/${memoId}/adoption`
+    `/memos/${memoId}/adoption`,
   );
 
   if (!res.data?.isSuccess) {
