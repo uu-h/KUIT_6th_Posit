@@ -22,6 +22,7 @@ export default function IdeaAdopt() {
 
   const [adoptionData, setAdoptionData] = useState<AdoptionData | null>(null);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const fetchAdoption = async () => {
@@ -64,7 +65,7 @@ export default function IdeaAdopt() {
   );
 
   return(
-    <div className="flex flex-col items-center px-[16px] relative">
+    <div className="h-dvh w-full flex flex-col items-center px-[16px] relative ">
         <img className="mt-[44px]" src={CheckIconL} alt="체크 표시 L" />
         <header className="flex flex-col items-center gap-[16px] mt-[22px]">
           <h1 className="typo-title">아이디어를 채택했습니다</h1>
@@ -72,8 +73,8 @@ export default function IdeaAdopt() {
         </header>
 
         <section className="flex flex-col gap-[10px] items-center mt-[58px]">
-          <img className="w-[279px]" src={CheckIconS} alt="체크 표시 S" />
-          <div className="flex w-[309px] justify-between items-center">
+          <img className="flex items-center w-[310px] pl-[12px]" src={CheckIconS} alt="체크 표시 S" />
+          <div className="flex justify-between items-center gap-[89px]">
             <span className={TextcommonStyle}>답변 검토중</span>
             <span className="typo-13-semibold text-primary-01">채택 완료</span>
             <span className={TextcommonStyle}>쿠폰 지급</span>
@@ -94,12 +95,14 @@ export default function IdeaAdopt() {
           홈으로
         </button>
 
-        <Button 
-          className=""
-          onClick={() => navigate("/owner/inbox")}
-        >
-          다른 아이디어 더보기
-        </Button>
+        <div className="absolute bottom-0 my-4 w-[343px]">
+          <Button 
+            className=""
+            onClick={() => navigate("/owner/inbox")}
+          >
+            다른 아이디어 더보기
+          </Button>
+        </div>
     </div>
   );
 }
