@@ -4,6 +4,7 @@ import AppBar from "../../components/Common/AppBar";
 import EyeOffIcon from "../../assets/Common/EyeClose.svg";
 import EyeIcon from "../../assets/Common/EyeOpen.svg";
 import { http } from "../../api/http";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MeResponse {
   loginId: string;
@@ -17,6 +18,8 @@ export default function MyAccountContent() {
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const queryClient = useQueryClient();
 
   // 폼 상태
   const [form, setForm] = useState({
@@ -97,6 +100,8 @@ export default function MyAccountContent() {
       const res = await http.patch("/users/me", payload);
 
       if (res.data.isSuccess) {
+        await queryClient.invalidateQueries({ queryKey: ["me"] });
+
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
