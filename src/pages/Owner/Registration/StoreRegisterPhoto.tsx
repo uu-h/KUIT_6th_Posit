@@ -7,6 +7,8 @@ import AppBar from "../../../components/Common/AppBar";
 import Button from "../../../components/Button";
 
 import PhotoPlusIcon from "../../../assets/Owner/Registration/PhotoPlus.svg";
+import PhotoDeleteIcon from "../../../assets/Owner/Registration/PhotoDelete.svg";
+
 
 export default function StoreRegisterPhoto() {
   const navigate = useNavigate();
@@ -106,13 +108,16 @@ export default function StoreRegisterPhoto() {
         {/* Photo Grid */}
         <div className="grid grid-cols-3 gap-3">
           {photos.map((photo, index) => (
+          <div
+            key={index}
+            className="relative w-[111px] h-[111px] aspect-square rounded-lg border border-neutrals-04 overflow-hidden"
+          >
             <div
-              key={index}
               onClick={() => {
                 setCurrentIndex(index);
                 fileInputRef.current?.click();
               }}
-              className="w-[111px] h-[111px] aspect-square rounded-lg border border-neutrals-04 flex items-center justify-center cursor-pointer overflow-hidden"
+              className="w-full h-full flex items-center justify-center cursor-pointer"
             >
               {photo ? (
                 <img
@@ -128,6 +133,25 @@ export default function StoreRegisterPhoto() {
                 />
               )}
             </div>
+
+            {/* 삭제 버튼 */}
+            {photo && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPhotos((prev) => {
+                    const next = [...prev];
+                    next[index] = null;
+                    return next;
+                  });
+                }}
+                className="absolute top-1 right-1 w-6 h-6"
+              >
+                <img src={PhotoDeleteIcon} className="w-full h-full" />
+              </button>
+            )}
+          </div>
+
           ))}
         </div>
       </div>
