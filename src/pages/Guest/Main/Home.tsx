@@ -228,11 +228,14 @@ export default function Home() {
     [],
   );
 
-  /** statusCode -> "영업 중/영업 종료" */
+  /** statusCode -> "영업 중 /정기휴무 /영업 종료" */
   const statusTextFromStatusCode = useCallback(
     (statusCode?: string | null): Place["status"] => {
       if (!statusCode) return "영업 중";
+
+      if (statusCode === "HOLIDAY") return "정기휴무";
       if (statusCode === "CLOSE" || statusCode === "CLOSED") return "영업 종료";
+
       return "영업 중";
     },
     [],
@@ -811,7 +814,7 @@ export default function Home() {
         halfHeight={
           isDetailMode
             ? isMobile
-              ? "68dvh"
+              ? "64dvh"
               : "53dvh"
             : isMobile
               ? "48dvh"

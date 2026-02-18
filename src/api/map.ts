@@ -150,8 +150,8 @@ export function mapStoreDetailDtoToStoreDetail(
   const openTimeText = dto.openTime ?? "정보 없음";
   const notOpenKr = dayCodeToKr(dto.notOpen);
   const hoursValue = notOpenKr
-    ? `${openTimeText}, ${notOpenKr} 휴무`
-    : openTimeText;
+    ? `${openTimeText}, 정기휴무:${notOpenKr}`
+    : `매일 ${openTimeText}`;
 
   const infoRows: StoreInfoRow[] = [
     {
@@ -164,7 +164,7 @@ export function mapStoreDetailDtoToStoreDetail(
       key: "hours",
       label: "영업시간",
       value: hoursValue,
-      extra: dto.openTime ?? undefined,
+      extra: hoursValue,
     },
     ...(dto.phone
       ? ([
