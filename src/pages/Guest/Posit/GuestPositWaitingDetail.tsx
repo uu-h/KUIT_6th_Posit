@@ -54,6 +54,8 @@ export default function GuestPositWaitingDetail() {
         leftType="left"
       />
 
+      {/* 스크롤 영역 */}
+      <div className="flex-1 overflow-y-auto pb-[110px] no-scrollbar">
       <div className="flex flex-col gap-[11px] mx-[12px]">
         {isAnswer && (
           <ConcernCard
@@ -69,7 +71,7 @@ export default function GuestPositWaitingDetail() {
           images={detail.images}
         />
       </div>
-
+      </div>
       <BottomBar active="posit" onChange={() => {}} />
     </div>
   );

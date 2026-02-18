@@ -18,24 +18,24 @@ export default function OwnerMyStore(){
             key: "menu",
             label : "기본 가게 정보 및 대표 메뉴",
             // TODO 라우팅 연결
-            onClick: () => navigate("/owner/store/register"),
+            onClick: () => navigate("/owner/store/modify"),
         },
         {
             key: "photo",
             label : "가게 사진 및 영상",
             // TODO 라우팅 연결
-            onClick: () => navigate("/owner/store/register/photo"),
+            onClick: () => navigate("/owner/store/modify/photo"),
         },
         {
             key: "holidays",
             label : "운영시간 및 휴무일",
-            onClick : () => navigate("/owner/store/register/hours"),
+            onClick : () => navigate("/owner/store/modify/hours"),
         },
         {
             key: "service",
             label : "편의시설 및 서비스",
             // TODO 라우팅 연결
-            onClick: () => navigate("/owner/store/register/amenities"),
+            onClick: () => navigate("/owner/store/modify/amenities"),
         },
     ];
 

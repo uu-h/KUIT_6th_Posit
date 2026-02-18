@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AnswerCard from "../../../components/Guest/Posit/AnswerCard";
 import AppBar from "../../../components/Common/AppBar";
 import BottomBar from "../../../components/BottomBar/BottomBar";
 import { http } from "../../../api/http";
 
-// ======================
-// UI에서 쓸 타입
-// ======================
 type AnswerType = "ANSWER" | "FREE";
 
 interface Answer {
@@ -20,9 +17,6 @@ interface Answer {
   isRead?: boolean;
 }
 
-// ======================
-// 서버 응답 타입
-// ======================
 type ApiCategory = "고민 답변" | "자유 메모";
 type ApiStatus = "REVIEWING" | "ADOPTED" | "REJECTED";
 
@@ -45,94 +39,78 @@ interface ApiResponse {
   };
 }
 
-// ======================
-// 날짜 포맷
-// ======================
 function formatDate(iso: string) {
   const d = new Date(iso);
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-  return `${month}월 ${day}일`;
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
-// ======================
-// 컴포넌트
-// ======================
 export default function GuestPositSelectedAnswer() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [selectedType, setSelectedType] = useState<AnswerType>("ANSWER");
+  const typeParam = searchParams.get("type") as AnswerType;
+  const selectedType: AnswerType =
+    typeParam === "FREE" ? "FREE" : "ANSWER";
+
   const [answers, setAnswers] = useState<Answer[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-
   const [counts, setCounts] = useState<{ ANSWER: number; FREE: number }>({
     ANSWER: 0,
     FREE: 0,
   });
+  const [loading, setLoading] = useState(false);
 
-  // ======================
-  // 공통 fetch 함수
-  // onlyCount = true면: 카운트만 갱신, 리스트는 안 건드림
-  // ======================
   const fetchAnswers = async (type: AnswerType, onlyCount = false) => {
     try {
       const res = await http.get<ApiResponse>("/memos/me", {
         params: {
-          type,        
-          status: "ADOPTED", 
+          type,
+          status: "ADOPTED",
           size: 20,
         },
       });
 
-      if (res.data.isSuccess && res.data.data?.memos) {
-        const mapped: Answer[] = res.data.data.memos.map((memo) => ({
-          id: memo.memoId,
-          type: memo.category === "자유 메모" ? "FREE" : "ANSWER",
-          title: memo.content,
-          content: memo.content,
-          cafeName: memo.storeName,
-          createdAt: formatDate(memo.createdAt),
-          isRead: true,
-        }));
+      if (!res.data.isSuccess) return;
 
-        setCounts((prev) => ({
-          ...prev,
-          [type]: mapped.length,
-        }));
+      const mapped: Answer[] = res.data.data.memos.map((memo) => ({
+        id: memo.memoId,
+        type: memo.category === "자유 메모" ? "FREE" : "ANSWER",
+        title: memo.content,
+        content: memo.content,
+        cafeName: memo.storeName,
+        createdAt: formatDate(memo.createdAt),
+        isRead: true,
+      }));
 
-        if (!onlyCount) {
-          setAnswers(mapped);
-        }
-      } else {
-        setCounts((prev) => ({ ...prev, [type]: 0 }));
-        if (!onlyCount) setAnswers([]);
+      setCounts((prev) => ({
+        ...prev,
+        [type]: mapped.length,
+      }));
+
+      if (!onlyCount) {
+        setAnswers(mapped);
       }
     } catch (err) {
-      console.error("API LOAD FAIL", err);
+      console.error(err);
       setCounts((prev) => ({ ...prev, [type]: 0 }));
       if (!onlyCount) setAnswers([]);
     }
   };
 
-  // ======================
-  // 최초 마운트: 두 타입 다 미리 불러서 카운트 채우기
-  // ======================
+  // 처음에 카운트 전부 불러오기
   useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      fetchAnswers("ANSWER"),        
-      fetchAnswers("FREE", true),   
-    ]).finally(() => setLoading(false));
+    fetchAnswers("ANSWER", true);
+    fetchAnswers("FREE", true);
   }, []);
 
-  // ======================
-  // 토글 클릭
-  // ======================
-  const handleToggle = async (type: AnswerType) => {
-    setSelectedType(type);
+  // 타입 바뀔 때마다 리스트 로딩
+  useEffect(() => {
     setLoading(true);
-    await fetchAnswers(type); 
-    setLoading(false);
+    fetchAnswers(selectedType)
+      .finally(() => setLoading(false));
+  }, [selectedType]);
+
+  const handleToggle = (type: AnswerType) => {
+    setSearchParams({ type });
   };
 
   return (
@@ -157,8 +135,8 @@ export default function GuestPositSelectedAnswer() {
       </div>
 
       {/* 리스트 */}
-      <div className="flex-1 overflow-y-auto flex flex-col no-scrollbar gap-[8px] pt-[20px] pb-[110px] px-[16px]">
-        {loading && <div className="text-center"></div>}
+      <div className="flex-1 overflow-y-auto flex flex-col gap-[8px] pt-[20px] pb-[110px] px-[16px]">
+        {loading && <div className="text-center">로딩중</div>}
 
         {!loading && answers.length === 0 && (
           <div className="flex justify-center items-center h-full text-neutrals-07">

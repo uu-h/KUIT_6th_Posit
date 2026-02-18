@@ -81,8 +81,6 @@ export default function StoreRegistration() {
     });
   };
 
-
-
 /* ---------- 전화번호 포맷 ---------- */
 const formatPhoneNumber = (value: string) => {
   const rawNumbers = value.replace(/\D/g, "");
