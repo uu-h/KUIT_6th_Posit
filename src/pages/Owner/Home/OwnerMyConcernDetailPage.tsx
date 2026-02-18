@@ -54,13 +54,35 @@ export default function OwnerMyConcernDetailPage() {
 
         {!isLoading && !isError && (
           <>
+            {/* 제목은 항상 표시 */}
             <ConcernDetailHeader concernTitle={title} />
-            <AnswerListCard
-              answers={answers}
-              onItemClick={(memoId) => {
-                navigate(`/owner/home/concerns/${concernId}/answer/${memoId}`);
-              }}
-            />
+
+            {/* 답변 여부에 따라 카드 또는 안내문구 */}
+            {answers.length > 0 ? (
+              <AnswerListCard
+                answers={answers}
+                onItemClick={(memoId) => {
+                  navigate(
+                    `/owner/home/concerns/${concernId}/answer/${memoId}`
+                  );
+                }}
+              />
+            ) : (
+              <div className="flex flex-col pt-[34px] gap-[8px]">
+                <span className="typo-16-bold">받은 답변</span>
+                <div className="
+                  w-[343px] h-[85px] 
+                  rounded-[16px] 
+                  flex items-center justify-center 
+                  text-neutrals-09 typo-14-regular
+                  bg-white
+                  shadow-[0px_0px_10px_0px_#D8D8D8]
+                  border border-neutrals-03
+                ">
+                  아직 등록된 답변이 없어요.
+                </div>
+              </div>
+            )}
           </>
         )}
       </main>

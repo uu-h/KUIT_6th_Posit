@@ -116,16 +116,17 @@ export default function PositInbox() {
       <InboxToggle
         active={active}
         counts={counts}
-        onChange={(tab) => setSearchParams({ tab })} // 🔥 URL에 저장
+        onChange={(tab) => setSearchParams({ tab })}
       />
 
       <div className="flex-1 overflow-y-auto no-scrollbar pb-[102px]">
         <div className="flex flex-col gap-[8px] px-[16px] mt-[15px]">
           {loading ? (
-            <div className="text-center py-10">로딩중...</div>
+            <div className="flex justify-center items-center typo-15-medium h-full text-center text-neutrals-09">
+            </div>
           ) : currentItems.length === 0 ? (
-            <div className="text-center text-[#79747E] py-10">
-              비었음
+            <div className="flex justify-center items-center typo-15-medium pt-[255px] text-center text-neutrals-09">
+              <span>아직 받은 답변이 없어요.</span>
             </div>
           ) : (
             currentItems.map((item) => (
