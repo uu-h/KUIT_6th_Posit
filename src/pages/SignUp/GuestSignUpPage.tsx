@@ -12,6 +12,8 @@ import {
 } from "../../api/phoneVerification";
 
 import { signup } from "../../api/auth";
+import { checkLoginId } from "../../api/auth";
+
 
 
 
@@ -24,6 +26,38 @@ export default function GuestSignUpPage() {
   // ================= 아이디 =================
   const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
   const [username, setUsername] = useState("");
+
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
+  const [isIdModalOpen, setIsIdModalOpen] = useState(false);
+  const [idModalMessage, setIdModalMessage] = useState("");
+
+  //중복확인 핸들러 
+  const handleCheckUsername = async () => {
+    if (!usernameRegex.test(username)) {
+      setIdModalMessage("아이디 형식을 다시 확인해주세요.");
+      setIsIdModalOpen(true);
+      return;
+    }
+
+    try {
+      const isAvailable = await checkLoginId(username);
+
+      setIsUsernameAvailable(isAvailable);
+
+      if (isAvailable) {
+        setIdModalMessage("사용 가능한 아이디입니다.");
+      } else {
+        setIdModalMessage("중복된 아이디입니다.");
+      }
+
+      setIsIdModalOpen(true);
+    } catch (error) {
+      setIdModalMessage("아이디 중복 확인 중 오류가 발생했습니다.");
+      setIsIdModalOpen(true);
+    }
+  };
+
+
 
   // ================= 비밀번호 =================
   const passwordRegex =
@@ -194,6 +228,7 @@ export default function GuestSignUpPage() {
     const isFormValid =
       gender !== undefined &&
       usernameRegex.test(username) &&
+      isUsernameAvailable === true && 
       passwordRegex.test(password) &&
       nameRegex.test(name) &&
       phone.replace(/[^0-9]/g, "").length === 11 &&
@@ -251,9 +286,6 @@ export default function GuestSignUpPage() {
           }
 
       };
-
-      //아이디 중복 확인
-      const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
 
   // ================= 공통 클래스 =================
   const inputClass = (value: string, hasRightArea = false) => `
@@ -369,16 +401,42 @@ export default function GuestSignUpPage() {
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
-              setIsUsernameAvailable(null);
+              setIsUsernameAvailable(null); // 아이디 변경 시 다시 확인 필요
             }}
             className={authInputClass(
               username,
-              usernameRegex.test(username) && isUsernameAvailable !== false
+              usernameRegex.test(username) && isUsernameAvailable !== false,
+              true 
             )}
           />
+
+          {/*  중복확인 버튼 */}
+          <button
+            type="button"
+            onClick={handleCheckUsername}
+            disabled={!usernameRegex.test(username)}
+            className={`
+              absolute
+              right-[12px]
+              top-1/2
+              -translate-y-1/2
+              w-[105px]
+              h-[32px]
+              rounded-[6px]
+              typo-14-medium
+              border
+              ${
+                usernameRegex.test(username)
+                  ? "bg-primary-01 text-corals-000"
+                  : "border-primary-01 text-primary-01 cursor-not-allowed"
+              }
+            `}
+          >
+            중복확인
+          </button>
         </div>
 
-        {/* 안내 문구 */}
+        {/* 안내 문구 (기존 그대로 유지) */}
         {username !== "" &&
           (!usernameRegex.test(username) || isUsernameAvailable === false) && (
             <p className="mt-[6px] typo-12-regular text-[#F00]">
@@ -388,6 +446,7 @@ export default function GuestSignUpPage() {
             </p>
           )}
       </div>
+
 
 
       {/* ================= 비밀번호 ================= */}
@@ -628,6 +687,28 @@ export default function GuestSignUpPage() {
           </div>
         </div>
       )}
+
+      {/* ================= 아이디 중복확인 모달 ================= */}
+      {isIdModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
+            <div className="px-[24px] py-[32px] text-center">
+              <p className="typo-13-regular text-black">
+                {idModalMessage}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsIdModalOpen(false)}
+              className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
