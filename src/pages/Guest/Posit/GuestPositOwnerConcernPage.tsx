@@ -119,13 +119,20 @@ export default function GuestPositOwnerConcernPage() {
       setSuccessOpen(true);
     } catch (err: unknown) {
       const n = normalizeApiError(err);
-      const msg = n.message ?? "등록 중 오류가 발생했어요.";
 
-      // ANSWER 작성 페이지 기준 최소 분기
-      // - CONCERN_NOT_FOUND / CONCERN_STORE_MISMATCH: 고민글 문제
-      // - STORE_NOT_FOUND: 가게 문제
-      // - 그 외: 서버 message 그대로
+      // 서버 message 그대로
+      const msg = n.message ?? "요청 중 오류가 발생했어요.";
+
       switch (n.errorCode) {
+        // dto 에러 분기
+        case "DTO_VALIDATION_FAILED":
+          emitToast({ message: msg });
+          break;
+
+        // ANSWER 작성 페이지 기준 최소 분기
+        // - CONCERN_NOT_FOUND / CONCERN_STORE_MISMATCH: 고민글 문제
+        // - STORE_NOT_FOUND: 가게 문제
+        // - 그 외: 서버 message 그대로
         case "CONCERN_NOT_FOUND":
         case "CONCERN_STORE_MISMATCH":
           emitToast({ message: msg });
