@@ -102,7 +102,13 @@ export default function OwnerCouponPage() {
           />
         </div>
 
-        {hasNextPage && (
+        {flatItems.length === 0 ? (
+          // 아예 데이터 없음
+          <p className="typo-12-medium text-center py-6 text-neutrals-07">
+            아직 쿠폰 지급 내역이 없어요.
+          </p>
+        ) : hasNextPage ? (
+          // 더 불러올 수 있음
           <div className="mt-[27px]">
             <LoadMoreButton
               onClick={() => fetchNextPage()}
@@ -110,9 +116,11 @@ export default function OwnerCouponPage() {
               label={isFetchingNextPage ? "불러오는 중..." : "내역 더보기"}
             />
           </div>
-        )}
-        {!hasNextPage && flatItems.length > 0 && (
-          <p className="typo-12-medium text-center py-3">마지막이에요</p>
+        ) : (
+          // 3마지막 페이지
+          <p className="typo-12-medium text-center py-3 text-neutrals-07">
+            마지막이에요
+          </p>
         )}
       </main>
     </div>
