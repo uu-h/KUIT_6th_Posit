@@ -8,6 +8,7 @@ import { login } from "../../api/auth";
 
 import EyeOnIcon from "../../assets/Login/eye_on.svg";
 import EyeOffIcon from "../../assets/Login/eye_off.svg";
+import { emitToast } from "../../utils/toastBus";
 
 export default function OwnerLoginPage() {
   const navigate = useNavigate();
@@ -18,30 +19,27 @@ export default function OwnerLoginPage() {
   const [autoLogin, setAutoLogin] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   useEffect(() => {
     const autoLoginFlag = localStorage.getItem("autoLogin");
     const accessToken = localStorage.getItem("accessToken");
     const role = localStorage.getItem("role");
 
-    if (
-      autoLoginFlag === "true" &&
-      accessToken &&
-      role === "OWNER"
-    ) {
+    if (autoLoginFlag === "true" && accessToken && role === "OWNER") {
       navigate("/owner/home", { replace: true });
     }
   }, [navigate]);
 
-
-
   const handleLogin = async () => {
     if (!loginId || !password) {
-      alert("아이디와 비밀번호를 입력해주세요.");
+      setErrorMessage("아이디와 비밀번호를 입력해주세요.");
       return;
     }
 
     try {
       setLoading(true);
+      setErrorMessage(null);
 
       const res = await login({
         loginId,
@@ -51,7 +49,22 @@ export default function OwnerLoginPage() {
       const { accessToken, refreshToken } = res.data.tokens;
       const { role } = res.data.user;
 
-      // 토큰 저장
+      // 사장님 로그인 화면에서는 OWNER만 허용
+      if (role !== "OWNER") {
+        emitToast({
+          message:
+            "사장님 계정이 아닙니다.\n게스트 로그인 화면을 이용해주세요.",
+        });
+
+        // 혹시 남아있을 수 있는 값 정리
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("role");
+        localStorage.removeItem("autoLogin");
+        return;
+      }
+
+      // role이 정상일 때만 토큰 저장
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("role", role);
@@ -62,20 +75,25 @@ export default function OwnerLoginPage() {
         localStorage.removeItem("autoLogin");
       }
 
-      // 사장님 로그인 화면에서는 OWNER만 허용
-      if (role !== "OWNER") {
-        alert("사장님 계정이 아닙니다.\n게스트 로그인 화면을 이용해주세요.");
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("autoLogin");
-        return;
-      }
-
       // 사장님 홈으로 이동
       navigate("/owner/home", { replace: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("로그인에 실패했습니다.");
+
+      const data = error?.response?.data;
+
+      // 1) DTO 검증 에러: errors 배열 첫 메시지 사용
+      const dtoMessage = data?.errors?.[0]?.message;
+
+      // 2) 커스텀/공통 에러: message가 있으면 사용
+      const serverMessage = data?.message;
+
+      // 3) 네트워크/기타 fallback
+      const fallbackMessage = error?.response
+        ? "로그인에 실패했습니다."
+        : "네트워크 연결을 확인해주세요.";
+
+      setErrorMessage(dtoMessage ?? serverMessage ?? fallbackMessage);
     } finally {
       setLoading(false);
     }
@@ -143,6 +161,11 @@ export default function OwnerLoginPage() {
               />
             </button>
           </div>
+          {errorMessage && (
+            <p className="mt-[8px] typo-12-regular text-primary-01">
+              {errorMessage}
+            </p>
+          )}
         </div>
       </div>
 
@@ -158,22 +181,14 @@ export default function OwnerLoginPage() {
             alt={autoLogin ? "자동 로그인 활성화" : "자동 로그인 비활성화"}
             className="h-[27px] w-[50px]"
           />
-          <span className="typo-13-regular text-shades-02">
-            자동 로그인
-          </span>
+          <span className="typo-13-regular text-shades-02">자동 로그인</span>
         </button>
 
-        <button className="typo-13-regular text-shades-02">
-          ID/PASS 찾기
-        </button>
+        <button className="typo-13-regular text-shades-02">ID/PASS 찾기</button>
       </div>
 
       {/* 로그인 버튼 */}
-      <Button
-        className="mt-[32px]"
-        onClick={handleLogin}
-        disabled={loading}
-      >
+      <Button className="mt-[32px]" onClick={handleLogin} disabled={loading}>
         {loading ? "로그인 중..." : "로그인"}
       </Button>
 
