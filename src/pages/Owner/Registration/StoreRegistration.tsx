@@ -36,6 +36,8 @@ export default function StoreRegistration() {
   const [menuPrices, setMenuPrices] = useState<string[]>(
     saved?.menuPrices ?? ["", "", ""]
   );
+  const [snsUrl, setSnsUrl] = useState(saved?.snsUrl ?? "");
+
 
   useEffect(() => {
   if (!saved) return;
@@ -45,6 +47,7 @@ export default function StoreRegistration() {
   if (saved.detailAddress !== undefined) setDetailAddress(saved.detailAddress);
   if (saved.selectedType !== undefined) setSelectedType(saved.selectedType);
   if (saved.intro !== undefined) setIntro(saved.intro);
+  if (saved.snsUrl !== undefined) setSnsUrl(saved.snsUrl);
 
   if (saved.menuNames) setMenuNames(saved.menuNames);
   if (saved.menuPrices) setMenuPrices(saved.menuPrices);
@@ -75,6 +78,7 @@ export default function StoreRegistration() {
         detailAddress,
         selectedType,
         intro,
+        snsUrl,
         menuNames,
         menuPrices,
         menuImages,
@@ -247,6 +251,7 @@ const formatPhoneNumber = (value: string) => {
                     detailAddress,
                     selectedType,
                     intro,
+                    snsUrl,
                     menuNames,
                     menuPrices,
                     menuImages,
@@ -289,8 +294,13 @@ const formatPhoneNumber = (value: string) => {
         {/* SNS 링크 (선택) */}
         <div>
           <label className="typo-14-medium">가게 SNS 링크</label>
-          <input className="mt-2 w-full h-[48px] rounded-lg border border-neutrals-04 px-3" />
+          <input
+            value={snsUrl}
+            onChange={(e) => setSnsUrl(e.target.value)}
+            className="mt-2 w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
+          />
         </div>
+
 
         {/* 가게 소개 */}
         <div>

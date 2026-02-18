@@ -79,7 +79,10 @@ export default function StoreRegisterAmenities() {
 
         type: typeMap[saved?.selectedType ?? "스터디 카페"],
         phone: saved?.phoneNumber ?? "",
-        snsUrl: "",
+        snsUrl: saved?.snsUrl?.trim()
+          ? saved.snsUrl.trim()
+          : undefined,
+
         description: saved?.intro ?? "",
         couponPin: saved.couponPin,
 
