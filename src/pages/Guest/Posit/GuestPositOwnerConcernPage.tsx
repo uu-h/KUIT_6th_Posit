@@ -14,7 +14,7 @@ import BottomToast from "../../../components/Guest/Posit/BottomToast";
 import { createStoreMemo } from "../../../api/posit";
 import { getPresignedUrlWithKey, uploadToS3 } from "../../../api/image";
 
-import { normalizeApiError } from "../../../api/apiError";
+import { normalizeApiError, toFieldErrorMap } from "../../../api/apiError";
 import { emitToast } from "../../../utils/toastBus";
 
 type LocationState = {
@@ -48,6 +48,9 @@ export default function GuestPositOwnerConcernPage() {
 
   const [createdMemoId, setCreatedMemoId] = useState<number | null>(null);
 
+  // DTO field 에러 표시용
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
   const [toast, setToast] = useState<{ open: boolean; message: string }>({
     open: false,
     message: "",
@@ -59,6 +62,15 @@ export default function GuestPositOwnerConcernPage() {
   const showToast = (msg: string) => {
     setToast({ open: true, message: msg });
     window.setTimeout(() => setToast({ open: false, message: "" }), 1000);
+  };
+
+  const clearFieldError = (key: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   };
 
   const canSubmit = useMemo(() => {
@@ -81,6 +93,8 @@ export default function GuestPositOwnerConcernPage() {
       return showToast("concernId가 올바르지 않아요.");
 
     try {
+      // 제출 시 이전 field 에러 초기화
+      setFieldErrors({});
       setSubmitting(true);
 
       let uploadedImageKey: string | null = null;
@@ -120,25 +134,21 @@ export default function GuestPositOwnerConcernPage() {
     } catch (err: unknown) {
       const n = normalizeApiError(err);
 
-      // 서버 message 그대로
-      const msg = n.message ?? "요청 중 오류가 발생했어요.";
+      // 기본은 서버 message
+      let msg = n.message ?? "등록 중 오류가 발생했어요.";
+
+      // DTO validation이면 errors[].message를 우선 노출 + field 에러 세팅
+      if (n.errorCode === "DTO_VALIDATION_FAILED") {
+        setFieldErrors(toFieldErrorMap(n.errors));
+        if (n.errors?.length) msg = n.errors[0].message;
+      }
 
       switch (n.errorCode) {
-        // dto 에러 분기
         case "DTO_VALIDATION_FAILED":
-          emitToast({ message: msg });
           break;
 
-        // ANSWER 작성 페이지 기준 최소 분기
-        // - CONCERN_NOT_FOUND / CONCERN_STORE_MISMATCH: 고민글 문제
-        // - STORE_NOT_FOUND: 가게 문제
-        // - 그 외: 서버 message 그대로
         case "CONCERN_NOT_FOUND":
         case "CONCERN_STORE_MISMATCH":
-          emitToast({ message: msg });
-          navigate("/guest/home");
-          break;
-
         case "STORE_NOT_FOUND":
           emitToast({ message: msg });
           navigate("/guest/home");
@@ -184,17 +194,35 @@ export default function GuestPositOwnerConcernPage() {
         {/* 제목 */}
         <TitleInput
           value={title}
-          onChange={setTitle}
+          onChange={(v) => {
+            setTitle(v);
+            clearFieldError("title");
+          }}
           placeholder="제목을 입력해주세요."
         />
+        {/* title DTO 에러 표시 */}
+        {fieldErrors.title && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.title}
+          </p>
+        )}
 
         {/* 입력 박스 */}
         <MemoTextArea
           value={content}
-          onChange={setContent}
+          onChange={(v) => {
+            setContent(v);
+            clearFieldError("content");
+          }}
           maxLength={MAX_LEN}
           placeholder="사장님 고민에 대한 POSiT을 작성해주세요."
         />
+        {/* content DTO 에러도 내려오면 표시(옵션이지만 같이 넣어둠) */}
+        {fieldErrors.content && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.content}
+          </p>
+        )}
 
         {/* 사진 추가 */}
         <div className="mt-4">

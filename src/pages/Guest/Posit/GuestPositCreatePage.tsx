@@ -15,7 +15,7 @@ import { createStoreMemo } from "../../../api/posit";
 import type { FreeType } from "../../../types/posit";
 import { getPresignedUrlWithKey, uploadToS3 } from "../../../api/image";
 
-import { normalizeApiError } from "../../../api/apiError";
+import { normalizeApiError, toFieldErrorMap } from "../../../api/apiError";
 import { emitToast } from "../../../utils/toastBus";
 
 const MEMO_TYPES = [
@@ -50,8 +50,10 @@ export default function GuestPositCreatePage() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // 생성된 memoId 저장
   const [createdMemoId, setCreatedMemoId] = useState<number | null>(null);
+
+  // DTO field 에러 표시용
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [toast, setToast] = useState({ open: false, message: "" });
   const MAX_LEN = 150;
@@ -60,6 +62,15 @@ export default function GuestPositCreatePage() {
   const showToast = (msg: string) => {
     setToast({ open: true, message: msg });
     window.setTimeout(() => setToast({ open: false, message: "" }), 1000);
+  };
+
+  const clearFieldError = (key: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   };
 
   const canSubmit = useMemo(() => {
@@ -75,9 +86,12 @@ export default function GuestPositCreatePage() {
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    if (!Number.isFinite(sid)) return showToast("storeId가 올바르지 않아요.");
+    if (!Number.isFinite(sid) || sid <= 0)
+      return showToast("storeId가 올바르지 않아요.");
 
     try {
+      // 제출 시 이전 field 에러 초기화
+      setFieldErrors({});
       setSubmitting(true);
 
       let uploadedImageKey: string | null = null;
@@ -116,13 +130,20 @@ export default function GuestPositCreatePage() {
       setSuccessOpen(true);
     } catch (err: unknown) {
       const n = normalizeApiError(err);
-      const msg = n.message ?? "등록 중 오류가 발생했어요.";
 
-      // FREE 작성 페이지 기준 최소 분기
-      // - FREE_TYPE_ESSENTIAL: 타입 누락/매핑 이슈
-      // - STORE_NOT_FOUND: 잘못된 storeId / 삭제된 가게
-      // - 그 외: 서버 message 그대로
+      // 기본은 서버 message
+      let msg = n.message ?? "등록 중 오류가 발생했어요.";
+
+      // DTO validation이면 errors[].message를 우선 노출 + field 에러 세팅
+      if (n.errorCode === "DTO_VALIDATION_FAILED") {
+        setFieldErrors(toFieldErrorMap(n.errors));
+        if (n.errors?.length) msg = n.errors[0].message; // ex) "크기가 0에서 50 사이여야 합니다"
+      }
+
       switch (n.errorCode) {
+        case "DTO_VALIDATION_FAILED":
+          break;
+
         case "FREE_TYPE_ESSENTIAL":
           emitToast({ message: msg });
           break;
@@ -168,23 +189,48 @@ export default function GuestPositCreatePage() {
           label="메모 유형을 선택해주세요."
           types={MEMO_TYPES}
           value={selectedType}
-          onChange={setSelectedType}
+          onChange={(v) => {
+            setSelectedType(v);
+            clearFieldError("freeType");
+          }}
         />
+        {/* (옵션) freeType DTO 에러 표시 (서버가 field를 freeType으로 내려줄 때만) */}
+        {fieldErrors.freeType && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.freeType}
+          </p>
+        )}
 
         {/* 제목 */}
         <TitleInput
           value={title}
-          onChange={setTitle}
+          onChange={(v) => {
+            setTitle(v);
+            clearFieldError("title");
+          }}
           placeholder="제목을 입력해주세요."
         />
+        {fieldErrors.title && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.title}
+          </p>
+        )}
 
         {/* 입력 박스 */}
         <MemoTextArea
           value={content}
-          onChange={setContent}
+          onChange={(v) => {
+            setContent(v);
+            clearFieldError("content");
+          }}
           maxLength={MAX_LEN}
           placeholder="여러분의 POSiT을 작성해주세요."
         />
+        {fieldErrors.content && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.content}
+          </p>
+        )}
 
         {/* 사진 추가 */}
         <div className="mt-4">
@@ -226,7 +272,7 @@ export default function GuestPositCreatePage() {
         </div>
       </div>
 
-      {/* (선택) 로컬 토스트: 비활성 버튼 안내 등 */}
+      {/* 로컬 토스트: 비활성 버튼 안내 등 */}
       <BottomToast open={toast.open} message={toast.message} />
     </div>
   );
