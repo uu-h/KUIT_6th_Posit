@@ -8,7 +8,7 @@ import { createOwnerConcern } from "../../../api/ownerConcern";
 import { useNavigate } from "react-router-dom";
 import InfoLine from "../../../components/Owner/Posit/InfoLine";
 
-import { normalizeApiError } from "../../../api/apiError";
+import { normalizeApiError, toFieldErrorMap } from "../../../api/apiError";
 import { emitToast } from "../../../utils/toastBus";
 
 export default function OwnerPositMyConcernPage() {
@@ -19,6 +19,9 @@ export default function OwnerPositMyConcernPage() {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // DTO field 에러 표시용
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
   const MAX_LEN = 150;
 
   const isEnabled =
@@ -26,10 +29,21 @@ export default function OwnerPositMyConcernPage() {
     content.trim().length <= MAX_LEN &&
     !submitting;
 
+  const clearFieldError = (key: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
   const handleClickConfirm = async () => {
     if (!isEnabled) return;
 
     try {
+      // 제출 시 이전 field 에러 초기화
+      setFieldErrors({});
       setSubmitting(true);
 
       await createOwnerConcern({
@@ -40,9 +54,25 @@ export default function OwnerPositMyConcernPage() {
     } catch (err: unknown) {
       const n = normalizeApiError(err);
 
-      emitToast({
-        message: n.message ?? "요청 중 오류가 발생했어요.",
-      });
+      // 기본은 서버 message
+      let msg = n.message ?? "요청 중 오류가 발생했어요.";
+
+      // DTO validation이면 errors[].message를 우선 노출 + field 에러 세팅
+      if (n.errorCode === "DTO_VALIDATION_FAILED") {
+        setFieldErrors(toFieldErrorMap(n.errors));
+        if (n.errors?.length) msg = n.errors[0].message;
+      }
+
+      switch (n.errorCode) {
+        case "DTO_VALIDATION_FAILED":
+          break;
+
+        default:
+          emitToast({
+            message: msg,
+          });
+          break;
+      }
     } finally {
       setSubmitting(false);
     }
@@ -61,9 +91,18 @@ export default function OwnerPositMyConcernPage() {
       <main className="flex-1">
         <ConcernTextareaCard
           value={content}
-          onChange={setContent}
+          onChange={(v) => {
+            setContent(v);
+            clearFieldError("content");
+          }}
           maxLength={MAX_LEN}
         />
+        {/* content DTO 에러 표시 */}
+        {fieldErrors.content && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.content}
+          </p>
+        )}
 
         <Divider className="mt-[22px]" />
         <InfoLine
