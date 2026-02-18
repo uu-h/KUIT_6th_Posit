@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import AnswerCard from "../../../components/Guest/Posit/AnswerCard";
+import SelectedAnswerCard from "../../../components/Guest/Posit/SelectedAnswerCard";
 import AppBar from "../../../components/Common/AppBar";
 import BottomBar from "../../../components/BottomBar/BottomBar";
 import { http } from "../../../api/http";
@@ -11,10 +11,8 @@ interface Answer {
   id: number;
   type: AnswerType;
   title: string;
-  content: string;
   cafeName?: string;
   createdAt: string;
-  isRead?: boolean;
 }
 
 type ApiCategory = "고민 답변" | "자유 메모";
@@ -27,7 +25,6 @@ interface ApiMemo {
   content: string;
   status: ApiStatus;
   createdAt: string;
-  read?: boolean;
 }
 
 interface ApiResponse {
@@ -70,7 +67,7 @@ export default function GuestPositSelectedAnswer() {
         params: {
           type,
           status: "ADOPTED",
-          size: 20,
+          size: 30,
         },
       });
 
@@ -80,10 +77,9 @@ export default function GuestPositSelectedAnswer() {
         id: memo.memoId,
         type: memo.category === "자유 메모" ? "FREE" : "ANSWER",
         title: memo.content,
-        content: memo.content,
         cafeName: memo.storeName,
         createdAt: formatDate(memo.createdAt), // 보정 적용
-        isRead: true,
+
       }));
 
       setCounts((prev) => ({
@@ -150,13 +146,12 @@ export default function GuestPositSelectedAnswer() {
 
         {!loading &&
           answers.map((answer) => (
-            <AnswerCard
+            <SelectedAnswerCard
               key={answer.id}
               type={answer.type}
               title={answer.title}
               cafeName={answer.cafeName}
               createdAt={answer.createdAt}
-              isRead={answer.isRead}
               onClick={() =>
                 navigate(`/guest/posit/selected/${answer.id}`, {
                   state: answer,

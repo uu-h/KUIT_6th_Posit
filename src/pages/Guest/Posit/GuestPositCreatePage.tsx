@@ -1,4 +1,6 @@
 import { useMemo, useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+
 import MemoTypeSection from "../../../components/Guest/Posit/MemoTypeSection";
 import MemoTextArea from "../../../components/Guest/Posit/MemoTextArea";
 import PhotoAddCard from "../../../components/Guest/Posit/PhotoAddCard";
@@ -8,10 +10,13 @@ import TitleInput from "../../../components/Guest/Posit/TitleInput";
 import SuccessModal from "../../../components/Common/SuccessModal";
 import BottomToast from "../../../components/Guest/Posit/BottomToast";
 import ModalHeader from "../../../components/Guest/Posit/ModalHeader";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+
 import { createStoreMemo } from "../../../api/posit";
 import type { FreeType } from "../../../types/posit";
 import { getPresignedUrlWithKey, uploadToS3 } from "../../../api/image";
+
+import { normalizeApiError, toFieldErrorMap } from "../../../api/apiError";
+import { emitToast } from "../../../utils/toastBus";
 
 const MEMO_TYPES = [
   "운영팁",
@@ -45,15 +50,27 @@ export default function GuestPositCreatePage() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // 생성된 memoId 저장
   const [createdMemoId, setCreatedMemoId] = useState<number | null>(null);
+
+  // DTO field 에러 표시용
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [toast, setToast] = useState({ open: false, message: "" });
   const MAX_LEN = 150;
 
+  // 페이지 내 로컬 토스트(비활성 버튼 등)용
   const showToast = (msg: string) => {
     setToast({ open: true, message: msg });
     window.setTimeout(() => setToast({ open: false, message: "" }), 1000);
+  };
+
+  const clearFieldError = (key: string) => {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   };
 
   const canSubmit = useMemo(() => {
@@ -69,9 +86,12 @@ export default function GuestPositCreatePage() {
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
-    if (!Number.isFinite(sid)) return showToast("storeId가 올바르지 않아요.");
+    if (!Number.isFinite(sid) || sid <= 0)
+      return showToast("storeId가 올바르지 않아요.");
 
     try {
+      // 제출 시 이전 field 에러 초기화
+      setFieldErrors({});
       setSubmitting(true);
 
       let uploadedImageKey: string | null = null;
@@ -106,13 +126,37 @@ export default function GuestPositCreatePage() {
 
       const result = await createStoreMemo(sid, payload);
 
-      // memoId 저장
       setCreatedMemoId(result.memoId);
-
       setSuccessOpen(true);
-    } catch (e: unknown) {
-      if (e instanceof Error) showToast(e.message);
-      else showToast("등록 중 오류가 발생했어요.");
+    } catch (err: unknown) {
+      const n = normalizeApiError(err);
+
+      // 기본은 서버 message
+      let msg = n.message ?? "등록 중 오류가 발생했어요.";
+
+      // DTO validation이면 errors[].message를 우선 노출 + field 에러 세팅
+      if (n.errorCode === "DTO_VALIDATION_FAILED") {
+        setFieldErrors(toFieldErrorMap(n.errors));
+        if (n.errors?.length) msg = n.errors[0].message; // ex) "크기가 0에서 50 사이여야 합니다"
+      }
+
+      switch (n.errorCode) {
+        case "DTO_VALIDATION_FAILED":
+          break;
+
+        case "FREE_TYPE_ESSENTIAL":
+          emitToast({ message: msg });
+          break;
+
+        case "STORE_NOT_FOUND":
+          emitToast({ message: msg });
+          navigate("/guest/home");
+          break;
+
+        default:
+          emitToast({ message: msg });
+          break;
+      }
     } finally {
       setSubmitting(false);
     }
@@ -145,23 +189,48 @@ export default function GuestPositCreatePage() {
           label="메모 유형을 선택해주세요."
           types={MEMO_TYPES}
           value={selectedType}
-          onChange={setSelectedType}
+          onChange={(v) => {
+            setSelectedType(v);
+            clearFieldError("freeType");
+          }}
         />
+        {/* (옵션) freeType DTO 에러 표시 (서버가 field를 freeType으로 내려줄 때만) */}
+        {fieldErrors.freeType && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.freeType}
+          </p>
+        )}
 
         {/* 제목 */}
         <TitleInput
           value={title}
-          onChange={setTitle}
+          onChange={(v) => {
+            setTitle(v);
+            clearFieldError("title");
+          }}
           placeholder="제목을 입력해주세요."
         />
+        {fieldErrors.title && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.title}
+          </p>
+        )}
 
         {/* 입력 박스 */}
         <MemoTextArea
           value={content}
-          onChange={setContent}
+          onChange={(v) => {
+            setContent(v);
+            clearFieldError("content");
+          }}
           maxLength={MAX_LEN}
           placeholder="여러분의 POSiT을 작성해주세요."
         />
+        {fieldErrors.content && (
+          <p className="mt-1 typo-12-regular text-primary-01">
+            {fieldErrors.content}
+          </p>
+        )}
 
         {/* 사진 추가 */}
         <div className="mt-4">
@@ -184,14 +253,13 @@ export default function GuestPositCreatePage() {
         open={successOpen}
         onConfirm={() => {
           setSuccessOpen(false);
-          // TODO: 확인 누르면 어디로 갈지 (일단은 가게 상세로 구현)
           navigate(`/stores/${sid}`, {
             replace: true,
             state: {
               refreshPosit: true,
               memoId: createdMemoId,
               from: "home",
-              restore: location.state?.restore,
+              restore: (location.state as any)?.restore,
             },
           });
         }}
@@ -204,7 +272,7 @@ export default function GuestPositCreatePage() {
         </div>
       </div>
 
-      {/* 토스트 메시지 */}
+      {/* 로컬 토스트: 비활성 버튼 안내 등 */}
       <BottomToast open={toast.open} message={toast.message} />
     </div>
   );

@@ -11,7 +11,6 @@ interface Answer {
   id: number;
   type: AnswerType;
   title: string;
-  content: string;
   cafeName?: string;
   createdAt: string;
   isRead?: boolean;
@@ -27,7 +26,7 @@ interface ApiMemo {
   content: string;
   status: ApiStatus;
   createdAt: string;
-  read?: boolean;
+  ownerRead?: boolean;
 }
 
 interface ApiResponse {
@@ -69,7 +68,7 @@ export default function GuestPositWaitingAnswer() {
       params: {
         type,
         status: "REVIEWING",
-        size: 20,
+        size: 30,
       },
     });
 
@@ -79,10 +78,10 @@ export default function GuestPositWaitingAnswer() {
       id: memo.memoId,
       type: memo.category === "자유 메모" ? "FREE" : "ANSWER",
       title: memo.content,
-      content: memo.content,
       cafeName: memo.storeName,
-      createdAt: formatDate(memo.createdAt), // 보정 적용
-      isRead: true,
+      createdAt: formatDate(memo.createdAt),
+      isRead: memo.ownerRead ?? false,
+
     }));
 
     setCounts((prev) => ({

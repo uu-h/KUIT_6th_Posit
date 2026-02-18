@@ -32,10 +32,19 @@ http.interceptors.response.use(
 
     const status = error.response.status;
 
+    if (status === 401) {
+      localStorage.removeItem("accessToken");
+      emitToast({
+        message: "로그인이 만료되었습니다.\n다시 로그인해주세요.",
+      });
+      window.location.href = "/type";
+      return Promise.reject(error);
+    }
+
     // 2) 5xx 서버 에러
     if (status >= 500) {
       emitToast({
-        message: "서버 오류가 발생했어요. 잠시 후 다시 시도해주세요.",
+        message: "서버 오류가 발생했어요. \n 잠시 후 다시 시도해주세요.",
       });
       return Promise.reject(error);
     }
