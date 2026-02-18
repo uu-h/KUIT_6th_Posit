@@ -10,6 +10,10 @@ import { getMemoAdoption, getMemoDetail } from "../../../api/posit";
 type AdoptionData = Awaited<ReturnType<typeof getMemoAdoption>>;
 type MemoDetailData = Awaited<ReturnType<typeof getMemoDetail>>;
 
+// S3 베이스 URL
+const S3_BASE =
+  "https://posit-deploy.s3.ap-northeast-2.amazonaws.com/";
+
 export default function OwnerCouponAdoptionDetailPage() {
   const { memoId } = useParams();
   const numericMemoId = memoId ? Number(memoId) : NaN;
@@ -57,10 +61,15 @@ export default function OwnerCouponAdoptionDetailPage() {
 
   const title = memoDetail.title ?? "";
   const content = memoDetail.content ?? "";
-  const imageUrl = memoDetail.images?.[0];
+
+  // 이미지 처리 (S3 BASE 붙이기)
+  const imageUrl =
+    memoDetail.images?.[0]
+      ? `${S3_BASE}${memoDetail.images[0]}`
+      : undefined;
+
   const writer = memoDetail.writer?.name ?? adoption.writer ?? "";
   const adoptedAt = adoption.adoptedAt ?? "";
-  //const reward = adoption.reward ?? "";
 
   const mode = adoption.concernTitle ? "CONCERN" : "FREE";
 
