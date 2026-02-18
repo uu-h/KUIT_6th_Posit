@@ -90,9 +90,12 @@ export const signup = async (
 export interface CheckLoginIdResponse {
   isSuccess: boolean;
   data: boolean; // true = 사용 가능, false = 중복
+  message?: string;
 }
 
-export const checkLoginId = async (loginId: string) => {
+export const checkLoginId = async (
+  loginId: string
+): Promise<boolean> => {
   const res = await http.get<CheckLoginIdResponse>(
     "/auth/id/confirm",
     {
@@ -101,8 +104,10 @@ export const checkLoginId = async (loginId: string) => {
   );
 
   if (!res.data?.isSuccess) {
-    throw new Error("아이디 중복 확인 실패");
+    throw new Error(
+      res.data?.message ?? "아이디 중복 확인 실패"
+    );
   }
 
-  return res.data.data;
+  return res.data.data; // true or false
 };
