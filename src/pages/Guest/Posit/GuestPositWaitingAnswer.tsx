@@ -131,8 +131,8 @@ export default function GuestPositWaitingAnswer() {
         {loading && <div className="text-center">로딩중</div>}
 
         {!loading && answers.length === 0 && (
-          <div className="flex justify-center items-center h-full text-neutrals-07">
-            <span>비었음</span>
+          <div className="flex justify-center items-center typo-15-medium h-full text-center text-neutrals-09">
+            <span>아직 보낸 답변이 없어요.<br/>POSiT!으로 사장님께 의견을 전달해보세요!</span>
           </div>
         )}
 
