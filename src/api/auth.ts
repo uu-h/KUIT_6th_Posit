@@ -82,27 +82,3 @@ export const signup = async (
   const res = await http.post<SignUpResponse>("/auth/signup", data);
   return res.data;
 };
-
-/* =====================
-  중복확인
-===================== */
-
-export interface CheckLoginIdResponse {
-  isSuccess: boolean;
-  data: boolean; // true = 사용 가능, false = 중복
-}
-
-export const checkLoginId = async (loginId: string) => {
-  const res = await http.get<CheckLoginIdResponse>(
-    "/auth/id/confirm",
-    {
-      params: { loginId },
-    }
-  );
-
-  if (!res.data?.isSuccess) {
-    throw new Error("아이디 중복 확인 실패");
-  }
-
-  return res.data.data;
-};

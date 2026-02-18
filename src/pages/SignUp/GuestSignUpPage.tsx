@@ -12,10 +12,6 @@ import {
 } from "../../api/phoneVerification";
 
 import { signup } from "../../api/auth";
-import { checkLoginId } from "../../api/auth";
-
-
-
 import { normalizeApiError, toFieldErrorMap } from "../../api/apiError";
 import { emitToast } from "../../utils/toastBus";
 
@@ -46,38 +42,6 @@ export default function GuestSignUpPage() {
   // ================= 아이디 =================
   const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
   const [username, setUsername] = useState("");
-
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
-  const [isIdModalOpen, setIsIdModalOpen] = useState(false);
-  const [idModalMessage, setIdModalMessage] = useState("");
-
-  //중복확인 핸들러 
-  const handleCheckUsername = async () => {
-    if (!usernameRegex.test(username)) {
-      setIdModalMessage("아이디 형식을 다시 확인해주세요.");
-      setIsIdModalOpen(true);
-      return;
-    }
-
-    try {
-      const isAvailable = await checkLoginId(username);
-
-      setIsUsernameAvailable(isAvailable);
-
-      if (isAvailable) {
-        setIdModalMessage("사용 가능한 아이디입니다.");
-      } else {
-        setIdModalMessage("중복된 아이디입니다.");
-      }
-
-      setIsIdModalOpen(true);
-    } catch (error) {
-      setIdModalMessage("아이디 중복 확인 중 오류가 발생했습니다.");
-      setIsIdModalOpen(true);
-    }
-  };
-
-
 
   // ================= 비밀번호 =================
   const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{8,15}$/;
@@ -228,110 +192,6 @@ export default function GuestSignUpPage() {
     return `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
   };
 
-    // ================= 윤년 체크 =================
-    const isLeapYear = (year: number) => {
-      if (year % 400 === 0) return true;
-      if (year % 100 === 0) return false;
-      return year % 4 === 0;
-    };
-
-    // ================= 생년월일 유효성 검사 =================
-    const isValidBirthDate = (value: string) => {
-      const formatted = formatBirthDate(value);
-      const match = formatted.match(/^(\d{4}) \/ (\d{2}) \/ (\d{2})$/);
-      if (!match) return false;
-
-      const year = Number(match[1]);
-      const month = Number(match[2]);
-      const day = Number(match[3]);
-
-      // 연도 범위
-      if (year < 1900 || year > 2026) return false;
-
-      // 월 범위
-      if (month < 1 || month > 12) return false;
-
-      // 월별 일수 (윤년 포함)
-      const daysInMonth = [
-        31,
-        isLeapYear(year) ? 29 : 28,
-        31,
-        30,
-        31,
-        30,
-        31,
-        31,
-        30,
-        31,
-        30,
-        31,
-      ];
-
-      if (day < 1 || day > daysInMonth[month - 1]) return false;
-
-      return true;
-    };
-
-    // ================= 가입 가능 여부 =================
-    const isFormValid =
-      gender !== undefined &&
-      usernameRegex.test(username) &&
-      isUsernameAvailable === true && 
-      passwordRegex.test(password) &&
-      nameRegex.test(name) &&
-      phone.replace(/[^0-9]/g, "").length === 11 &&
-      isAuthVerified &&             
-      isValidBirthDate(birth);
-
-    // ================= 가입하기 핸들러 =================
-      const handleSignup = async () => {
-        try {
-          const res = await signup({
-            role: "GUEST",
-            loginId: username,
-            password,
-            name,
-            phone: phone.replace(/[^0-9]/g, ""),
-            gender: gender === "male" ? "MALE" : "FEMALE",
-            birth: birth.replace(/[^0-9]/g, "").replace(
-              /^(\d{4})(\d{2})(\d{2})$/,
-              "$1-$2-$3"
-            ),
-             //signupToken,
-             //임시
-             signupToken: signupToken ?? "TEMP_TOKEN",
-          });
-
-          if (res.isSuccess) {
-            const { accessToken, refreshToken } = res.data.tokens;
-
-            localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("refreshToken", refreshToken);
-
-            alert("회원가입이 완료되었습니다.");
-            navigate("/");
-          }
-        } catch (error: any) {
-            const errorCode = error?.response?.data?.errorCode;
-
-            switch (errorCode) {
-              case "DUPLICATE_LOGIN_ID":
-                setIsUsernameAvailable(false);
-                alert("이미 사용 중인 아이디입니다.");
-                break;
-
-              case "DUPLICATE_PHONE":
-                alert("이미 가입된 휴대폰 번호입니다.");
-                break;
-
-              case "PHONE_VERIFICATION_REQUIRED":
-                alert("휴대폰 인증을 먼저 완료해주세요.");
-                break;
-
-              default:
-                alert("회원가입에 실패했습니다.");
-            }
-          }
   // ================= 윤년 체크 =================
   const isLeapYear = (year: number) => {
     if (year % 400 === 0) return true;
@@ -572,46 +432,17 @@ export default function GuestSignUpPage() {
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
-
-              setIsUsernameAvailable(null); // 아이디 변경 시 다시 확인 필요
-
+              setIsUsernameAvailable(null);
               clearFieldError("loginId"); // 서버 field 확인
-
             }}
             className={authInputClass(
               username,
               usernameRegex.test(username) && isUsernameAvailable !== false,
-              true 
             )}
           />
-
-          {/*  중복확인 버튼 */}
-          <button
-            type="button"
-            onClick={handleCheckUsername}
-            disabled={!usernameRegex.test(username)}
-            className={`
-              absolute
-              right-[12px]
-              top-1/2
-              -translate-y-1/2
-              w-[105px]
-              h-[32px]
-              rounded-[6px]
-              typo-14-medium
-              border
-              ${
-                usernameRegex.test(username)
-                  ? "bg-primary-01 text-corals-000"
-                  : "border-primary-01 text-primary-01 cursor-not-allowed"
-              }
-            `}
-          >
-            중복확인
-          </button>
         </div>
 
-        {/* 안내 문구 (기존 그대로 유지) */}
+        {/* 안내 문구 */}
         {username !== "" &&
           (!usernameRegex.test(username) ||
             isUsernameAvailable === false ||
@@ -623,8 +454,6 @@ export default function GuestSignUpPage() {
             </p>
           )}
       </div>
-
-
 
       {/* ================= 비밀번호 ================= */}
       <div
@@ -898,28 +727,6 @@ export default function GuestSignUpPage() {
           </div>
         </div>
       )}
-
-      {/* ================= 아이디 중복확인 모달 ================= */}
-      {isIdModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
-            <div className="px-[24px] py-[32px] text-center">
-              <p className="typo-13-regular text-black">
-                {idModalMessage}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsIdModalOpen(false)}
-              className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
