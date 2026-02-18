@@ -10,6 +10,8 @@ import squareUnchecked from "../../../assets/Owner/Posit/checkbox_square_uncheck
 
 import { rejectAnswer } from "../../../api/posit";
 import type { RejectCode } from "../../../api/posit";
+import { normalizeApiError } from "../../../api/apiError";
+import { emitToast } from "../../../utils/toastBus";
 
 type Props = {
   memoId: number;
@@ -23,12 +25,7 @@ const reasons = [
   "기타",
 ];
 
-const rejectCodeMap: RejectCode[] = [
-  "BUDGET",
-  "REALISTIC",
-  "ALREADY",
-  "ECT",
-];
+const rejectCodeMap: RejectCode[] = ["BUDGET", "REALISTIC", "ALREADY", "ECT"];
 
 export default function RejectModal({ memoId, onClose }: Props) {
   const navigate = useNavigate();
@@ -57,10 +54,31 @@ export default function RejectModal({ memoId, onClose }: Props) {
 
       // 거절 성공 후 inbox로 이동
       navigate("/owner/inbox");
-
     } catch (error) {
-      console.error(error);
-      alert("답변 거절에 실패했습니다.");
+      const e = normalizeApiError(error);
+      const msg = e.message ?? "답변 거절에 실패했습니다.";
+
+      // 409: 이미 처리됨 -> inbox로
+      if (e.errorCode === "MEMO_DECISION_DUPLICATE") {
+        emitToast({ message: msg });
+        onClose();
+        navigate("/owner/inbox");
+        return;
+      }
+
+      // 403 / 404: 접근 불가 -> inbox로
+      if (
+        e.errorCode === "MEMO_STORE_FORBIDDEN" ||
+        e.errorCode === "STORE_NOT_FOUND"
+      ) {
+        emitToast({ message: msg });
+        onClose();
+        navigate("/owner/inbox");
+        return;
+      }
+
+      // 기본: 서버 message 그대로
+      emitToast({ message: msg });
     } finally {
       setIsLoading(false);
     }
@@ -103,8 +121,8 @@ export default function RejectModal({ memoId, onClose }: Props) {
                       ? squareChecked
                       : squareUnchecked
                     : selected === idx
-                    ? circleChecked
-                    : circleUnchecked
+                      ? circleChecked
+                      : circleUnchecked
                 }
                 className="w-[20px]"
                 alt="선택 아이콘"
@@ -123,9 +141,7 @@ export default function RejectModal({ memoId, onClose }: Props) {
             onChange={(e) => setMessage(e.target.value)}
             disabled={selected !== ETC_INDEX}
             placeholder={
-              selected === ETC_INDEX
-                ? "거절 사유를 입력해주세요."
-                : ""
+              selected === ETC_INDEX ? "거절 사유를 입력해주세요." : ""
             }
           />
           <p className="absolute bottom-[11px] right-[15px] typo-12-light">
