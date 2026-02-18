@@ -38,8 +38,13 @@ interface ApiResponse {
   };
 }
 
+// 18시간 보정 적용
 function formatDate(iso: string) {
   const d = new Date(iso);
+
+  // 18시간 수동 보정
+  d.setHours(d.getHours() + 18);
+
   return `${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
@@ -75,6 +80,7 @@ export default function GuestPositWaitingAnswer() {
       cafeName: memo.storeName,
       createdAt: formatDate(memo.createdAt),
       isRead: memo.ownerRead ?? false,
+
     }));
 
     setCounts((prev) => ({
@@ -105,7 +111,6 @@ export default function GuestPositWaitingAnswer() {
     <div className="flex flex-col h-screen">
       <AppBar title="대기 중인 답변" layout="left" leftType="left" />
 
-      {/* 토글 */}
       <div className="flex justify-center">
         {(["ANSWER", "FREE"] as AnswerType[]).map((type) => (
           <button
