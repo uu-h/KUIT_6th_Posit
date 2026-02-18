@@ -14,7 +14,7 @@ import {
 import { signup } from "../../api/auth";
 import { checkLoginId } from "../../api/auth";
 
-import { normalizeApiError, toFieldErrorMap } from "../../api/apiError"
+import { normalizeApiError, toFieldErrorMap } from "../../api/apiError";
 import { emitToast } from "../../utils/toastBus";
 
 export default function GuestSignUpPage() {
@@ -45,7 +45,9 @@ export default function GuestSignUpPage() {
   const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
   const [username, setUsername] = useState("");
 
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<
+    boolean | null
+  >(null);
   const [isIdModalOpen, setIsIdModalOpen] = useState(false);
   const [idModalMessage, setIdModalMessage] = useState("");
 
@@ -74,8 +76,6 @@ export default function GuestSignUpPage() {
       setIsIdModalOpen(true);
     }
   };
-
-
 
   // ================= 비밀번호 =================
   const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{8,15}$/;
@@ -345,11 +345,6 @@ export default function GuestSignUpPage() {
     }
   };
 
-  //아이디 중복 확인
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<
-    boolean | null
-  >(null);
-
   // ================= 공통 클래스 =================
   const inputClass = (value: string, hasRightArea = false) => `
     w-full
@@ -473,7 +468,7 @@ export default function GuestSignUpPage() {
             className={authInputClass(
               username,
               usernameRegex.test(username) && isUsernameAvailable !== false,
-              true 
+              true,
             )}
           />
 
@@ -794,9 +789,7 @@ export default function GuestSignUpPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
             <div className="px-[24px] py-[32px] text-center">
-              <p className="typo-13-regular text-black">
-                {idModalMessage}
-              </p>
+              <p className="typo-13-regular text-black">{idModalMessage}</p>
             </div>
             <button
               type="button"
@@ -808,7 +801,6 @@ export default function GuestSignUpPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
