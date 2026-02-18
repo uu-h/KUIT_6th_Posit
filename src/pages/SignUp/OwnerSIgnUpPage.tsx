@@ -1,710 +1,209 @@
-import SignLeftArrowIcon from "../../assets/Login/Sign_left_arrow.svg";
+import ToggleOffIcon from "../../assets/Login/toggle_off.svg";
+import LeftArrowIcon from "../../assets/Login/left_arrow.svg";
+import ToggleOnIcon from "../../assets/Login/toggle_on.svg";
 import Button from "../../components/Button";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { login } from "../../api/auth";
 
 import EyeOnIcon from "../../assets/Login/eye_on.svg";
 import EyeOffIcon from "../../assets/Login/eye_off.svg";
+import { emitToast } from "../../utils/toastBus";
 
-import {
-  requestPhoneVerification,
-  confirmPhoneVerification,
-} from "../../api/phoneVerification";
-
-
-import { signup } from "../../api/auth";
-import { checkLoginId } from "../../api/auth";
-
-
-export default function OwnerSignUpPage() {
+export default function OwnerLoginPage() {
   const navigate = useNavigate();
 
-  // 아이디
-  const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
-  const [username, setUsername] = useState("");
-
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
-  const [isIdModalOpen, setIsIdModalOpen] = useState(false);
-  const [idModalMessage, setIdModalMessage] = useState("");
-
-  //중복확인 핸들러
-  const handleCheckUsername = async () => {
-    if (!usernameRegex.test(username)) {
-      setIdModalMessage("아이디 형식을 다시 확인해주세요.");
-      setIsIdModalOpen(true);
-      return;
-    }
-
-    try {
-      const isAvailable = await checkLoginId(username);
-
-      setIsUsernameAvailable(isAvailable);
-
-      if (isAvailable) {
-        setIdModalMessage("사용 가능한 아이디입니다.");
-      } else {
-        setIdModalMessage("중복된 아이디입니다.");
-      }
-
-      setIsIdModalOpen(true);
-    } catch (error) {
-      setIdModalMessage("아이디 중복 확인 중 오류가 발생했습니다.");
-      setIsIdModalOpen(true);
-    }
-  };
-
-
-
-  // 비밀번호
-  const passwordRegex =
-    /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{8,15}$/;
+  const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
-
-  //비밀번호 보이기/숨기기 
   const [showPassword, setShowPassword] = useState(false);
+  const [autoLogin, setAutoLogin] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // 이름
-  const nameRegex = /^[가-힣a-zA-Z]{2,20}$/;
-  const [name, setName] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // 휴대폰 
-  const [phone, setPhone] = useState("");
+  useEffect(() => {
+    const autoLoginFlag = localStorage.getItem("autoLogin");
+    const accessToken = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("role");
 
-  // 인증번호
-  const authCodeRegex = /^\d{6}$/;
-  const [authCode, setAuthCode] = useState("");
-
-  // 인증 성공 여부
-  const [isAuthVerified, setIsAuthVerified] = useState(false);
-
-  // 인증번호 모달
-  const [isAuthErrorModalOpen, setIsAuthErrorModalOpen] = useState(false);
-  const [isAuthSuccessModalOpen, setIsAuthSuccessModalOpen] = useState(false);
-
-  // ================= 인증 API 상태 =================
-  const [verificationId, setVerificationId] = useState<number | null>(null);
-  const [isRequestingAuth, setIsRequestingAuth] = useState(false);
-  const [isVerifyingAuth, setIsVerifyingAuth] = useState(false);
-
-  // ================= 인증번호 요청 함수 =================
-  const handleRequestAuthCode = async () => {
-    try {
-      setIsRequestingAuth(true);
-
-      const res = await requestPhoneVerification({
-        phone: phone.replace(/[^0-9]/g, ""),
-      });
-
-      // 성공
-      if (res.isSuccess) {
-        setVerificationId(res.data.verificationId);
-        alert("인증번호가 전송되었습니다.");
-        return;
-      }
-
-      // 서버 응답은 왔지만 실패한 경우
-      alert("인증번호 요청에 실패했습니다.");
-    } catch (error: any) {
-      // axios 에러 처리 (http.ts 기준)
-      if (error?.code === 40301) {
-        alert("인증 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.");
-        return;
-      }
-
-      alert("인증번호 요청 중 오류가 발생했습니다.");
-    } finally {
-      setIsRequestingAuth(false);
+    if (autoLoginFlag === "true" && accessToken && role === "OWNER") {
+      navigate("/owner/home", { replace: true });
     }
-  };
-  // ================= 인증번호 확인 함수 =================
-    const handleConfirmAuthCode = async () => {
-    if (!verificationId) return;
+  }, [navigate]);
 
-    try {
-      setIsVerifyingAuth(true);
-
-      const res = await confirmPhoneVerification({
-        verificationId,
-        phone: phone.replace(/[^0-9]/g, ""),
-        code: authCode,
-      });
-
-      if (res.isSuccess && res.data.verified) {
-        setSignupToken(res.data.signupToken ?? undefined);
-        setIsAuthVerified(true);
-        setIsAuthSuccessModalOpen(true);
-      } else {
-        setIsAuthErrorModalOpen(true);
-      }
-    } catch (error: any) {
-      // 에러 코드 분기 가능
-      setIsAuthErrorModalOpen(true);
-    } finally {
-      setIsVerifyingAuth(false);
-    }
-  };
-
-
-
-  // 사업자번호 
-  const businessNumberRegex = /^\d{10}$/;
-  const [businessNumber, setBusinessNumber] = useState("");
-
-  const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false);
-
-
-  // 쿠폰 비밀번호 (4자리)
-  const couponPasswordRegex = /^\d{4}$/;
-  const [couponPassword, setCouponPassword] = useState("");
-  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false)
-
-
-  // 휴대폰 포맷
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/[^0-9]/g, "").slice(0, 11);
-    if (numbers.length < 4) return numbers;
-    if (numbers.length < 8) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    }
-    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
-  };
-
-  // 사업자번호 포맷 
-  const formatBusinessNumber = (value: string) => {
-    const numbers = value.replace(/[^0-9]/g, "").slice(0, 10);
-    if (numbers.length < 4) return numbers;
-    if (numbers.length < 6) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    }
-    return `${numbers.slice(0, 3)}-${numbers.slice(3, 5)}-${numbers.slice(5)}`;
-  };
-
-  // signupToken 
-  const [signupToken, setSignupToken] = useState<string | undefined>(undefined);
-
-
-  // ================= 사장님 회원가입 =================
-  const handleSignup = async () => {
-    if (!isAuthVerified) {
-      alert("휴대폰 인증을 먼저 완료해주세요.");
+  const handleLogin = async () => {
+    if (!loginId || !password) {
+      setErrorMessage("아이디와 비밀번호를 입력해주세요.");
       return;
     }
 
     try {
-      const res = await signup({
-        role: "OWNER",
-        loginId: username,
+      setLoading(true);
+      setErrorMessage(null);
+
+      const res = await login({
+        loginId,
         password,
-        name,
-        phone: phone.replace(/[^0-9]/g, ""),
-        gender: "MALE", 
-        birth: "1900-01-01", 
-        //signupToken, 
-        //임시
-        signupToken: signupToken ?? "TEMP_TOKEN",
+      });
 
+      const { accessToken, refreshToken } = res.data.tokens;
+      const { role } = res.data.user;
 
-        // Owner 전용 필드
-        ownerProfile: {
-          businessNumber: businessNumber.replace(/[^0-9]/g, ""),
-          couponPin: couponPassword,
-        },
-      } as any); 
-
-      if (res.isSuccess) {
-        const { accessToken, refreshToken } = res.data.tokens;
-
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-
-        alert("사장님 회원가입이 완료되었습니다.");
-        navigate("/owner/store/register", {
-          state: {
-            couponPin: couponPassword,
-          },
+      // 사장님 로그인 화면에서는 OWNER만 허용
+      if (role !== "OWNER") {
+        emitToast({
+          message:
+            "사장님 계정이 아닙니다.\n게스트 로그인 화면을 이용해주세요.",
         });
 
+        // 혹시 남아있을 수 있는 값 정리
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("role");
+        localStorage.removeItem("autoLogin");
+        return;
       }
-      }catch (error: any) {
-          const errorCode = error?.response?.data?.errorCode;
 
-          switch (errorCode) {
-            case "DUPLICATE_LOGIN_ID":
-              setIsUsernameAvailable(false);
-              alert("이미 사용 중인 아이디입니다.");
-              break;
+      // role이 정상일 때만 토큰 저장
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("role", role);
 
-            case "DUPLICATE_PHONE":
-              alert("이미 가입된 휴대폰 번호입니다.");
-              break;
+      if (autoLogin) {
+        localStorage.setItem("autoLogin", "true");
+      } else {
+        localStorage.removeItem("autoLogin");
+      }
 
-            case "PHONE_VERIFICATION_REQUIRED":
-              alert("휴대폰 인증을 먼저 완료해주세요.");
-              break;
+      // 사장님 홈으로 이동
+      navigate("/owner/home", { replace: true });
+    } catch (error: any) {
+      console.error(error);
 
-            default:
-              alert("회원가입에 실패했습니다.");
-          }
-        }
+      const data = error?.response?.data;
 
+      // 1) DTO 검증 에러: errors 배열 첫 메시지 사용
+      const dtoMessage = data?.errors?.[0]?.message;
 
+      // 2) 커스텀/공통 에러: message가 있으면 사용
+      const serverMessage = data?.message;
 
+      // 3) 네트워크/기타 fallback
+      const fallbackMessage = error?.response
+        ? "로그인에 실패했습니다."
+        : "네트워크 연결을 확인해주세요.";
+
+      setErrorMessage(dtoMessage ?? serverMessage ?? fallbackMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
-    const isFormValid =
-    usernameRegex.test(username) &&
-    isUsernameAvailable === true && 
-    passwordRegex.test(password) &&
-    nameRegex.test(name) &&
-    phone.replace(/[^0-9]/g, "").length === 11 &&
-    isAuthVerified &&
-    businessNumberRegex.test(businessNumber.replace(/[^0-9]/g, "")) &&
-    couponPasswordRegex.test(couponPassword);
-
-
-  const inputClass = (value: string, hasRightArea = false) => `
-    w-full
-    h-[56px]
-    rounded-[8px]
-    border
-    border-neutrals-04
-    px-[16px]
-    ${hasRightArea ? "pr-[200px]" : ""}
-    ${value === "" ? "pt-[28px] leading-[normal]" : "leading-[56px]"}
-    typo-16-regular
-    focus:outline-none
-  `;
-
-    // ================= 아이디, 비밀번호 입력칸  =================
-    const authInputClass = (
-    value: string,
-    isValid: boolean,
-    hasRightArea = false
-  ) => `
-    w-full
-    h-[56px]
-    rounded-[8px]
-    border
-    px-[16px]
-    ${hasRightArea ? "pr-[200px]" : "pr-[48px]"}
-    ${value === "" ? "pt-[28px] leading-[normal]" : "leading-[56px]"}
-    typo-16-regular
-    focus:outline-none
-    ${
-      value === ""
-        ? "border-neutrals-04"
-        : isValid
-        ? "border-neutrals-04"
-        : "border-[#F00]"
-    }
-  `;
-
   return (
-    <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px] flex flex-col">
-      {/* 헤더 */}
-      <div className="flex flex-row">
-        <button className="w-fit flex items-center justify-center" onClick={() => navigate(-1)}>
+    <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px]">
+      {/* 상단 헤더 */}
+      <div className="mb-[40px] flex flex-col">
+        <button
+          className="w-fit flex items-center justify-center cursor-pointer"
+          onClick={() => navigate(-1)}
+        >
           <img
-            src={SignLeftArrowIcon}
+            src={LeftArrowIcon}
             alt="뒤로가기"
-            className="h-[16px] w-[16px]"
+            className="h-[24px] w-[24px]"
           />
         </button>
-        <h1 className="ml-[10px] typo-sub-title text-shades-02">
-          사장님 회원가입
+
+        <h1 className="mt-[40px] mb-[16px] typo-sub-title text-shades-02">
+          사장님 로그인
         </h1>
       </div>
 
-      {/* ================= 아이디 ================= */}
-      <div
-        className={`w-full ${
-          username !== "" &&
-          (!usernameRegex.test(username) || isUsernameAvailable === false)
-            ? "mt-[14px] mb-[7px]"
-            : "mt-[14px]"
-        }`}
-      >
-        <div className="relative w-full">
-          {username === "" && (
-            <span className="absolute top-[14px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-              아이디 [4~15자, 영문, 숫자]
-            </span>
-          )}
-
+      {/* 입력 폼 */}
+      <div className="flex flex-col gap-[24px]">
+        {/* 아이디 */}
+        <div className="flex flex-col">
+          <label className="mb-[8px] typo-16-regular text-neutrals-09">
+            아이디
+          </label>
           <input
-            type="text"
-            value={username}
-            onChange={(e) => {
-              setUsername(e.target.value);
-              setIsUsernameAvailable(null); // 아이디 변경 시 다시 확인 필요
-            }}
-            className={authInputClass(
-              username,
-              usernameRegex.test(username) && isUsernameAvailable !== false,
-              true // 오른쪽 버튼 공간 확보
-            )}
+            type="email"
+            value={loginId}
+            onChange={(e) => setLoginId(e.target.value)}
+            className="border-b border-neutrals-09 outline-none typo-16-medium"
           />
-
-          {/* 중복확인 버튼 */}
-          <button
-            type="button"
-            onClick={handleCheckUsername}
-            disabled={!usernameRegex.test(username)}
-            className={`
-              absolute right-[12px] top-1/2 -translate-y-1/2
-              w-[105px] h-[32px] rounded-[6px]
-              typo-14-medium border
-              ${
-                usernameRegex.test(username)
-                  ? "bg-primary-01 text-corals-000 cursor-pointer"
-                  : "border-primary-01 text-primary-01 cursor-not-allowed"
-              }
-            `}
-          >
-            중복확인
-          </button>
         </div>
 
-        {/* 기존 안내 문구 유지 */}
-        {username !== "" &&
-          (!usernameRegex.test(username) || isUsernameAvailable === false) && (
-            <p className="mt-[6px] typo-12-regular text-[#F00]">
-              {!usernameRegex.test(username)
-                ? "아이디를 다시 설정해주세요."
-                : "이미 사용 중인 아이디입니다."}
-            </p>
-          )}
-      </div>
+        {/* 비밀번호 */}
+        <div className="flex flex-col">
+          <label className="mb-[8px] typo-16-regular text-neutrals-09">
+            비밀번호
+          </label>
 
-
-
-      {/* ================= 비밀번호 ================= */}
-      <div
-        className={`w-full ${
-          password !== "" && !passwordRegex.test(password)
-            ? "mt-[14px] mb-[7px]"
-            : "mt-[14px]"
-        }`}
-      >
-        <div className="relative w-full">
-          {password === "" && (
-            <span className="absolute top-[14px] left-[16px] right-[48px] typo-13-regular text-neutrals-07 pointer-events-none">
-              비밀번호 [8~15자의 영문/숫자 또는 특수문자 조합]
-            </span>
-          )}
-
-          <input
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={authInputClass(password, passwordRegex.test(password))}
-          />
-
-          {/* 눈 아이콘 */}
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute top-1/2 right-[16px] -translate-y-1/2"
-          >
-            <img
-              src={showPassword ? EyeOnIcon : EyeOffIcon}
-              alt="비밀번호 토글"
-              className="w-[20px] h-[20px]"
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border-b border-neutrals-09 outline-none typo-16-medium pr-[32px]"
             />
-          </button>
+
+            {/* 눈 아이콘 */}
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-0 top-1/2 -translate-y-[60%]"
+            >
+              <img
+                src={showPassword ? EyeOnIcon : EyeOffIcon}
+                alt={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="w-[20px] h-[20px]"
+              />
+            </button>
+          </div>
+          {errorMessage && (
+            <p className="mt-[8px] typo-12-regular text-primary-01">
+              {errorMessage}
+            </p>
+          )}
         </div>
-
-        {/* 안내 문구 */}
-        {password !== "" && !passwordRegex.test(password) && (
-          <p className="mt-[6px] typo-12-regular text-[#F00]">
-            비밀번호를 다시 설정해주세요.
-          </p>
-        )}
       </div>
 
-
-      {/* 이름 */}
-      <div className="mt-[14px] relative w-full">
-        {name === "" && (
-          <span className="absolute top-[10px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-            이름
-          </span>
-        )}
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={inputClass(name)}
-        />
-      </div>
-
-      {/* 휴대폰 */}
-      <div className="mt-[14px] relative w-full">
-        {phone === "" && (
-          <span className="absolute top-[10px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-            휴대폰
-          </span>
-        )}
-        <input
-          type="tel"
-          value={formatPhoneNumber(phone)}
-          onChange={(e) => {
-            const onlyNumber = e.target.value.replace(/[^0-9]/g, "");
-            if (onlyNumber.length > 11) return;
-            setPhone(e.target.value);
-          }}
-          className={inputClass(phone, true)}
-        />
+      {/* 자동 로그인 / 찾기 */}
+      <div className="mt-[20px] flex items-center justify-between">
         <button
           type="button"
-          disabled={phone.replace(/[^0-9]/g, "").length !== 11 || isRequestingAuth}
-          onClick={handleRequestAuthCode}
-          className={`
-            absolute right-[12px] top-1/2 -translate-y-1/2
-            w-[105px] h-[32px] px-[12px] rounded-[6px]
-            typo-14-medium border
-            ${
-              phone.replace(/[^0-9]/g, "").length === 11
-                ? "bg-primary-01 text-corals-000 cursor-pointer"
-                : "border-primary-01 text-primary-01 cursor-not-allowed"
-            }
-          `}
+          onClick={() => setAutoLogin((prev) => !prev)}
+          className="flex items-center gap-[8px]"
         >
-          인증번호 요청
+          <img
+            src={autoLogin ? ToggleOnIcon : ToggleOffIcon}
+            alt={autoLogin ? "자동 로그인 활성화" : "자동 로그인 비활성화"}
+            className="h-[27px] w-[50px]"
+          />
+          <span className="typo-13-regular text-shades-02">자동 로그인</span>
         </button>
+
+        <button className="typo-13-regular text-shades-02">ID/PASS 찾기</button>
       </div>
 
-      {/* 인증번호 */}
-      <div className="mt-[14px] relative w-full">
-        {authCode === "" && (
-          <span className="absolute top-[10px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-            인증번호
-          </span>
-        )}
-        <input
-          type="tel"
-          value={authCode}
-          onChange={(e) => {
-            const onlyNumber = e.target.value.replace(/[^0-9]/g, "");
-            if (onlyNumber.length > 6) return;
-            setAuthCode(onlyNumber);
-          }}
-          className={inputClass(authCode, true)}
-        />
-      <button
-        type="button"
-        disabled={!authCodeRegex.test(authCode) || isVerifyingAuth}
-        onClick={handleConfirmAuthCode}
-        className={`
-          absolute right-[12px] top-1/2 -translate-y-1/2
-          w-[105px] h-[32px] px-[12px] rounded-[6px]
-          typo-14-medium border
-          ${
-            authCodeRegex.test(authCode)
-              ? "bg-primary-01 text-corals-000 cursor-pointer"
-              : "border-primary-01 text-primary-01 cursor-not-allowed"
-          }
-        `}
-      >
-        확인
-      </button>
+      {/* 로그인 버튼 */}
+      <Button className="mt-[32px]" onClick={handleLogin} disabled={loading}>
+        {loading ? "로그인 중..." : "로그인"}
+      </Button>
 
-      </div>
-
-      {/* 사업자번호 */}
-      <div className="mt-[14px] relative w-full">
-        {businessNumber === "" && (
-          <span className="absolute top-[10px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-            사업자번호
-          </span>
-        )}
-        <input
-          type="tel"
-          value={formatBusinessNumber(businessNumber)}
-          onChange={(e) => {
-            const onlyNumber = e.target.value.replace(/[^0-9]/g, "");
-            if (onlyNumber.length > 10) return;
-            setBusinessNumber(e.target.value);
-          }}
-          className={inputClass(businessNumber, true)}
-        />
-      <button
-        type="button"
-        disabled={
-          !businessNumberRegex.test(
-            businessNumber.replace(/[^0-9]/g, "")
-          )
-        }
-        onClick={() => {
-          setIsBusinessModalOpen(true);
-        }}
-        className={`
-          absolute right-[12px] top-1/2 -translate-y-1/2
-          w-[105px] h-[32px] px-[12px] rounded-[6px]
-          typo-14-medium border
-          ${
-            businessNumberRegex.test(
-              businessNumber.replace(/[^0-9]/g, "")
-            )
-              ? "bg-primary-01 text-corals-000 cursor-pointer"
-              : "border-primary-01 text-primary-01 cursor-not-allowed"
-          }
-        `}
-      >
-        확인
-      </button>
-
-      </div>
-
-      {/* 쿠폰 비밀번호 */}
-      <div className="mt-[14px] relative w-full">
-        {couponPassword === "" && (
-          <span className="absolute top-[10px] left-[16px] typo-13-regular text-neutrals-07 pointer-events-none">
-            쿠폰 비밀번호
-          </span>
-        )}
-        <input
-          type="tel"
-          value={couponPassword}
-          onChange={(e) => {
-            const onlyNumber = e.target.value.replace(/[^0-9]/g, "");
-            if (onlyNumber.length > 4) return;
-            setCouponPassword(onlyNumber);
-          }}
-          className={inputClass(couponPassword, true)}
-        />
+      {/* 회원가입 */}
+      <div className="mt-[24px] flex items-center justify-center gap-[26px]">
+        <span className="typo-16-medium text-neutrals-06">
+          아직 회원이 아니신가요?
+        </span>
         <button
-          type="button"
-          disabled={!couponPasswordRegex.test(couponPassword)}
-          onClick={()=> {
-             setIsCouponModalOpen(true);
-           }}
-          className={`
-            absolute right-[12px] top-1/2 -translate-y-1/2
-            w-[105px] h-[32px] px-[12px] rounded-[6px]
-            typo-14-medium border
-            ${
-              couponPasswordRegex.test(couponPassword)
-                ? "bg-primary-01 text-corals-000 cursor-pointer"
-                : "border-primary-01 text-primary-01 cursor-not-allowed"
-            }
-          `}
+          className="typo-16-bold text-neutrals-08 cursor-pointer"
+          onClick={() => navigate("/owner/signup")}
         >
-          설정
+          간편 회원가입
         </button>
       </div>
-
-    <Button
-      className="mt-auto mb-[24px]"
-      disabled={!isFormValid}
-      onClick={handleSignup}
-    >
-      가입하기
-    </Button>
-
-
-    {/* ================= 인증번호 실패 모달 ================= */}
-    {isAuthErrorModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
-          <div className="px-[24px] py-[32px] text-center">
-            <p className="typo-13-regular text-black">
-              수신된 인증번호를 다시 확인 해주세요.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsAuthErrorModalOpen(false)}
-            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
-          >
-            확인
-          </button>
-        </div>
-      </div>
-    )}
-
-    {/* ================= 인증번호 성공 모달 ================= */}
-    {isAuthSuccessModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
-          <div className="px-[24px] py-[32px] text-center">
-            <p className="typo-13-regular text-black">
-              인증이 완료되었습니다.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setIsAuthVerified(true);     
-              setIsAuthSuccessModalOpen(false);
-            }}
-            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
-          >
-            확인
-          </button>
-        </div>
-      </div>
-    )}
-
-    {/* ================= 쿠폰 비밀번호 설정 완료 모달 ================= */}
-    {isCouponModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
-          <div className="px-[24px] py-[32px] text-center">
-            <p className="typo-13-regular text-black">
-              쿠폰 비밀번호 설정이 완료되었습니다.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsCouponModalOpen(false)}
-            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
-          >
-            확인
-          </button>
-        </div>
-      </div>
-    )}
-
-    {/* ================= 사업자번호 확인 완료 모달 ================= */}
-    {isBusinessModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
-          <div className="px-[24px] py-[32px] text-center">
-            <p className="typo-13-regular text-black">
-              사업자 번호가 확인되었습니다.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsBusinessModalOpen(false)}
-            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
-          >
-            확인
-          </button>
-        </div>
-      </div>
-    )}
-
-    {/* ================= 아이디 중복확인 모달 ================= */}
-    {isIdModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
-          <div className="px-[24px] py-[32px] text-center">
-            <p className="typo-13-regular text-black">
-              {idModalMessage}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsIdModalOpen(false)}
-            className="w-full h-[52px] border-t border-neutrals-04 typo-16-medium text-primary-01"
-          >
-            확인
-          </button>
-        </div>
-      </div>
-    )}
     </div>
   );
 }
