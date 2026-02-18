@@ -16,6 +16,7 @@ export default function MyPage() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("autoLogin");
+    localStorage.removeItem("role");
 
     navigate("/guest/login", { replace: true });
   };
