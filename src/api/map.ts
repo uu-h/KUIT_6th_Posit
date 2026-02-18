@@ -201,7 +201,7 @@ export function mapStoreDetailDtoToStoreDetail(
     .slice()
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     .map((m, idx) => ({
-      id: `menu_${dto.storeId}_${m.order ?? idx}`, // ✅ key용
+      id: `menu_${dto.storeId}_${m.order ?? idx}`, 
       name: m.name ?? "-",
       price: m.price ?? 0,
       imageUrl: m.imageUrl ?? undefined,
@@ -229,7 +229,6 @@ export function mapStoreDetailDtoToStoreDetail(
 
     menus,
 
-    // 있으면 UI 확장용
     description: dto.description ?? undefined,
     convinces,
     snsLink: dto.snsLink,

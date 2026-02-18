@@ -90,13 +90,11 @@ export default function GuestPositWaitingAnswer() {
     }
   };
 
-  // 최초 마운트 시 카운트 채우기
   useEffect(() => {
     fetchAnswers("ANSWER", true);
     fetchAnswers("FREE", true);
   }, []);
 
-  // selectedType 바뀔 때마다 리스트 로드
   useEffect(() => {
     setLoading(true);
     fetchAnswers(selectedType)
@@ -104,7 +102,7 @@ export default function GuestPositWaitingAnswer() {
   }, [selectedType]);
 
   const handleToggle = (type: AnswerType) => {
-    setSearchParams({ type }); // 🔥 URL에 저장
+    setSearchParams({ type });
   };
 
   return (

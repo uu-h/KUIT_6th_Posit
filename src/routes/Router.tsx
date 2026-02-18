@@ -47,6 +47,12 @@ import OwnerMyConcerAnswerPage from "../pages/Owner/Home/OwnerMyConcernAnswerPag
 import OwnerCouponAdoptionDetailPage from "../pages/Owner/Coupon/OwnerCouponAdoptionDetailPage";
 import GuestPositOwnerConcernPage from "../pages/Guest/Posit/GuestPositOwnerConcernPage";
 
+import StoreModify from "../pages/Owner/Registration/Modify/StoreModify";
+import StoreModifyAmenities from "../pages/Owner/Registration/Modify/StoreModifyAmenities";
+import StoreModifyHours from "../pages/Owner/Registration/Modify/StoreModifyHours";
+import StoreModifyPhoto from "../pages/Owner/Registration/Modify/StoreModifyPhoto";
+import AddressModify from "../pages/Owner/Registration/Modify/AddressModify";
+
 export default function Router() {
   return (
     <Routes>
@@ -171,6 +177,22 @@ export default function Router() {
         path="/owner/store/register/amenities"
         element={<StoreRegisterAmenities />}
       />
+
+      {/* Owner - Store Info Modify*/}
+      <Route path="/owner/store/modify" element={<StoreModify/>} />
+      <Route
+        path="/owner/store/modify/photo"
+        element={<StoreModifyPhoto />}
+      />
+      <Route
+        path="/owner/store/modify/hours"
+        element={<StoreModifyHours />}
+      />
+      <Route
+        path="/owner/store/modify/amenities"
+        element={<StoreModifyAmenities />}
+      />
+      <Route path="/owner/store/modify/address-search" element={<AddressModify/>}/>
     </Routes>
   );
 }

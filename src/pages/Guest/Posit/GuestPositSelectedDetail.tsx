@@ -50,6 +50,8 @@ export default function GuestPositSelectedDetail() {
     <div className="flex flex-col h-screen">
       <AppBar title="채택 된 답변" layout="left" leftType="left" />
 
+      {/* 스크롤 영역 */}
+      <div className="flex-1 overflow-y-auto pb-[120px] no-scrollbar">
       <div className="flex flex-col gap-[11px] mx-[16px]">
         {isAnswer && (
           <div className="flex flex-col justify-center p-[21px] bg-corals-000 h-[100px] rounded-[8px] border border-primary-01">
@@ -81,7 +83,7 @@ export default function GuestPositSelectedDetail() {
       />
       )}
 
-
+      </div>
       <BottomBar active="posit" onChange={() => {}} />
     </div>
   );
