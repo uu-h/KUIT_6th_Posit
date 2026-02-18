@@ -11,6 +11,7 @@ import PhotoPlusIcon from "../../../../assets/Owner/Registration/PhotoPlus.svg";
 import CameraIcon from "../../../../assets/Owner/Registration/Camera.svg";
 import GalleryIcon from "../../../../assets/Owner/Registration/Gallery.svg";
 import CloseIcon from "../../../../assets/Common/Close.svg";
+import PhotoDeleteIcon from "../../../../assets/Owner/Registration/PhotoDelete.svg";
 
 export default function StoreModify() {
   const navigate = useNavigate();
@@ -231,9 +232,45 @@ export default function StoreModify() {
             <div key={idx} className="mt-2 space-y-2 pb-5 overflow-hidden">
               <input value={menuNames[idx]} onChange={(e) => { const n = [...menuNames]; n[idx] = e.target.value; setMenuNames(n); }} placeholder="메뉴명" className="w-full h-[48px] rounded-lg border border-neutrals-04 px-3 outline-none focus:border-primary-01" />
               <input value={menuPrices[idx]} onChange={(e) => { const p = [...menuPrices]; p[idx] = e.target.value; setMenuPrices(p); }} placeholder="가격" className="w-full h-[48px] rounded-lg border border-neutrals-04 px-3 outline-none focus:border-primary-01" />
-              <div onClick={() => { setCurrentMenuIndex(idx); setIsPhotoModalOpen(true); }} className="w-[111px] h-[111px] rounded-lg flex items-center justify-center cursor-pointer bg-neutrals-01">
-                {menuImages[idx] ? <img src={menuImages[idx]!} className="w-full h-full object-cover rounded-[8px]" /> : <img src={PhotoPlusIcon} className="w-8 h-8" />}
+              <div
+                className="relative w-[111px] h-[111px] rounded-lg overflow-hidden bg-neutrals-01"
+              >
+                <div
+                  onClick={() => {
+                    setCurrentMenuIndex(idx);
+                    setIsPhotoModalOpen(true);
+                  }}
+                  className="w-full h-full flex items-center justify-center cursor-pointer"
+                >
+                  {menuImages[idx] ? (
+                    <img
+                      src={menuImages[idx]!}
+                      className="w-full h-full object-cover rounded-[8px]"
+                    />
+                  ) : (
+                    <img src={PhotoPlusIcon} className="w-8 h-8" />
+                  )}
+                </div>
+
+                {/* 삭제 버튼 */}
+                {menuImages[idx] && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuImages((prev) => {
+                        const next = [...prev];
+                        next[idx] = null;
+                        return next;
+                      });
+                    }}
+                    className="absolute top-1 right-1 w-6 h-6"
+                  >
+                    <img src={PhotoDeleteIcon} className="w-full h-full" />
+                  </button>
+                )}
               </div>
+
+
             </div>
           ))}
         </div>
