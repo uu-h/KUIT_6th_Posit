@@ -83,3 +83,8 @@ src/
 ## 🚀 Live Demo
 
 👉 https://kuit-6th-posit.vercel.app/
+
+
+<img width="357" height="357" alt="217QP" src="https://github.com/user-attachments/assets/e990d15e-8016-48dd-9ee2-a7729e98f47a" />
+
+
