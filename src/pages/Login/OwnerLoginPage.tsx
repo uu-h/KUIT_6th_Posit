@@ -87,7 +87,7 @@ export default function OwnerLoginPage() {
       <div className="mb-[40px] flex flex-col">
         <button
           className="w-fit flex items-center justify-center cursor-pointer"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/type", { replace: true })}
         >
           <img
             src={LeftArrowIcon}
