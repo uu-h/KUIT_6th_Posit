@@ -12,6 +12,16 @@ export default function MyPage() {
 
   const { data: me, isLoading, isError } = useMe();
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("autoLogin");
+    localStorage.removeItem("role");
+
+    navigate("/owner/login", { replace: true });
+  };
+
+
   const menus: Menu[] = [
     {
       key: "policy",
@@ -32,6 +42,11 @@ export default function MyPage() {
       key: "store",
       label: "내 가게 관리",
       onClick: () => navigate("/owner/my/store"),
+    },
+    {
+      key: "logout",
+      label: "로그아웃",
+      onClick: handleLogout,
     },
   ];
 

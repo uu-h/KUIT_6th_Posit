@@ -2,9 +2,10 @@ import ToggleOffIcon from "../../assets/Login/toggle_off.svg";
 import LeftArrowIcon from "../../assets/Login/left_arrow.svg";
 import ToggleOnIcon from "../../assets/Login/toggle_on.svg";
 import Button from "../../components/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../api/auth";
+
 
 import EyeOnIcon from "../../assets/Login/eye_on.svg";
 import EyeOffIcon from "../../assets/Login/eye_off.svg";
@@ -18,6 +19,25 @@ export default function GuestLoginPage() {
   const [password, setPassword] = useState("");
   const [autoLogin, setAutoLogin] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const autoLoginFlag = localStorage.getItem("autoLogin");
+    const accessToken = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("role");
+
+    if (
+      autoLoginFlag === "true" &&
+      accessToken &&
+      role === "GUEST"
+    ) {
+      navigate("/guest/home", { replace: true });
+    }
+  }, [navigate]);
+
+
+
+
+
 
   const handleLogin = async () => {
     if (!loginId || !password) {
@@ -40,9 +60,12 @@ export default function GuestLoginPage() {
       // 토큰 저장
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("role", role);
 
       if (autoLogin) {
         localStorage.setItem("autoLogin", "true");
+      } else {
+        localStorage.removeItem("autoLogin");
       }
 
       // 게스트 로그인 화면에서는 GUEST만 허용
