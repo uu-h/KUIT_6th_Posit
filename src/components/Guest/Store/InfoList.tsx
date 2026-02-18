@@ -91,6 +91,9 @@ export default function InfoList({
                       <span className="typo-14-semibold flex-shrink-0">
                         {store.statusText}
                       </span>
+                      <p className="typo-14-regular text-neutrals-07 truncate">
+                        {row.value}
+                      </p>
                     </div>
                   ) : (
                     <p className="typo-14-regular text-neutrals-07 truncate">
