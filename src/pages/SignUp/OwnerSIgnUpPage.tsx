@@ -358,7 +358,9 @@ export default function OwnerSignUpPage() {
       <div
         className={`w-full ${
           username !== "" &&
-          (!usernameRegex.test(username) || isUsernameAvailable === false)
+          (!usernameRegex.test(username) ||
+            isUsernameAvailable === false ||
+            !!loginIdServerError)
             ? "mt-[14px] mb-[7px]"
             : "mt-[14px]"
         }`}
@@ -375,7 +377,8 @@ export default function OwnerSignUpPage() {
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
-              setIsUsernameAvailable(null); // 아이디 변경 시 다시 확인 필요
+              setIsUsernameAvailable(null);
+              clearFieldError("loginId");
             }}
             className={authInputClass(
               username,
@@ -404,13 +407,14 @@ export default function OwnerSignUpPage() {
           </button>
         </div>
 
-        {/* 안내 문구 */}
         {username !== "" &&
-          (!usernameRegex.test(username) || isUsernameAvailable === false) && (
-            <p className="mt-[6px] typo-12-regular text-[#F00]">
+          (!usernameRegex.test(username) ||
+            isUsernameAvailable === false ||
+            !!loginIdServerError) && (
+            <p className="mt-[6px] typo-12-regular text-primary-01">
               {!usernameRegex.test(username)
                 ? "아이디를 다시 설정해주세요."
-                : "이미 사용 중인 아이디입니다."}
+                : (loginIdServerError ?? "이미 사용 중인 아이디입니다.")}
             </p>
           )}
       </div>

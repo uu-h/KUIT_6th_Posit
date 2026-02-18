@@ -10,6 +10,8 @@ import squareUnchecked from "../../../assets/Owner/Posit/checkbox_square_uncheck
 
 import { adoptAnswer } from "../../../api/posit";
 import { getOwnerCouponTemplates } from "../../../api/coupon";
+import { normalizeApiError } from "../../../api/apiError";
+import { emitToast } from "../../../utils/toastBus";
 
 type Props = {
   memoId: number;
@@ -39,7 +41,10 @@ export default function AdoptModal({ memoId, onClose }: Props) {
         const data = await getOwnerCouponTemplates();
         setCoupons(data);
       } catch (error) {
-        alert("쿠폰 목록을 불러오지 못했어요.");
+        const e = normalizeApiError(error);
+        emitToast({
+          message: e.message ?? "쿠폰 목록을 불러오지 못했어요.",
+        });
       } finally {
         setFetching(false);
       }
@@ -49,7 +54,7 @@ export default function AdoptModal({ memoId, onClose }: Props) {
   }, []);
 
   const handleConfirm = async () => {
-    if (selected === null) return;
+    if (selected === null || !coupons[selected]) return;
 
     try {
       setLoading(true);
@@ -59,10 +64,32 @@ export default function AdoptModal({ memoId, onClose }: Props) {
         message: sendMessage ? message.trim() : "",
       });
 
-      // 채택 성공 후 이동
+      // 채택 성공
       navigate(`/owner/inbox/${memoId}/adopted`);
     } catch (error) {
-      alert("채택 처리에 실패했습니다.");
+      const e = normalizeApiError(error);
+      const msg = e.message ?? "채택 처리에 실패했습니다.";
+
+      // 409: 이미 처리됨 → 채택 완료 화면으로
+      if (e.errorCode === "MEMO_DECISION_DUPLICATE") {
+        emitToast({ message: msg });
+        navigate(`/owner/inbox/${memoId}/adopted`);
+        return;
+      }
+
+      // 403 / 404 → 접근 불가 → inbox 이동
+      if (
+        e.errorCode === "MEMO_STORE_FORBIDDEN" ||
+        e.errorCode === "STORE_NOT_FOUND"
+      ) {
+        emitToast({ message: msg });
+        onClose();
+        navigate("/owner/inbox");
+        return;
+      }
+
+      // 기본: 서버 message 그대로
+      emitToast({ message: msg });
     } finally {
       setLoading(false);
     }
@@ -71,12 +98,9 @@ export default function AdoptModal({ memoId, onClose }: Props) {
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
       <div className="bg-white w-[343px] h-[461px] rounded-[16px] p-[16px] flex flex-col">
-        
         {/* Header */}
         <div className="flex justify-between items-center">
-          <p className="mt-[8px] ml-[6px] typo-sub-title">
-            쿠폰 지급하기
-          </p>
+          <p className="mt-[8px] ml-[6px] typo-sub-title">쿠폰 지급하기</p>
           <img
             src={closeIcon}
             onClick={onClose}
@@ -88,9 +112,7 @@ export default function AdoptModal({ memoId, onClose }: Props) {
         {/* 쿠폰 목록 */}
         <div className="mt-[26px] pl-[5px] flex flex-col gap-[16px] overflow-y-auto">
           {fetching ? (
-            <p className="typo-14-regular text-neutrals-06">
-              불러오는 중...
-            </p>
+            <p className="typo-14-regular text-neutrals-06">불러오는 중...</p>
           ) : coupons.length === 0 ? (
             <p className="typo-14-regular text-neutrals-06">
               등록된 쿠폰이 없습니다.
@@ -103,17 +125,11 @@ export default function AdoptModal({ memoId, onClose }: Props) {
                 onClick={() => setSelected(idx)}
               >
                 <img
-                  src={
-                    selected === idx
-                      ? circleChecked
-                      : circleUnchecked
-                  }
+                  src={selected === idx ? circleChecked : circleUnchecked}
                   className="w-[20px]"
                   alt="선택"
                 />
-                <p className="typo-15-regular text-neutrals-07">
-                  {item.title}
-                </p>
+                <p className="typo-15-regular text-neutrals-07">{item.title}</p>
               </div>
             ))
           )}
@@ -132,9 +148,7 @@ export default function AdoptModal({ memoId, onClose }: Props) {
             className="w-[20px]"
             alt="체크"
           />
-          <p className="typo-15-regular text-neutrals-09">
-            감사 메시지 보내기
-          </p>
+          <p className="typo-15-regular text-neutrals-09">감사 메시지 보내기</p>
         </div>
 
         {/* 메시지 입력 */}
@@ -151,12 +165,10 @@ export default function AdoptModal({ memoId, onClose }: Props) {
           </p>
         </div>
 
-        {/* 하단 버튼 */}
+        {/* 버튼 */}
         <Button
           variant="primary"
-          disabled={
-            selected === null || loading || coupons.length === 0
-          }
+          disabled={selected === null || loading || coupons.length === 0}
           className="mt-auto"
           onClick={handleConfirm}
         >

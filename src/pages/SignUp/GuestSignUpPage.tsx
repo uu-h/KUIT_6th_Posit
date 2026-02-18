@@ -345,6 +345,10 @@ export default function GuestSignUpPage() {
     }
   };
 
+  //아이디 중복 확인
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<
+    boolean | null
+  >(null);
 
   // ================= 공통 클래스 =================
   const inputClass = (value: string, hasRightArea = false) => `
@@ -501,15 +505,16 @@ export default function GuestSignUpPage() {
 
         {/* 안내 문구 */}
         {username !== "" &&
-          (!usernameRegex.test(username) || isUsernameAvailable === false) && (
-            <p className="mt-[6px] typo-12-regular text-[#F00]">
+          (!usernameRegex.test(username) ||
+            isUsernameAvailable === false ||
+            !!loginIdServerError) && (
+            <p className="mt-[6px] typo-12-regular text-primary-01">
               {!usernameRegex.test(username)
                 ? "아이디를 다시 설정해주세요."
-                : "이미 사용 중인 아이디입니다."}
+                : (loginIdServerError ?? "이미 사용 중인 아이디입니다.")}
             </p>
           )}
       </div>
-
 
       {/* ================= 비밀번호 ================= */}
       <div
