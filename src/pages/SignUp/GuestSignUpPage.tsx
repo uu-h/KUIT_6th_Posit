@@ -18,7 +18,7 @@ import { emitToast } from "../../utils/toastBus";
 export default function GuestSignUpPage() {
   const navigate = useNavigate();
 
-  // 에러 분기
+  // ================= 에러 분기 =================
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [authErrorMessage, setAuthErrorMessage] = useState<string | null>(null);
@@ -574,13 +574,13 @@ export default function GuestSignUpPage() {
         >
           인증번호 요청
         </button>
-        {/* 안내문구 */}
-        {fieldErrors["phone"] && (
-          <p className="mt-[6px] typo-12-regular text-primary-01">
-            {fieldErrors["phone"]}
-          </p>
-        )}
       </div>
+      {/* 안내문구 */}
+      {fieldErrors["phone"] && (
+        <p className="mt-[6px] typo-12-regular text-primary-01">
+          {fieldErrors["phone"]}
+        </p>
+      )}
 
       {/* ================= 인증번호 ================= */}
       <div className="mt-[14px] relative w-full">
