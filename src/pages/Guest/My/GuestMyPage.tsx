@@ -18,9 +18,8 @@ export default function MyPage() {
     localStorage.removeItem("autoLogin");
     localStorage.removeItem("role");
 
-    navigate("/guest/login", { replace: true });
+    navigate("/type", { replace: true });
   };
-
 
   const menus: Menu[] = [
     {
@@ -34,9 +33,9 @@ export default function MyPage() {
       onClick: () => navigate("/guest/my/account"),
     },
     {
-    key: "logout",
-    label: "로그아웃",
-    onClick: handleLogout,
+      key: "logout",
+      label: "로그아웃",
+      onClick: handleLogout,
     },
   ];
 

@@ -4,6 +4,7 @@ import AppBar from "../../components/Common/AppBar";
 import EyeOffIcon from "../../assets/Common/EyeClose.svg";
 import EyeIcon from "../../assets/Common/EyeOpen.svg";
 import { http } from "../../api/http";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MeResponse {
   loginId: string;
@@ -17,6 +18,8 @@ export default function MyAccountContent() {
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const queryClient = useQueryClient();
 
   // 폼 상태
   const [form, setForm] = useState({
@@ -34,14 +37,6 @@ export default function MyAccountContent() {
     if (numbers.length < 4) return numbers;
     if (numbers.length < 8) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
-  };
-
-  const formatBirthDate = (value: string) => {
-    const numbers = value.replace(/[^0-9]/g, "").slice(0, 8);
-    if (numbers.length < 5) return numbers;
-    if (numbers.length < 7)
-      return `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
-    return `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
   };
 
   const handleChange = (key: string, value: string) => {
@@ -105,6 +100,8 @@ export default function MyAccountContent() {
       const res = await http.patch("/users/me", payload);
 
       if (res.data.isSuccess) {
+        await queryClient.invalidateQueries({ queryKey: ["me"] });
+
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -176,19 +173,6 @@ export default function MyAccountContent() {
                 value={formatPhoneNumber(form.phone)}
                 onChange={(e) =>
                   handleChange("phone", e.target.value.replace(/[^0-9]/g, ""))
-                }
-                className={inputClass}
-              />
-            </div>
-
-            {/* 생년월일 */}
-            <div>
-              <p className={sectionLabel}>생년월일</p>
-              <input
-                type="tel"
-                value={formatBirthDate(form.birth)}
-                onChange={(e) =>
-                  handleChange("birth", e.target.value.replace(/[^0-9]/g, ""))
                 }
                 className={inputClass}
               />
