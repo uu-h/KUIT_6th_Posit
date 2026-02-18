@@ -8,6 +8,9 @@ import { createOwnerConcern } from "../../../api/ownerConcern";
 import { useNavigate } from "react-router-dom";
 import InfoLine from "../../../components/Owner/Posit/InfoLine";
 
+import { normalizeApiError } from "../../../api/apiError";
+import { emitToast } from "../../../utils/toastBus";
+
 export default function OwnerPositMyConcernPage() {
   const navigate = useNavigate();
 
@@ -29,19 +32,17 @@ export default function OwnerPositMyConcernPage() {
     try {
       setSubmitting(true);
 
-      const payload = {
+      await createOwnerConcern({
         content: content.trim(),
-      };
-
-      const result = await createOwnerConcern(payload);
-
-      if (!result.isSuccess) {
-        throw new Error("고민 등록에 실패했어요.");
-      }
+      });
 
       setOpenSuccess(true);
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "요청 중 오류가 발생했어요.");
+    } catch (err: unknown) {
+      const n = normalizeApiError(err);
+
+      emitToast({
+        message: n.message ?? "요청 중 오류가 발생했어요.",
+      });
     } finally {
       setSubmitting(false);
     }
