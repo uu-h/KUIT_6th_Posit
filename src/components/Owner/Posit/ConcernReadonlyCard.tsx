@@ -20,6 +20,9 @@ export default function ConcernReadonlyCard({
   const formatDate = (dateString: string) => {
     const d = new Date(dateString);
 
+    // 임시 수동 보정 (+18시간)
+    d.setHours(d.getHours() + 18);
+
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
@@ -47,7 +50,6 @@ export default function ConcernReadonlyCard({
         min-h-[350px]
       "
     >
-      {/* 상단 프로필 영역 */}
       <div className="flex items-start justify-between">
         <div className="flex gap-[19px]">
           <img
@@ -55,14 +57,12 @@ export default function ConcernReadonlyCard({
             alt="profile"
             className="w-[56px] h-[56px]"
           />
-
           <div className="flex flex-col justify-center gap-[8px]">
             <p className="typo-14-semibold text-black">@{name}</p>
           </div>
         </div>
       </div>
 
-      {/* 제목 / 날짜 */}
       <div className="mt-[24px] flex flex-col gap-[16px]">
         <p className="typo-16-semibold text-black">{title}</p>
         <p className="typo-12-semibold text-neutrals-07">
@@ -70,10 +70,8 @@ export default function ConcernReadonlyCard({
         </p>
       </div>
 
-      {/* 구분선 */}
       <div className="h-[1px] bg-neutrals-05 mt-[16px] mb-[16px]" />
 
-      {/* 이미지 (있을 때만) */}
       {imageUrl && (
         <div>
           <img
@@ -84,7 +82,6 @@ export default function ConcernReadonlyCard({
         </div>
       )}
 
-      {/* 내용 */}
       <p className="pt-[16px] typo-14-regular text-black leading-[175%] whitespace-pre-line">
         {content}
       </p>

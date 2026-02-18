@@ -2,14 +2,13 @@ import { useEffect, useMemo, useRef } from "react";
 import AppBar from "../../../components/Common/AppBar";
 import ConcernList from "../../../components/Owner/Home/ConcernList";
 import { useMyConcernsInfinite } from "../../../hooks/useMyConcernsInfinite";
-import { timeAgo } from "../../../utils/timeAgo";
 import { useNavigate } from "react-router-dom";
 
 type Concern = {
   id: number | string;
   title: string;
   content: string;
-  createdAt: string; // "2일 전"
+  createdAt: string;
   commentCount: number;
 };
 
@@ -26,7 +25,27 @@ export default function OwnerMyConcernsPage() {
     refetch,
   } = useMyConcernsInfinite({ size: 10 });
 
-  // 서버가 준 순서 그대로 + timeAgo만 적용
+  // 18시간 보정 + 상대시간 직접 계산
+  const formatRelativeTime = (iso: string) => {
+    const d = new Date(iso);
+
+    // 18시간 수동 보정
+    d.setHours(d.getHours() + 18);
+
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffMin < 1) return "방금 전";
+    if (diffMin < 60) return `${diffMin}분 전`;
+    if (diffHour < 24) return `${diffHour}시간 전`;
+    if (diffDay < 10) return `${diffDay}일 전`;
+
+    return d.toLocaleDateString("ko-KR");
+  };
+
   const items: Concern[] = useMemo(() => {
     const list = ((data as any)?.flat ?? []) as any[];
 
@@ -34,7 +53,7 @@ export default function OwnerMyConcernsPage() {
       id: c.concernId,
       title: c.title ?? c.content ?? "",
       content: c.content ?? "",
-      createdAt: timeAgo(c.createdAt),
+      createdAt: formatRelativeTime(c.createdAt),
       commentCount: c.commentCount ?? 0,
     }));
   }, [data]);
@@ -94,7 +113,9 @@ export default function OwnerMyConcernsPage() {
         <div ref={sentinelRef} className="h-[1px]" />
 
         {isFetchingNextPage && (
-          <p className="typo-12-medium text-center py-3">더 불러오는 중...</p>
+          <p className="typo-12-medium text-center py-3">
+            더 불러오는 중...
+          </p>
         )}
 
         {!hasNextPage && !isLoading && items.length > 0 && (
