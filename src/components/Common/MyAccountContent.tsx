@@ -36,14 +36,6 @@ export default function MyAccountContent() {
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
   };
 
-  const formatBirthDate = (value: string) => {
-    const numbers = value.replace(/[^0-9]/g, "").slice(0, 8);
-    if (numbers.length < 5) return numbers;
-    if (numbers.length < 7)
-      return `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
-    return `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
-  };
-
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
@@ -176,19 +168,6 @@ export default function MyAccountContent() {
                 value={formatPhoneNumber(form.phone)}
                 onChange={(e) =>
                   handleChange("phone", e.target.value.replace(/[^0-9]/g, ""))
-                }
-                className={inputClass}
-              />
-            </div>
-
-            {/* 생년월일 */}
-            <div>
-              <p className={sectionLabel}>생년월일</p>
-              <input
-                type="tel"
-                value={formatBirthDate(form.birth)}
-                onChange={(e) =>
-                  handleChange("birth", e.target.value.replace(/[^0-9]/g, ""))
                 }
                 className={inputClass}
               />
