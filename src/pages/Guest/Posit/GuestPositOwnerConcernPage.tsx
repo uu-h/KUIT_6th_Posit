@@ -14,6 +14,9 @@ import BottomToast from "../../../components/Guest/Posit/BottomToast";
 import { createStoreMemo } from "../../../api/posit";
 import { getPresignedUrlWithKey, uploadToS3 } from "../../../api/image";
 
+import { normalizeApiError } from "../../../api/apiError";
+import { emitToast } from "../../../utils/toastBus";
+
 type LocationState = {
   storeName?: string;
   restore?: unknown;
@@ -52,6 +55,7 @@ export default function GuestPositOwnerConcernPage() {
 
   const MAX_LEN = 150;
 
+  // 페이지 내 로컬 토스트(비활성 버튼/파라미터 사전검증 등)용
   const showToast = (msg: string) => {
     setToast({ open: true, message: msg });
     window.setTimeout(() => setToast({ open: false, message: "" }), 1000);
@@ -81,7 +85,7 @@ export default function GuestPositOwnerConcernPage() {
 
       let uploadedImageKey: string | null = null;
 
-      // 1) 이미지 업로드 (FREE와 동일)
+      // 1) 이미지 업로드
       if (image) {
         const { uploadUrl, imageKey } = await getPresignedUrlWithKey({
           purpose: "MEMO_IMAGE",
@@ -113,9 +117,30 @@ export default function GuestPositOwnerConcernPage() {
 
       setCreatedMemoId(result.memoId);
       setSuccessOpen(true);
-    } catch (e: unknown) {
-      if (e instanceof Error) showToast(e.message);
-      else showToast("등록 중 오류가 발생했어요.");
+    } catch (err: unknown) {
+      const n = normalizeApiError(err);
+      const msg = n.message ?? "등록 중 오류가 발생했어요.";
+
+      // ANSWER 작성 페이지 기준 최소 분기
+      // - CONCERN_NOT_FOUND / CONCERN_STORE_MISMATCH: 고민글 문제
+      // - STORE_NOT_FOUND: 가게 문제
+      // - 그 외: 서버 message 그대로
+      switch (n.errorCode) {
+        case "CONCERN_NOT_FOUND":
+        case "CONCERN_STORE_MISMATCH":
+          emitToast({ message: msg });
+          navigate("/guest/home");
+          break;
+
+        case "STORE_NOT_FOUND":
+          emitToast({ message: msg });
+          navigate("/guest/home");
+          break;
+
+        default:
+          emitToast({ message: msg });
+          break;
+      }
     } finally {
       setSubmitting(false);
     }
@@ -134,10 +159,7 @@ export default function GuestPositOwnerConcernPage() {
       <div className="min-h-dvh bg-white overflow-x-hidden">
         <div className="px-4 pt-[49px]">
           <ModalHeader title="사장님 고민 POSiT! 하기" onClose={handleClose} />
-          <p className="typo-14-regular mt-4">
-            고민 정보를 불러올 수 없어요. (storeId={storeId}, concernId=
-            {concernId})
-          </p>
+          <p className="typo-14-regular mt-4">고민 정보를 불러올 수 없어요.</p>
         </div>
       </div>
     );
@@ -183,11 +205,12 @@ export default function GuestPositOwnerConcernPage() {
           onDisabledClick={() => showToast("모든 항목을 입력해주세요!")}
         />
       </div>
+
       <SuccessModal
         open={successOpen}
         onConfirm={() => {
           setSuccessOpen(false);
-          // GuestPositCreatePage와 동일하게 가게 상세로 이동 + state 전달
+          // 가게 상세로 이동 + state 전달
           navigate(`/stores/${sid}`, {
             replace: true,
             state: {
@@ -199,13 +222,15 @@ export default function GuestPositOwnerConcernPage() {
           });
         }}
       />
+
       {/* 하단 안내 배너 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white">
         <div className="flex justify-center px-4 py-3">
           <NoticeBanner storeName={storeName} variant="concernReply" />
         </div>
       </div>
-      {/* 토스트 메시지 */}
+
+      {/* 토스트 메시지 (로컬) */}
       <BottomToast open={toast.open} message={toast.message} />
     </div>
   );
