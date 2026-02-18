@@ -9,6 +9,7 @@ import PhotoPlusIcon from "../../../assets/Owner/Registration/PhotoPlus.svg";
 import CameraIcon from "../../../assets/Owner/Registration/Camera.svg";
 import GalleryIcon from "../../../assets/Owner/Registration/Gallery.svg";
 import CloseIcon from "../../../assets/Common/Close.svg";
+import PhotoDeleteIcon from "../../../assets/Owner/Registration/PhotoDelete.svg";
 
 
 export default function StoreRegistration() {
@@ -334,22 +335,42 @@ const formatPhoneNumber = (value: string) => {
                 className="w-full h-[48px] rounded-lg border border-neutrals-04 px-3"
               />
 
-              <div
-                onClick={() => {
-                  setCurrentMenuIndex(index);
-                  setIsPhotoModalOpen(true);
-                }}
-                className="w-[111px] h-[111px] rounded-lg border border-neutrals-04 flex items-center justify-center cursor-pointer overflow-hidden"
-              >
-                {menuImages[index] ? (
-                  <img
-                    src={menuImages[index]!}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img src={PhotoPlusIcon} className="w-[32px] h-[32px]" />
+              <div className="relative w-[111px] h-[111px] rounded-lg border border-neutrals-04 overflow-hidden">
+                <div
+                  onClick={() => {
+                    setCurrentMenuIndex(index);
+                    setIsPhotoModalOpen(true);
+                  }}
+                  className="w-full h-full flex items-center justify-center cursor-pointer"
+                >
+                  {menuImages[index] ? (
+                    <img
+                      src={menuImages[index]!}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img src={PhotoPlusIcon} className="w-[32px] h-[32px]" />
+                  )}
+                </div>
+
+                {/* 삭제 버튼 */}
+                {menuImages[index] && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuImages((prev) => {
+                        const next = [...prev];
+                        next[index] = null;
+                        return next;
+                      });
+                    }}
+                    className="absolute top-1 right-1 w-6 h-6"
+                  >
+                    <img src={PhotoDeleteIcon} className="w-full h-full" />
+                  </button>
                 )}
               </div>
+
             </div>
           ))}
         </div>
