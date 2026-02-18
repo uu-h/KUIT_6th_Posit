@@ -23,11 +23,17 @@ export default function GuestLoginPage() {
   useEffect(() => {
     const autoLoginFlag = localStorage.getItem("autoLogin");
     const accessToken = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("role");
 
-    if (autoLoginFlag === "true" && accessToken) {
+    if (
+      autoLoginFlag === "true" &&
+      accessToken &&
+      role === "GUEST"
+    ) {
       navigate("/guest/home", { replace: true });
     }
   }, [navigate]);
+
 
 
 
@@ -54,6 +60,7 @@ export default function GuestLoginPage() {
       // 토큰 저장
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("role", role);
 
       if (autoLogin) {
         localStorage.setItem("autoLogin", "true");
