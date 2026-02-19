@@ -305,7 +305,7 @@ export default function GuestSignUpPage() {
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         alert("회원가입이 완료되었습니다.");
-        navigate("/");
+        navigate("/guest/login");
       }
     } catch (err: any) {
       const e = normalizeApiError(err);
