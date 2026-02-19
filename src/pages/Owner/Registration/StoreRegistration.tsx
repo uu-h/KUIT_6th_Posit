@@ -210,7 +210,8 @@ const formatPhoneNumber = (value: string) => {
       <div className="flex-1 overflow-y-auto px-6 space-y-5 pb-[90px]">
         {/* 가게 이름 */}
         <div>
-          <label className="typo-14-medium">가게 이름</label>
+          <label className="typo-14-medium">가게 이름<span className="ml-1 text-primary-01 text-[16px]">*</span>
+          </label>
           <input
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
@@ -220,7 +221,8 @@ const formatPhoneNumber = (value: string) => {
 
         {/* 전화번호 */}
         <div>
-          <label className="typo-14-medium">가게 전화번호</label>
+          <label className="typo-14-medium">가게 전화번호<span className="ml-1 text-primary-01 text-[16px]">*</span>
+          </label>
           <input
             value={phoneNumber}
             onChange={(e) =>
@@ -233,7 +235,8 @@ const formatPhoneNumber = (value: string) => {
 
         {/* 주소 */}
         <div>
-          <label className="typo-14-medium">가게 주소</label>
+          <label className="typo-14-medium">가게 주소<span className="ml-1 text-primary-01 text-[16px]">*</span>
+          </label>
           <div className="mt-2 flex gap-2">
             <input
               value={address}
@@ -272,7 +275,8 @@ const formatPhoneNumber = (value: string) => {
 
         {/* 가게 종류 */}
         <div>
-          <label className="typo-14-medium">가게 종류</label>
+          <label className="typo-14-medium">가게 종류<span className="ml-1 text-primary-01 text-[16px]">*</span>
+          </label>
           <div className="mt-2 flex gap-2">
             {["스터디 카페", "브런치 카페", "디저트 카페"].map((type) => (
               <button
@@ -304,7 +308,8 @@ const formatPhoneNumber = (value: string) => {
 
         {/* 가게 소개 */}
         <div>
-          <label className="typo-14-medium">가게 소개</label>
+          <label className="typo-14-medium">가게 소개<span className="ml-1 text-primary-01 text-[16px]">*</span>
+          </label>
           <div className="relative mt-2">
             <textarea
               value={intro}
@@ -320,7 +325,8 @@ const formatPhoneNumber = (value: string) => {
 
         {/* 메뉴 */}
         <div className="space-y-4">
-          <label className="typo-14-medium">메뉴 소개</label>
+          <label className="typo-14-medium">메뉴 소개<span className="ml-1 text-primary-01 text-[16px]">*</span>
+          </label>
 
           {[0, 1, 2].map((index) => (
             <div key={index} className="space-y-2">
