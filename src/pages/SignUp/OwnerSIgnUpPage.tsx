@@ -34,7 +34,6 @@ export default function OwnerSignUpPage() {
     });
   };
 
-  const loginIdServerError = fieldErrors["loginId"];
   const passwordServerError = fieldErrors["password"];
 
   // ================= 아이디 =================
