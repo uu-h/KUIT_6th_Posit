@@ -18,7 +18,7 @@ export default function SignupComplete() {
           가입이 완료되었어요!
         </h1>
         <p className="typo-14-regular text-[#383838] leading-[150%]">
-          이제 사업자 등록을 하면 서비스를<br />
+          이제 가게 등록을 하면 서비스를<br />
           이용할 수 있어요.
         </p>
       </div>
