@@ -27,6 +27,7 @@ import OwnerMyCoupon from "../pages/Owner/My/OwnerMyCoupon";
 import OwnerMyStore from "../pages/Owner/My/OwnerMyStore";
 import OwnerHomePage from "../pages/Owner/Home/OwnerHomePage";
 
+import SignupComplete from "../pages/Owner/Registration/SignupComplete";
 import StoreRegistration from "../pages/Owner/Registration/StoreRegistration";
 import AddressSearch from "../pages/Owner/Registration/AddressSearch";
 import StoreRegisterPhoto from "../pages/Owner/Registration/StoreRegisterPhoto";
@@ -163,6 +164,7 @@ export default function Router() {
       />
 
       {/* Owner - Registration */}
+      <Route path="/owner/signup-complete" element={<SignupComplete />} />
       <Route path="/owner/store/register" element={<StoreRegistration />} />
       <Route path="/owner/store/address-search" element={<AddressSearch />} />
       <Route
