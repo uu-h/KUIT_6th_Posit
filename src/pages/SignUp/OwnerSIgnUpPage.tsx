@@ -242,7 +242,7 @@ export default function OwnerSignUpPage() {
         phone: phone.replace(/[^0-9]/g, ""),
         gender: "MALE",
         birth: "1900-01-01",
-        signupToken: signupToken ?? "TEMP_TOKEN",
+        signupToken,
         ownerProfile: {
           businessNumber: businessNumber.replace(/[^0-9]/g, ""),
           couponPin: couponPassword,

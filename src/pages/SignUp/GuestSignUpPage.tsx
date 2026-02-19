@@ -297,7 +297,7 @@ export default function GuestSignUpPage() {
         birth: birth
           .replace(/[^0-9]/g, "")
           .replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3"),
-        signupToken: signupToken ?? "TEMP_TOKEN",
+        signupToken,
       });
 
       if (res.isSuccess) {
