@@ -242,7 +242,7 @@ export default function OwnerSignUpPage() {
         phone: phone.replace(/[^0-9]/g, ""),
         gender: "MALE",
         birth: "1900-01-01",
-        signupToken,
+        signupToken: signupToken ?? "TEMP_TOKEN",
         ownerProfile: {
           businessNumber: businessNumber.replace(/[^0-9]/g, ""),
           couponPin: couponPassword,
@@ -255,7 +255,7 @@ export default function OwnerSignUpPage() {
         localStorage.setItem("refreshToken", refreshToken);
 
         emitToast({ message: "사장님 회원가입이 완료되었습니다." });
-        navigate("/owner/store/register", {
+        navigate("/owner/signup-complete", {
           state: { couponPin: couponPassword },
         });
       }

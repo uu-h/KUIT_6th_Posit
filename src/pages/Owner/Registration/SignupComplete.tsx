@@ -1,8 +1,14 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../../components/Button";
+import { useEffect } from "react";
 
 export default function SignupComplete() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 회원가입 페이지에서 넘어온 couponPin
+  const couponPin = location.state?.couponPin;
+
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -20,7 +26,11 @@ export default function SignupComplete() {
 
       <div className="px-6 pb-6">
         <Button
-          onClick={() => navigate("/store/register")}
+          onClick={() =>
+            navigate("/owner/store/register", {
+              state: { couponPin },
+            })
+          }
           height="h-[48px]"
         >
           등록하기
