@@ -33,7 +33,7 @@ export default function InboxToggle({
             onClick={() => onChange(tab.key)}
             className="flex-1 flex flex-col items-center justify-center relative"
           >
-            <div className="flex items-center gap-[6px]">
+            <div className="flex items-center gap-[6px] ">
               <span
                 className={`typo-14-medium ${
                   isActive ? "text-primary-01" : "text-[#49454F]"

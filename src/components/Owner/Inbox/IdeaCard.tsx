@@ -18,11 +18,10 @@ export default function IdeaCard({
   title,
   date,
   onClick,
-
 }: IdeaCardProps) {
   return (
     <div
-      onClick={onClick} 
+      onClick={onClick}
       className="
         py-[20px] px-[22px] rounded-[16px] border border-neutrals-04
         cursor-pointer transition
@@ -36,15 +35,11 @@ export default function IdeaCard({
         <span className="typo-12-medium text-neutrals-08">
           {TITLE_MAP[type]}
         </span>
-        <span className="typo-12-medium text-neutrals-08">
-          {date}
-        </span>
+        <span className="typo-12-medium text-neutrals-08">{date}</span>
       </div>
 
       {/* 내용 */}
-      <p className="typo-15-medium w-[270px] line-clamp-2">
-       "{title}"
-      </p>
+      <p className="typo-15-medium w-[270px] line-clamp-2">"{title}"</p>
     </div>
   );
 }

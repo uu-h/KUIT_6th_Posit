@@ -4,11 +4,13 @@ import ProfileHeader from "../../../components/Owner/My/ProfileHeader";
 import { useNavigate } from "react-router-dom";
 import OwnerLayout from "../../../layouts/OwnerLayout";
 import { useMe } from "../../../hooks/useMe";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Menu = { key: string; label: string; onClick?: () => void };
 
 export default function MyPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: me, isLoading, isError } = useMe();
 
@@ -17,6 +19,9 @@ export default function MyPage() {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("autoLogin");
     localStorage.removeItem("role");
+
+    // 캐시 정리
+    queryClient.clear();
 
     navigate("/type", { replace: true });
   };
