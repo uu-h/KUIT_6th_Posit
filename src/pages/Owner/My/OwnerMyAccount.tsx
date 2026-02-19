@@ -4,7 +4,7 @@ import OwnerLayout from "../../../layouts/OwnerLayout";
 export default function OwnerMyAccount() {
   return (
     <OwnerLayout active="my">
-      <MyAccountContent />
+      <MyAccountContent role="owner" />
     </OwnerLayout>
   );
 }
