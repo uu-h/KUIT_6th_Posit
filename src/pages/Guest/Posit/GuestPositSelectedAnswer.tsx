@@ -51,8 +51,7 @@ export default function GuestPositSelectedAnswer() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const typeParam = searchParams.get("type") as AnswerType;
-  const selectedType: AnswerType =
-    typeParam === "FREE" ? "FREE" : "ANSWER";
+  const selectedType: AnswerType = typeParam === "FREE" ? "FREE" : "ANSWER";
 
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [counts, setCounts] = useState<{ ANSWER: number; FREE: number }>({
@@ -79,7 +78,6 @@ export default function GuestPositSelectedAnswer() {
         title: memo.content,
         cafeName: memo.storeName,
         createdAt: formatDate(memo.createdAt), // 보정 적용
-
       }));
 
       setCounts((prev) => ({
@@ -131,7 +129,7 @@ export default function GuestPositSelectedAnswer() {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto flex flex-col gap-[8px] pt-[20px] pb-[110px] px-[16px]">
+      <div className="flex-1 overflow-y-auto no-scrollbar-y flex flex-col gap-[8px] pt-[20px] pb-[110px] px-[16px]">
         {loading && <div className="text-center">로딩중</div>}
 
         {!loading && answers.length === 0 && (
