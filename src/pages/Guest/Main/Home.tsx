@@ -692,8 +692,6 @@ export default function Home() {
     setSearchUiKey((k) => k + 1);
   }, []);
 
-  console.log("innerWidth", window.innerWidth, "isMobile", isMobile);
-
   return (
     <GuestLayout>
       {/* 지도 영역 */}
