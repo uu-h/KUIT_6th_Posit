@@ -40,7 +40,9 @@ export default function OwnerSignUpPage() {
   const usernameRegex = /^[a-zA-Z0-9]{4,15}$/;
   const [username, setUsername] = useState("");
 
-  const [isUsernameAvailable, setIsUsernameAvailable] = useState<boolean | null>(null);
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState<
+    boolean | null
+  >(null);
   const [isIdModalOpen, setIsIdModalOpen] = useState(false);
   const [idModalMessage, setIdModalMessage] = useState("");
 
@@ -77,7 +79,7 @@ export default function OwnerSignUpPage() {
   // 비밀번호 보이기/숨기기
   const [showPassword, setShowPassword] = useState(false);
 
-  // ================= 이름 =================
+  // ================= 이름 ==================
   const nameRegex = /^[가-힣a-zA-Z]{2,20}$/;
   const [name, setName] = useState("");
 
@@ -379,7 +381,7 @@ export default function OwnerSignUpPage() {
             className={authInputClass(
               username,
               usernameRegex.test(username) && isUsernameAvailable !== false,
-              true 
+              true,
             )}
           />
 
@@ -765,9 +767,7 @@ export default function OwnerSignUpPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[320px] rounded-[8px] bg-white overflow-hidden">
             <div className="px-[24px] py-[32px] text-center">
-              <p className="typo-13-regular text-black">
-                {idModalMessage}
-              </p>
+              <p className="typo-13-regular text-black">{idModalMessage}</p>
             </div>
             <button
               type="button"
@@ -779,7 +779,6 @@ export default function OwnerSignUpPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
