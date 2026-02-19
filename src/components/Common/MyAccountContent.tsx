@@ -14,7 +14,11 @@ interface MeResponse {
   gender: string;
 }
 
-export default function MyAccountContent() {
+interface Props {
+  role: "guest" | "owner";
+}
+
+export default function MyAccountContent({ role }: Props) {
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,6 +41,14 @@ export default function MyAccountContent() {
     if (numbers.length < 4) return numbers;
     if (numbers.length < 8) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
+  };
+
+  const formatBirthDate = (value: string) => {
+    const numbers = value.replace(/[^0-9]/g, "").slice(0, 8);
+    if (numbers.length < 5) return numbers;
+    if (numbers.length < 7)
+      return `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
+    return `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
   };
 
   const handleChange = (key: string, value: string) => {
@@ -77,7 +89,6 @@ export default function MyAccountContent() {
   const handleComplete = async () => {
     try {
       const birth = form.birth.replace(/[^0-9]/g, "");
-      const birthDate = `${birth.slice(0, 4)}-${birth.slice(4, 6)}-${birth.slice(6, 8)}`;
 
       const payload: {
         name: string;
@@ -87,21 +98,27 @@ export default function MyAccountContent() {
       } = {
         name: form.name,
         phone: form.phone.replace(/[^0-9]/g, ""),
-        birthDate,
+        birthDate: "", // 아래에서 채움
       };
 
-      // 비밀번호 입력했을 때만 포함
+      // birth가 8자리면 조립
+      if (birth.length === 8) {
+        payload.birthDate = `${birth.slice(0, 4)}-${birth.slice(4, 6)}-${birth.slice(6, 8)}`;
+      } else {
+        // 혹시라도 비어있으면: fetchMe로 이미 세팅된 값이 유지되는 구조여야 함
+        // form.birth가 fetchMe로 항상 들어온다면 여기까지 올 일이 거의 없음
+        // 그래도 안전하게 막고 싶으면 에러 처리:
+        throw new Error("birth invalid");
+      }
+
       if (form.password.trim().length > 0) {
         payload.password = form.password;
       }
-
-      console.log("보내는 데이터:", payload);
 
       const res = await http.patch("/users/me", payload);
 
       if (res.data.isSuccess) {
         await queryClient.invalidateQueries({ queryKey: ["me"] });
-
         setShowToast(true);
         setTimeout(() => {
           setShowToast(false);
@@ -177,6 +194,21 @@ export default function MyAccountContent() {
                 className={inputClass}
               />
             </div>
+
+            {/* 생년월일 - 게스트만 표시 */}
+            {role === "guest" && (
+              <div>
+                <p className={sectionLabel}>생년월일</p>
+                <input
+                  type="tel"
+                  value={formatBirthDate(form.birth)}
+                  onChange={(e) =>
+                    handleChange("birth", e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  className={inputClass}
+                />
+              </div>
+            )}
 
             {/* 수정 완료 버튼 */}
             <div className="flex justify-end mt-[10px]">

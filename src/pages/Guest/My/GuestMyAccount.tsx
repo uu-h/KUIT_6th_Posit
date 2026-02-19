@@ -4,7 +4,7 @@ import GuestLayout from "../../../layouts/GuestLayout";
 export default function GuestMyAccount() {
   return (
     <GuestLayout active="my">
-      <MyAccountContent />
+      <MyAccountContent role="guest" />
     </GuestLayout>
   );
 }
