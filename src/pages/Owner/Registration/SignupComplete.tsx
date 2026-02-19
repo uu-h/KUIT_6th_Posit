@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import Button from "../../../components/Button";
-import { useEffect } from "react";
 
 export default function SignupComplete() {
   const navigate = useNavigate();
