@@ -338,7 +338,7 @@ export default function OwnerSignUpPage() {
   return (
     <div className="min-h-screen w-full bg-shades-01 px-[24px] pt-[48px] flex flex-col">
       {/* 헤더 */}
-      <div className="flex flex-row items-center">
+      <div className="flex flex-row items-center mb-[20px]">
         <button
           className="w-fit flex items-center justify-center"
           onClick={() => navigate(-1)}
@@ -358,9 +358,7 @@ export default function OwnerSignUpPage() {
       <div
         className={`w-full ${
           username !== "" &&
-          (!usernameRegex.test(username) ||
-            isUsernameAvailable === false ||
-            !!loginIdServerError)
+          (!usernameRegex.test(username) || isUsernameAvailable === false)
             ? "mt-[14px] mb-[7px]"
             : "mt-[14px]"
         }`}
@@ -377,8 +375,7 @@ export default function OwnerSignUpPage() {
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
-              setIsUsernameAvailable(null);
-              clearFieldError("loginId");
+              setIsUsernameAvailable(null); // 아이디 변경 시 다시 확인 필요
             }}
             className={authInputClass(
               username,
@@ -407,14 +404,13 @@ export default function OwnerSignUpPage() {
           </button>
         </div>
 
+        {/* 안내 문구 */}
         {username !== "" &&
-          (!usernameRegex.test(username) ||
-            isUsernameAvailable === false ||
-            !!loginIdServerError) && (
-            <p className="mt-[6px] typo-12-regular text-primary-01">
+          (!usernameRegex.test(username) || isUsernameAvailable === false) && (
+            <p className="mt-[6px] typo-12-regular text-[#F00]">
               {!usernameRegex.test(username)
                 ? "아이디를 다시 설정해주세요."
-                : (loginIdServerError ?? "이미 사용 중인 아이디입니다.")}
+                : "이미 사용 중인 아이디입니다."}
             </p>
           )}
       </div>
