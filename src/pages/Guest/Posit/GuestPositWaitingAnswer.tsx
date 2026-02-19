@@ -80,7 +80,6 @@ export default function GuestPositWaitingAnswer() {
       cafeName: memo.storeName,
       createdAt: formatDate(memo.createdAt),
       isRead: memo.ownerRead ?? false,
-
     }));
 
     setCounts((prev) => ({
@@ -109,7 +108,12 @@ export default function GuestPositWaitingAnswer() {
 
   return (
     <div className="flex flex-col h-screen">
-      <AppBar title="대기 중인 답변" layout="left" leftType="left" />
+      <AppBar
+        title="대기 중인 답변"
+        layout="left"
+        leftType="left"
+        onBack={() => navigate("/guest/posit")}
+      />
 
       <div className="flex justify-center">
         {(["ANSWER", "FREE"] as AnswerType[]).map((type) => (

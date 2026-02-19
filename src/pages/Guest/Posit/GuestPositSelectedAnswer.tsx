@@ -111,7 +111,12 @@ export default function GuestPositSelectedAnswer() {
 
   return (
     <div className="flex flex-col h-screen">
-      <AppBar title="채택 된 답변" layout="left" leftType="left" />
+      <AppBar
+        title="채택 된 답변"
+        layout="left"
+        leftType="left"
+        onBack={() => navigate("/guest/posit")}
+      />
 
       <div className="flex justify-center">
         {(["ANSWER", "FREE"] as AnswerType[]).map((type) => (
